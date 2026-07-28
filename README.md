@@ -409,7 +409,7 @@ API Gateway (Nginx)
  *High-Level Platform Flow*
 
 
-                             SOLVIX
+                         SOLVIX
                            |
                            v
                     User Authentication
