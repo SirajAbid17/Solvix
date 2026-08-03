@@ -10,69 +10,68 @@ The platform combines conversational AI, real-time web search, AI image generati
 
 ### 💬 AI Chat
 
-* Intelligent AI-powered conversations
-* Context-aware responses
-* Multi-turn conversations
-* Conversation history and memory
-* Agent-based task execution
-* Tool calling and AI workflows
+- Intelligent AI-powered conversations
+- Context-aware responses
+- Multi-turn conversations
+- Conversation history and memory
+- Agent-based task execution
+- Tool calling and AI workflows
 
 ### 🔎 AI Web Search
 
-* Real-time web search capabilities
-* AI-powered search result processing
-* Intelligent information retrieval
-* Search-based responses using external tools
+- Real-time web search capabilities
+- AI-powered search result processing
+- Intelligent information retrieval
+- Search-based responses using external tools
 
 ### 🖼️ AI Image Generation
 
-* Generate images using AI models
-* Prompt-based image creation
-* AI-powered creative workflows
+- Generate images using AI models
+- Prompt-based image creation
+- AI-powered creative workflows
 
 ### 💻 AI Coding Agent
 
-* Generate code using natural language
-* Explain and improve existing code
-* Debugging assistance
-* AI-powered coding workflows
-* Live code preview capabilities
+- Generate code using natural language
+- Explain and improve existing code
+- Debugging assistance
+- AI-powered coding workflows
+- Live code preview capabilities
 
 ### 📄 PDF Generation
 
-* Generate professional PDF documents
-* AI-powered content generation
-* Convert AI-generated content into downloadable documents
+- Generate professional PDF documents
+- AI-powered content generation
+- Convert AI-generated content into downloadable documents
 
 ### 📊 PowerPoint Generation
 
-* Generate AI-powered presentations
-* Create structured presentation content
-* Generate downloadable PPT files
+- Generate AI-powered presentations
+- Create structured presentation content
+- Generate downloadable PPT files
 
 ### 📑 Resume Intelligence
 
-* Upload and analyze resumes
-* AI-powered resume analysis
-* Resume scoring
-* Identify strengths and weaknesses
-* Provide personalized improvement suggestions
-
+- Upload and analyze resumes
+- AI-powered resume analysis
+- Resume scoring
+- Identify strengths and weaknesses
+- Provide personalized improvement suggestions
 
 ### 🎙️ AI Voice Agents
 
-* AI-powered voice interaction
-* Voice-based conversations
-* Intelligent agent workflows
-* Real-time AI assistance
+- AI-powered voice interaction
+- Voice-based conversations
+- Intelligent agent workflows
+- Real-time AI assistance
 
 ### 🤖 Multi-Agent Architecture
 
-* Specialized AI agents for different tasks
-* Agent orchestration using LangGraph
-* Tool calling and autonomous workflows
-* Intelligent task routing
-* Context-aware agent execution
+- Specialized AI agents for different tasks
+- Agent orchestration using LangGraph
+- Tool calling and autonomous workflows
+- Intelligent task routing
+- Context-aware agent execution
 
 ---
 
@@ -177,44 +176,44 @@ LangGraph is used to manage complex agent workflows, while LangChain provides th
 
 ### Frontend
 
-* React.js
-* JavaScript
-* Tailwind CSS
-* Axios
-* React Router
-* Redux / State Management
+- React.js
+- JavaScript
+- Tailwind CSS
+- Axios
+- React Router
+- Redux / State Management
 
 ### Backend
 
-* Node.js
-* Express.js
-* MongoDB
-* Mongoose
-* REST APIs
-* Microservices Architecture
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- REST APIs
+- Microservices Architecture
 
 ### AI & Generative AI
 
-* LangChain
-* LangGraph
-* RAG
-* Large Language Models
-* AI Agents
-* Tool Calling
-* Prompt Engineering
-* Embeddings
-* Vector Search
+- LangChain
+- LangGraph
+- RAG
+- Large Language Models
+- AI Agents
+- Tool Calling
+- Prompt Engineering
+- Embeddings
+- Vector Search
 
 ### Infrastructure & DevOps
 
-* Docker
-* Docker Compose
-* Redis
-* Nginx
-* AWS
-* Microservices
-* API Gateway
-* Load Balancing
+- Docker
+- Docker Compose
+- Redis
+- Nginx
+- AWS
+- Microservices
+- API Gateway
+- Load Balancing
 
 ---
 
@@ -251,14 +250,14 @@ Solvix/
 
 ## 🔐 Authentication & Security
 
-* Secure user authentication
-* Protected API routes
-* Token-based authentication
-* Service-to-service communication
-* Environment-based secret management
-* CORS configuration
-* Secure HTTP headers
-* API Gateway-based request routing
+- Secure user authentication
+- Protected API routes
+- Token-based authentication
+- Service-to-service communication
+- Environment-based secret management
+- CORS configuration
+- Secure HTTP headers
+- API Gateway-based request routing
 
 ---
 
@@ -318,96 +317,93 @@ Final AI Response
 
 Users can manage and monitor their AI platform activity through a dedicated dashboard.
 
-* View account information and profile details
-* Monitor available AI credits
-* Track credit usage and consumption
-* View usage history and activity
-* Manage AI service usage
-* Monitor subscription and billing information
-* Access generated content and previous activities
+- View account information and profile details
+- Monitor available AI credits
+- Track credit usage and consumption
+- View usage history and activity
+- Manage AI service usage
+- Monitor subscription and billing information
+- Access generated content and previous activities
 
 ### 🛡️ Admin Dashboard
 
 A dedicated admin dashboard provides centralized control and platform management.
 
-* View and manage registered users
-* Monitor user activity
-* Track user credit balances and usage
-* Manage user accounts
-* Monitor platform-wide AI usage
-* Manage subscriptions and billing
-* Review system usage and analytics
-* Control platform resources and services
+- View and manage registered users
+- Monitor user activity
+- Track user credit balances and usage
+- Manage user accounts
+- Monitor platform-wide AI usage
+- Manage subscriptions and billing
+- Review system usage and analytics
+- Control platform resources and services
 
 ### 💳 Credit & Subscription System
 
 Solvix includes a credit-based usage system for managing AI-powered features.
 
-* User-based AI credit system
-* Credit balance tracking
-* Credit usage monitoring
-* Usage-based credit deduction
-* Subscription-based credit allocation
-* Plan and subscription management
-* Secure payment processing with Stripe
-* Billing and payment management
-* Subscription status tracking
+- User-based AI credit system
+- Credit balance tracking
+- Credit usage monitoring
+- Usage-based credit deduction
+- Subscription-based credit allocation
+- Plan and subscription management
+- Secure payment processing with Stripe
+- Billing and payment management
+- Subscription status tracking
 
 ### 💰 Stripe Integration
 
 Stripe is integrated to handle secure payment and subscription management.
 
-* Secure online payments
-* Subscription checkout
-* Payment processing
-* Subscription management
-* Billing lifecycle management
-* Credit allocation based on subscription plans
-* Payment and subscription status tracking
-* Secure webhook-based payment events
+- Secure online payments
+- Subscription checkout
+- Payment processing
+- Subscription management
+- Billing lifecycle management
+- Credit allocation based on subscription plans
+- Payment and subscription status tracking
+- Secure webhook-based payment events
 
 ### Payments & Billing
 
-* Stripe
-* Stripe Checkout
-* Stripe Webhooks
-* Subscription Management
-* Credit-Based Billing
+- Stripe
+- Stripe Checkout
+- Stripe Webhooks
+- Subscription Management
+- Credit-Based Billing
 
 User
- │
- ▼
+│
+▼
 Frontend
- │
- ▼
+│
+▼
 API Gateway (Nginx)
- │
- ├──► Auth Service
- │
- ├──► Chat / AI Services
- │
- ├──► Credit Service
- │
- ├──► Subscription Service
- │
- └──► Admin Service
-          │
-          ▼
-     MongoDB / Redis
-          │
-          ▼
-      Stripe API
-          │
-          ▼
-   Payment / Webhook
-          │
-          ▼
-    Credit Allocation
+│
+├──► Auth Service
+│
+├──► Chat / AI Services
+│
+├──► Credit Service
+│
+├──► Subscription Service
+│
+└──► Admin Service
+│
+▼
+MongoDB / Redis
+│
+▼
+Stripe API
+│
+▼
+Payment / Webhook
+│
+▼
+Credit Allocation
 
- 
-
- *High-Level Platform Flow*
-
+_High-Level Platform Flow_
 
                          SOLVIX
                            |
@@ -431,30 +427,28 @@ API Gateway (Nginx)
      +-------+-------+-------+
      |       |       |       |
      v       v       v       v
-   Chat   Search  Coding  Image
-     |
-     +-------+-------+-------+
-             |
-             v
-       Tool Calling / RAG
-             |
-             v
-         AI Models
-             |
-             v
-        AI Response
-             |
-             v
-       Credit Deduction
-             |
-             v
-        Usage Tracking
-             |
-             v
-       User Dashboard
 
-
-
+Chat Search Coding Image
+|
++-------+-------+-------+
+|
+v
+Tool Calling / RAG
+|
+v
+AI Models
+|
+v
+AI Response
+|
+v
+Credit Deduction
+|
+v
+Usage Tracking
+|
+v
+User Dashboard
 
                     Solvix AI System
                            |
@@ -476,8 +470,6 @@ API Gateway (Nginx)
              |             |             |
              v             v             v
        Career Agent    Job Agent     Voice Agent
-
-
 
 RAG enables AI agents to retrieve relevant information and generate more context-aware responses.
 
@@ -543,29 +535,29 @@ Solvix is more than a traditional chatbot. It is a complete **AI ecosystem** whe
 
 The platform demonstrates practical implementation of:
 
-* Multi-Agent AI Systems
-* Agent Orchestration
-* RAG Pipelines
-* LLM Tool Calling
-* Microservices Architecture
-* AI Automation
-* Scalable Backend Systems
-* Containerized Deployment
-* Cloud Infrastructure
+- Multi-Agent AI Systems
+- Agent Orchestration
+- RAG Pipelines
+- LLM Tool Calling
+- Microservices Architecture
+- AI Automation
+- Scalable Backend Systems
+- Containerized Deployment
+- Cloud Infrastructure
 
 ---
 
 ## 🎯 Future Improvements
 
-* Advanced autonomous agent planning
-* More AI model integrations
-* Real-time collaborative AI workflows
-* Advanced voice agent capabilities
-* AI-powered job matching
-* Automated interview preparation
-* Agent analytics and monitoring
-* Distributed task queues
-* Advanced observability and logging
+- Advanced autonomous agent planning
+- More AI model integrations
+- Real-time collaborative AI workflows
+- Advanced voice agent capabilities
+- AI-powered job matching
+- Automated interview preparation
+- Agent analytics and monitoring
+- Distributed task queues
+- Advanced observability and logging
 
 ---
 

@@ -41,8 +41,9 @@ try {
 
    res.cookie("sessionid", sessionid, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "strict",
+        path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -66,27 +67,30 @@ export const Logout = async (req, res) => {
   try {
     const sessionid = req.cookies?.sessionid;
 
+    console.log("Session ID:", sessionid);
+
     if (sessionid) {
-      // Redis se session delete
+      // Redis session delete
       await redis.del(`session-${sessionid}`);
 
-      // Browser se cookie clear
+      // Cookie delete
       res.clearCookie("sessionid", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict"
+       secure: false,
+        sameSite: "strict",
+        path: "/"
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Logout successful"
     });
 
   } catch (error) {
-    console.log(error);
+    console.log("Logout Error:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Logout failed"
     });

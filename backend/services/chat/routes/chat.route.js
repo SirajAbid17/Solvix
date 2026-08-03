@@ -3,7 +3,7 @@ import { CreateConversion, GetConversions, GetMessages, SaveMessage, UpdatedConv
 
 const Route=express.Router()
 
-Route.get('/create-conversation',CreateConversion)
+Route.post('/create-conversation',CreateConversion)
 Route.get('/get-conversation',GetConversions)
 Route.post('/save-messages',SaveMessage)
 Route.post('/update-conversation',UpdatedConversions)

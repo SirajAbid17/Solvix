@@ -5,6 +5,7 @@ import Page_not_Found from "./pages/Page_not_Found";
 import GetcurrentUser from "./Features/GetcurrentUser";
 import { useDispatch } from "react-redux";
 import { setuserData } from "./redux/userSlice";
+import UserDashboard from "./pages/UserDashboard";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -35,7 +36,9 @@ export default function App() {
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="*" element={<Page_not_Found />} />
+
       </Routes>
     </div>
   );
