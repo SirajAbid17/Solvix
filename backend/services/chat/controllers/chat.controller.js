@@ -69,7 +69,7 @@ export const GetMessages=async(req,res)=>{
        
         const messages=await Message.find({
             conversationId:req.params.conversationId
-        }).sort({updatedAt:-1})
+        }).sort({updatedAt:1})
         return res.status(200).json(messages)
     } catch (error) {
          return res.status(200).json({

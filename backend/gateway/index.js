@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser"
 import protect from "./middleware/auth.middleware.js"
 import { CurrentUser } from "./controllers/user.controller.js"
 import { ProxyWithHeader } from "./utlis/proxyWithHeader.js"
+import morgan from "morgan"
 dotenv.config()
 
 const PORT=process.env.PORT
@@ -17,12 +18,23 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(cookieParser())
+app.use(morgan("dev"))
 
 
 app.use('/auth',proxy(process.env.Auth_Services))
 app.use('/chat',protect,ProxyWithHeader(process.env.Chat_Services))
 app.get('/me',protect,CurrentUser)
-app.get('/agent',protect,proxy(process.env.Agent_Services))
+app.use(
+  "/agent",
+  proxy(process.env.Agent_Services, {
+    proxyReqPathResolver: (req) => {
+      console.log("Original URL:", req.originalUrl);
+      console.log("Request URL:", req.url);
+
+      return `/agent${req.url}`;
+    },
+  })
+);
 
 app.listen(PORT,()=>{
     console.log(`gateway running on port ${PORT}`)

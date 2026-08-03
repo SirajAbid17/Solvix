@@ -30,7 +30,7 @@ export default function Coding() {
       </div>
 
       {/* Heading */}
-      <div className="p-3 w-56">
+      <div className="p-2.5 w-56">
         <div className="relative">
           {/* Left Line */}
          
