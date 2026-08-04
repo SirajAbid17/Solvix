@@ -1,7 +1,8 @@
 import express from "express";
-import { agent } from "../controllers/agent.controllers.js";
+import { Agents } from "../controllers/agent.controllers.js";
+
 const router=express.Router();
 
-router.post('/chat',agent)
+router.post('/chat',Agents)
 
 export default router

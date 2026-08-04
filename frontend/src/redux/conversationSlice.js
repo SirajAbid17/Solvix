@@ -27,6 +27,24 @@ const ConversationSlice = createSlice({
       state.conversations = [];
       state.selectedConversation = null;
     },
+
+    // Add this new reducer
+    updateConversationTitle: (state, action) => {
+      const { id, title } = action.payload;
+      
+      // Update in conversations list
+      const conversationIndex = state.conversations.findIndex(
+        (conv) => conv._id === id
+      );
+      if (conversationIndex !== -1) {
+        state.conversations[conversationIndex].title = title;
+      }
+      
+      // Update selected conversation if it's the same
+      if (state.selectedConversation?._id === id) {
+        state.selectedConversation.title = title;
+      }
+    },
   },
 });
 
@@ -35,6 +53,7 @@ export const {
   addConversation,
   setSelectedConversation,
   clearConversations,
+  updateConversationTitle, // Export this
 } = ConversationSlice.actions;
 
 export default ConversationSlice.reducer;

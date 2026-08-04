@@ -1,8 +1,11 @@
 // AllConverSation.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "../../BgContext/ThemeContext";
-import { setSelectedConversation } from "../../redux/conversationSlice";
+import { setSelectedConversation, updateConversationTitle } from "../../redux/conversationSlice";
+import { RiMessageAi3Fill } from "react-icons/ri";
+import { FiEdit2, FiCheck, FiX } from "react-icons/fi";
+import UpdateConversation from "../../Features/UpdateConversation";
 
 export default function AllConverSation() {
   const dispatch = useDispatch();
@@ -10,9 +13,70 @@ export default function AllConverSation() {
     (state) => state.conversation
   );
   const { dark } = useTheme();
+  
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [titleLoading, setTitleLoading] = useState(false);
 
   const handleSelectConversation = (conversation) => {
     dispatch(setSelectedConversation(conversation));
+  };
+
+  const handleStartEdit = (e, conversation) => {
+    e.stopPropagation();
+    setEditingId(conversation._id);
+    setEditTitle(conversation.title || "New Conversation");
+  };
+
+  const handleSaveTitle = async (e, conversationId) => {
+    e.stopPropagation();
+    const trimmedTitle = editTitle.trim();
+    
+    if (!trimmedTitle) {
+      setEditingId(null);
+      return;
+    }
+
+    const conversation = conversations.find(c => c._id === conversationId);
+    if (trimmedTitle === conversation.title) {
+      setEditingId(null);
+      return;
+    }
+
+    try {
+      setTitleLoading(true);
+      await UpdateConversation({
+        id: conversationId,
+        title: trimmedTitle,
+      });
+
+      dispatch(updateConversationTitle({
+        id: conversationId,
+        title: trimmedTitle,
+      }));
+
+      setEditingId(null);
+    } catch (error) {
+      console.error("Failed to update title:", error);
+      alert("Failed to update title. Please try again.");
+    } finally {
+      setTitleLoading(false);
+    }
+  };
+
+  const handleCancelEdit = (e) => {
+    e.stopPropagation();
+    setEditingId(null);
+  };
+
+  const handleKeyDown = (e, conversationId) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSaveTitle(e, conversationId);
+    }
+    if (e.key === "Escape") {
+      handleCancelEdit(e);
+    }
   };
 
   const formatTime = (timestamp) => {
@@ -32,9 +96,9 @@ export default function AllConverSation() {
     <div
       className={`
         w-full
-        h-[287px]
+        h-[150px]              
         overflow-y-auto
-        px-2 py-3
+        px-2 py-2              
         space-y-1
 
         scrollbar-thin
@@ -47,145 +111,234 @@ export default function AllConverSation() {
 
         scrollbar-track-transparent
 
-        sm:h-[300px]
-        md:h-[320px]
-        lg:h-[350px]
+        sm:h-[160px]           // 👈 Responsive bhi adjust
+        md:h-[180px]
+        lg:h-[250px]
         xl:h-[360px]
       `}
     >
       {conversations.length > 0 ? (
         conversations.map((item, index) => {
           const isSelected = selectedConversation?._id === item._id;
+          const isEditing = editingId === item._id;
           
           return (
             <div
               key={item._id || index}
-              onClick={() => handleSelectConversation(item)}
+              onClick={() => !isEditing && handleSelectConversation(item)}
               className={`
                 group
                 flex items-center
                 gap-2
-                px-2 py-2
-                rounded-lg
+                px-3 py-2         
+                rounded-md
                 cursor-pointer
 
                 transition-all duration-200
 
-                sm:gap-3
-                sm:px-3
-                sm:py-2.5
+                sm:px-3 sm:py-2
 
                 ${
                   isSelected
                     ? dark
-                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                      : "bg-blue-100 text-blue-700 border border-blue-300"
+                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-lg shadow-blue-500/10"
+                      : "bg-blue-50 text-blue-700 border border-blue-200 shadow-lg shadow-blue-500/10"
                     : dark
-                      ? "hover:bg-white/10 border border-transparent"
-                      : "hover:bg-gray-100 border border-transparent"
+                      ? "hover:bg-white/5 border border-transparent"
+                      : "hover:bg-gray-50 border border-transparent"
                 }
               `}
             >
               <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-1">
-                  <h1
+                {/* Time at top - Always visible */}
+                <div className="flex items-center justify-between mb-0.5">  {/* 👈 margin kam */}
+                  <span
                     className={`
-                      text-xs
+                      text-[9px]     // 👈 font size chota
                       font-medium
-                      truncate
-                      max-w-[100px]
-
-                      sm:text-sm
-                      sm:max-w-[140px]
-
-                      md:max-w-[180px]
-                      lg:max-w-[200px]
-                      xl:max-w-[240px]
-
+                      sm:text-[10px]
                       ${
                         isSelected
                           ? dark
-                            ? "text-blue-300"
-                            : "text-blue-700"
+                            ? "text-blue-300/80"
+                            : "text-blue-600/80"
                           : dark
-                            ? "text-gray-200 group-hover:text-white"
-                            : "text-gray-800 group-hover:text-black"
-                      }
-                    `}
-                  >
-                    {item.title || "New Conversation"}
-                  </h1>
-
-                  <span
-                    className={`
-                      text-[8px]
-                      flex-shrink-0
-                      ml-1
-
-                      sm:text-[10px]
-                      sm:ml-2
-
-                      ${
-                        dark
-                          ? "text-gray-500"
-                          : "text-gray-400"
+                            ? "text-gray-500"
+                            : "text-gray-400"
                       }
                     `}
                   >
                     {formatTime(item.updatedAt || item.createdAt)}
                   </span>
+                  
+                  {isSelected && !isEditing && (
+                    <div
+                      className={`
+                        w-1 h-1
+                        rounded-full
+                        flex-shrink-0
+
+                        sm:w-1.5 sm:h-1.5
+
+                        ${dark ? "bg-blue-400" : "bg-blue-500"}
+                      `}
+                    />
+                  )}
                 </div>
 
-                <p
-                  className={`
-                    text-[10px]
-                    mt-0.5
-                    truncate
+                {/* Title section */}
+                {isEditing ? (
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, item._id)}
+                      autoFocus
+                      disabled={titleLoading}
+                      className={`
+                        flex-1
+                        min-w-0
+                        px-2
+                        py-1
+                        text-xs         // 👈 font chota
+                        font-medium
+                        rounded-lg
+                        outline-none
+                        border-2
+                        transition-all
+                        ${
+                          dark
+                            ? "bg-black/50 border-blue-500/50 text-white focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
+                            : "bg-white border-blue-400 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                        }
+                      `}
+                      placeholder="Enter title..."
+                    />
+                    <button
+                      onClick={(e) => handleSaveTitle(e, item._id)}
+                      disabled={titleLoading}
+                      className={`
+                        p-1
+                        rounded-lg
+                        transition-all
+                        hover:scale-110
+                        active:scale-95
+                        flex-shrink-0
+                        ${
+                          dark 
+                            ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" 
+                            : "bg-green-100 text-green-600 hover:bg-green-200"
+                        }
+                        ${titleLoading ? "opacity-50 cursor-not-allowed" : ""}
+                      `}
+                    >
+                      <FiCheck size={12} />   {/* 👈 icon chota */}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className={`
+                        p-1
+                        rounded-lg
+                        transition-all
+                        hover:scale-110
+                        active:scale-95
+                        flex-shrink-0
+                        ${
+                          dark 
+                            ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" 
+                            : "bg-red-100 text-red-600 hover:bg-red-200"
+                        }
+                      `}
+                    >
+                      <FiX size={12} />      {/* 👈 icon chota */}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-1.5">
+                    <h1
+                      className={`
+                        text-xs           // 👈 font chota
+                        font-medium
+                        truncate
+                        flex-1
+                        min-w-0
 
-                    sm:text-[11px]
+                        sm:text-sm
 
-                    ${
-                      isSelected
-                        ? dark
-                          ? "text-blue-300/70"
-                          : "text-blue-600/70"
-                        : dark
-                          ? "text-gray-500"
-                          : "text-gray-500"
-                    }
-                  `}
-                >
-                  Conversation {index + 1}
-                </p>
+                        ${
+                          isSelected
+                            ? dark
+                              ? "text-blue-300"
+                              : "text-blue-700"
+                            : dark
+                              ? "text-gray-200"
+                              : "text-gray-800"
+                        }
+                      `}
+                    >
+                      {item.title || "New Conversation"}
+                    </h1>
+
+                    {/* Edit Button - Always visible */}
+                    <button
+                      onClick={(e) => handleStartEdit(e, item)}
+                      className={`
+                        p-1
+                        ml-1
+                        rounded-sm
+                        border
+
+                        transition-all
+                        hover:scale-110
+                        active:scale-95
+                        flex-shrink-0
+                        ${
+                          dark
+                            ? "border-white/10 text-gray-400 hover:border-white/20 hover:bg-white/10 hover:text-white"
+                            : "border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-200 hover:text-gray-900"
+                        }
+                      `}
+                    >
+                      <FiEdit2 size={12} />   {/* 👈 icon chota */}
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {isSelected && (
-                <div
-                  className={`
-                    w-1.5 h-1.5
-                    rounded-full
-                    flex-shrink-0
-
-                    sm:w-2 sm:h-2
-
-                    ${dark ? "bg-blue-400" : "bg-blue-500"}
-                  `}
-                />
-              )}
             </div>
           );
         })
       ) : (
         <div className="h-full flex items-center justify-center">
-          <p
-            className={`
-              text-xs
-              sm:text-sm
-              ${dark ? "text-gray-500" : "text-gray-500"}
-            `}
-          >
-            No conversations yet
-          </p>
+          <div className="text-center">
+            <div
+              className={`
+                text-3xl           // 👈 icon chota
+                mb-2
+                ${dark ? "text-gray-600" : "text-gray-300"}
+              `}
+            >
+             <RiMessageAi3Fill />
+            </div>
+            <p
+              className={`
+                text-xs            // 👈 font chota
+                font-medium
+                ${dark ? "text-gray-500" : "text-gray-400"}
+              `}
+            >
+              No conversations yet
+            </p>
+            <p
+              className={`
+                text-[10px]        // 👈 font chota
+                mt-0.5
+                ${dark ? "text-gray-600" : "text-gray-400"}
+              `}
+            >
+              Start a new chat to begin
+            </p>
+          </div>
         </div>
       )}
     </div>

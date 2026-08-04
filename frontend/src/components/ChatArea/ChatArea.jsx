@@ -1,3 +1,4 @@
+// ChatArea.jsx
 import React, { useEffect } from 'react'
 import Navbar from './Navbar'
 import ChatInput from './ChatInput'
@@ -16,7 +17,12 @@ export default function ChatArea() {
     const getMessage = async () => {
       if (selectedConversation) {
         const data = await GetMessages(selectedConversation?._id);
-        dispatch(setMessages(data));
+        // Ensure all messages have images array
+        const messagesWithImages = data.map(msg => ({
+          ...msg,
+          images: msg.images || []
+        }));
+        dispatch(setMessages(messagesWithImages));
       }
     };
     getMessage();
