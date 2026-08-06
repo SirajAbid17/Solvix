@@ -117,7 +117,7 @@ export default function Sidebar() {
             <h1
               className={`
                 text-xl
-                mr-6
+                
                 font-extrabold
                 tracking-wide
                 sm:text-2xl
@@ -125,7 +125,7 @@ export default function Sidebar() {
                 ${dark ? "text-white" : "text-black"}
               `}
             >
-              Solvix
+              Solvix AI
             </h1>
 
             <div className="flex items-center gap-2 sm:gap-3">

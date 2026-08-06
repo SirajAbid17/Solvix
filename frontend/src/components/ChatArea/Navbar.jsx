@@ -2,10 +2,14 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useTheme } from "../../BgContext/ThemeContext";
-
+import { FaCrown } from "react-icons/fa";
+import {useNavigate} from "react-router-dom"
 export default function Navbar() {
   const { dark } = useTheme();
-
+  const navigate=useNavigate()
+const ResumeHendle=()=>{
+  navigate('/resume')
+}
   const selectedConversation = useSelector(
     (state) => state.conversation.selectedConversation
   );
@@ -76,23 +80,26 @@ export default function Navbar() {
               Active
             </span>
 
-            <button
-              className={`
-                px-4
-                py-2
-                rounded-lg
-                text-sm
-                font-medium
-                transition-all
-                ${
-                  dark
-                    ? "bg-white text-black hover:bg-gray-200"
-                    : "bg-black text-white hover:bg-gray-800"
-                }
-              `}
-            >
-              New Chat
-            </button>
+             <button
+      onClick={ResumeHendle}
+  className={`
+    flex items-center gap-2
+    px-2
+    py-2
+    rounded-sm
+    text-sm
+    font-medium
+    transition-all
+    ${
+      dark
+        ? "bg-white text-black hover:bg-gray-200"
+        : "bg-black text-white hover:bg-gray-800"
+    }
+  `}
+>
+  <FaCrown className="text-yellow-500" />
+  Resume Analyze
+</button>
           </div>
 
         </div>
@@ -122,24 +129,26 @@ export default function Navbar() {
             </p>
           </div>
 
-          {/* Right Side */}
-          <button
-            className={`
-              px-4
-              py-2
-              rounded-lg
-              text-sm
-              font-medium
-              transition-all
-              ${
-                dark
-                  ? "bg-white text-black hover:bg-gray-200"
-                  : "bg-black text-white hover:bg-gray-800"
-              }
-            `}
-          >
-            New Chat
-          </button>
+      <button
+      onClick={ResumeHendle}
+  className={`
+    flex items-center gap-2
+    px-2
+    py-2
+    rounded-sm
+    text-sm
+    font-medium
+    transition-all
+    ${
+      dark
+        ? "bg-white text-black hover:bg-gray-200"
+        : "bg-black text-white hover:bg-gray-800"
+    }
+  `}
+>
+  <FaCrown className="text-yellow-500" />
+  Resume Analyze
+</button>
 
         </div>
       )}

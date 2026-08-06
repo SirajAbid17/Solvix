@@ -6,6 +6,12 @@ import GetcurrentUser from "./Features/GetcurrentUser";
 import { useDispatch } from "react-redux";
 import { setuserData } from "./redux/userSlice";
 import UserDashboard from "./pages/UserDashboard";
+import Resume from "./pages/Resume";
+import CVGenerate from "./pages/CVGenerate";
+import Portfolio from "./pages/Portfolio";
+import Interview from "./pages/Interview";
+import ResumeAnalysis from "./components/Resume/ResumeAnalyse/ResumeAnalysis";
+import ShowResume from "./components/Resume/CV-Generate/ShowResume";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -37,6 +43,12 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
+           <Route path="/resume" element={<Resume />} />
+           <Route path="/cv-generator" element={<CVGenerate />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+             <Route path="/mock-interview" element={<Interview />} />
+               <Route path="/cv/:id" element={<ShowResume />} />
+             <Route path="/resume-analysis" element={   <ResumeAnalysis/>}/>
         <Route path="*" element={<Page_not_Found />} />
 
       </Routes>

@@ -44,7 +44,7 @@ export default function ChatInput() {
     { id: "coding", icon: FiCode, label: "Coding" },
     { id: "ppt", icon: FiFileText, label: "PPT" },
     { id: "pdf", icon: FiFile, label: "PDF" },
-    { id: "resume", icon: FiUser, label: "Resume" },
+   
   ];
   
   const [selectedAgent, setSelectedAgent] = useState("Auto");
@@ -213,7 +213,7 @@ export default function ChatInput() {
         `}
       >
         <div className="w-full py-2">
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="flex justify-around flex-wrap items-center gap-2">
             {tools.map((item) => {
               const Icon = item.icon;
               const isActive = selectedAgent === item.id || 

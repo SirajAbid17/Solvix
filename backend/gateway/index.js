@@ -28,10 +28,128 @@ app.use(
   "/agent",
   proxy(process.env.Agent_Services, {
     proxyReqPathResolver: (req) => {
-      console.log("Original URL:", req.originalUrl);
-      console.log("Request URL:", req.url);
-
       return `/agent${req.url}`;
+    },
+  })
+);
+
+app.use(
+  "/resume",
+  protect,
+  proxy(process.env.Resume_Services, {
+    proxyReqPathResolver: (req) => {
+      return `/resume${req.url}`;
+    },
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      console.log("Resume User:", srcReq.user);
+
+      if (!srcReq.user) {
+        throw new Error("User not found");
+      }
+
+      const userId =
+        srcReq.user._id ||
+        srcReq.user.userId ||
+        srcReq.user?.user?._id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      proxyReqOpts.headers["x-user-id"] = String(userId);
+      proxyReqOpts.headers["x-user-email"] =
+        srcReq.user.email || srcReq.user?.user?.email || "";
+
+      proxyReqOpts.headers["x-user-name"] =
+        srcReq.user.name || srcReq.user?.user?.name || "";
+
+      // Forward auth headers
+      if (srcReq.headers.authorization) {
+        proxyReqOpts.headers.authorization =
+          srcReq.headers.authorization;
+      }
+
+      if (srcReq.headers.cookie) {
+        proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+      }
+
+      return proxyReqOpts;
+    },
+
+    proxyErrorHandler: (err, res) => {
+      console.error("Resume Proxy Error:", err);
+
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    },
+
+    parseReqBody: false,
+  })
+);
+
+// gateway index.js - Update the CV proxy configuration
+app.use(
+  "/cv",
+  protect,
+  proxy(process.env.CV_Services || process.env.Resume_Services, {
+    proxyReqPathResolver: (req) => {
+      return `/cv${req.url}`;
+    },
+
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      console.log("CV User:", srcReq.user);
+
+      if (!srcReq.user) {
+        throw new Error("User not found");
+      }
+
+      const userId =
+        srcReq.user._id ||
+        srcReq.user.userId ||
+        srcReq.user?.user?._id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      // Add user information to headers
+      proxyReqOpts.headers["x-user-id"] = String(userId);
+      proxyReqOpts.headers["x-user-email"] =
+        srcReq.user.email || srcReq.user?.user?.email || "";
+
+      proxyReqOpts.headers["x-user-name"] =
+        srcReq.user.name || srcReq.user?.user?.name || "";
+
+      // Forward auth headers
+      if (srcReq.headers.authorization) {
+        proxyReqOpts.headers.authorization =
+          srcReq.headers.authorization;
+      }
+
+      if (srcReq.headers.cookie) {
+        proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+      }
+
+      // Important: Forward content-type for file uploads
+      if (srcReq.headers["content-type"]) {
+        proxyReqOpts.headers["content-type"] = srcReq.headers["content-type"];
+      }
+
+      return proxyReqOpts;
+    },
+
+    // Don't parse body for file uploads
+    parseReqBody: false,
+
+    proxyErrorHandler: (err, res) => {
+      console.error("CV Proxy Error:", err);
+
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
     },
   })
 );
