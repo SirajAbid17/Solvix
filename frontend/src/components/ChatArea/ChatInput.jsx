@@ -1,3 +1,4 @@
+// ChatInput.jsx - Complete file
 import React, { useState } from "react";
 import { useTheme } from "../../BgContext/ThemeContext";
 import { FiPaperclip, FiMic, FiSend } from "react-icons/fi";
@@ -16,16 +17,18 @@ import {
   FiUser,
 } from "react-icons/fi";
 import Document from "./Document";
+import UpdateConversation from "../../Features/UpdateConversation";
+import { updateConversationTitle, setSelectedConversation } from "../../redux/conversationSlice";
 
 export default function ChatInput() {
   const { dark } = useTheme();
   const dispatch = useDispatch();
-    const [selectedFiles, setSelectedFiles] = useState([]);
-      const handleFileSelect = (files) => {
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  
+  const handleFileSelect = (files) => {
     setSelectedFiles(files);
-    // You can also upload files here immediately
-    // uploadFiles(files);
   };
+  
   const handleFileRemove = (index) => {
     if (index === 'all') {
       setSelectedFiles([]);
@@ -44,7 +47,6 @@ export default function ChatInput() {
     { id: "coding", icon: FiCode, label: "Coding" },
     { id: "ppt", icon: FiFileText, label: "PPT" },
     { id: "pdf", icon: FiFile, label: "PDF" },
-   
   ];
   
   const [selectedAgent, setSelectedAgent] = useState("Auto");
@@ -64,6 +66,42 @@ export default function ChatInput() {
     if (!selectedConversation?._id) {
       setShowErrorModal(true);
       return;
+    }
+
+    // ✅ FIX: Check for both "New Chat" and "New Conversation"
+    const isNewConversation = !selectedConversation.title || 
+                              selectedConversation.title === "New Conversation" ||
+                              selectedConversation.title === "New Chat";
+    
+    if (isNewConversation) {
+      let newTitle = text;
+      if (newTitle.length > 30) {
+        newTitle = newTitle.substring(0, 30) + '...';
+      }
+      
+    
+      // Update Redux - both in conversations list and selected conversation
+      dispatch(updateConversationTitle({
+        id: selectedConversation._id,
+        title: newTitle
+      }));
+      
+      // Also update the selected conversation directly
+      dispatch(setSelectedConversation({
+        ...selectedConversation,
+        title: newTitle
+      }));
+      
+      // Update in database
+      try {
+        await UpdateConversation({
+          id: selectedConversation._id,
+          title: newTitle,
+        });
+        console.log("✅ Title updated in database to:", newTitle);
+      } catch (error) {
+        console.error("❌ Failed to update title:", error);
+      }
     }
 
     const payload = {
@@ -87,13 +125,12 @@ export default function ChatInput() {
       const data = await ChatAgent(payload);
       console.log("AI Response:", data);
 
-      // 👇 YAHAN CHANGE - images ko add karein
       dispatch(
         addMessage({
           role: "assistant",
           content: data.response || "No response",
           conversationId: selectedConversation._id,
-          images: data.images || [], // Images yahan add karein
+          images: data.images || [],
         }),
       );
     } catch (error) {
@@ -247,8 +284,8 @@ export default function ChatInput() {
                     ${
                       isActive
                         ? dark
-                          ? "border-white/30 bg-white/10 text-white  "
-                          : "border-gray-400 bg-gray-100 text-black "
+                          ? "border-white/30 bg-white/10 text-white"
+                          : "border-gray-400 bg-gray-100 text-black"
                         : dark
                           ? "border-white/10 bg-white/[0.03] text-gray-400 hover:border-white/20 hover:bg-white/[0.08] hover:text-white hover:shadow-lg hover:shadow-white/5"
                           : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-black hover:shadow-md hover:shadow-gray-200/60"
@@ -306,11 +343,11 @@ export default function ChatInput() {
               }
             `}
           >
-           <Document 
-        onFileSelect={handleFileSelect}
-        onFileRemove={handleFileRemove}
-        selectedFiles={selectedFiles}
-      />
+            <Document 
+              onFileSelect={handleFileSelect}
+              onFileRemove={handleFileRemove}
+              selectedFiles={selectedFiles}
+            />
 
             {/* Textarea */}
             <textarea
@@ -348,7 +385,6 @@ export default function ChatInput() {
 
             {/* Right Actions */}
             <div className="flex shrink-0 items-center gap-1">
-              {/* Mic */}
               <button
                 type="button"
                 title="Voice input"
@@ -373,7 +409,6 @@ export default function ChatInput() {
                 <FiMic size={19} />
               </button>
 
-              {/* Send */}
               <button
                 type="button"
                 onClick={handleSend}

@@ -2,22 +2,23 @@
 import React from "react";
 import { FaUser, FaUpload } from "react-icons/fa";
 
-export default function PersonalInformation({ 
-  personalInfo, 
-  handleChange, 
-  handleFileChange, 
+export default function PersonalInformation({
+  personalInfo,
+  handleChange,
+  handleFileChange,
   profileImage,
-  dark 
+  dark,
 }) {
   const inputStyle = `
     w-full border px-4 py-3 rounded-xl transition-all outline-none
-    ${dark
-      ? "border-white/10 bg-black text-white placeholder:text-gray-500 focus:border-white"
-      : "border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black"
+    ${
+      dark
+        ? "border-white/10 bg-black text-white placeholder:text-gray-500 focus:border-white"
+        : "border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black"
     }
   `;
 
-  const labelStyle = `mb-2 block text-sm font-semibold ${dark ? 'text-gray-300' : 'text-gray-700'}`;
+  const labelStyle = `mb-2 block text-sm font-semibold ${dark ? "text-gray-300" : "text-gray-700"}`;
 
   return (
     <div
@@ -39,7 +40,9 @@ export default function PersonalInformation({
 
         <div>
           <h2 className="text-2xl font-bold">Personal Information</h2>
-          <p className={`mt-1 text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>
+          <p
+            className={`mt-1 text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}
+          >
             Fill in your personal details for your resume.
           </p>
         </div>
@@ -57,7 +60,11 @@ export default function PersonalInformation({
           {profileImage ? (
             <>
               <img
-                src={typeof profileImage === 'string' ? profileImage : URL.createObjectURL(profileImage)}
+                src={
+                  typeof profileImage === "string"
+                    ? profileImage
+                    : URL.createObjectURL(profileImage)
+                }
                 alt="Profile"
                 className="h-full w-full rounded-full object-cover"
               />
@@ -68,7 +75,9 @@ export default function PersonalInformation({
           ) : (
             <>
               <FaUser className="mb-2 text-3xl text-gray-400" />
-              <span className={`text-xs ${dark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <span
+                className={`text-xs ${dark ? "text-gray-400" : "text-gray-500"}`}
+              >
                 Upload Photo
               </span>
             </>
@@ -91,7 +100,7 @@ export default function PersonalInformation({
             name="fullName"
             placeholder="John Doe"
             className={inputStyle}
-            value={personalInfo.fullName || ''}
+            value={personalInfo.fullName || ""}
             onChange={handleChange}
             required
           />
@@ -104,7 +113,7 @@ export default function PersonalInformation({
             name="jobTitle"
             placeholder="Full Stack Developer"
             className={inputStyle}
-            value={personalInfo.jobTitle || ''}
+            value={personalInfo.jobTitle || ""}
             onChange={handleChange}
           />
         </div>
@@ -116,7 +125,7 @@ export default function PersonalInformation({
             name="email"
             placeholder="john@gmail.com"
             className={inputStyle}
-            value={personalInfo.email || ''}
+            value={personalInfo.email || ""}
             onChange={handleChange}
           />
         </div>
@@ -128,7 +137,7 @@ export default function PersonalInformation({
             name="phone"
             placeholder="+92 300 1234567"
             className={inputStyle}
-            value={personalInfo.phone || ''}
+            value={personalInfo.phone || ""}
             onChange={handleChange}
           />
         </div>
@@ -140,7 +149,7 @@ export default function PersonalInformation({
             name="country"
             placeholder="Pakistan"
             className={inputStyle}
-            value={personalInfo.country || ''}
+            value={personalInfo.country || ""}
             onChange={handleChange}
           />
         </div>
@@ -152,7 +161,7 @@ export default function PersonalInformation({
             name="city"
             placeholder="Lahore"
             className={inputStyle}
-            value={personalInfo.city || ''}
+            value={personalInfo.city || ""}
             onChange={handleChange}
           />
         </div>
@@ -164,7 +173,7 @@ export default function PersonalInformation({
             name="address"
             placeholder="Street, Area, City"
             className={inputStyle}
-            value={personalInfo.address || ''}
+            value={personalInfo.address || ""}
             onChange={handleChange}
           />
         </div>
@@ -175,7 +184,7 @@ export default function PersonalInformation({
             type="date"
             name="dateOfBirth"
             className={inputStyle}
-            value={personalInfo.dateOfBirth || ''}
+            value={personalInfo.dateOfBirth || ""}
             onChange={handleChange}
           />
         </div>
@@ -187,7 +196,7 @@ export default function PersonalInformation({
             name="nationality"
             placeholder="Pakistani"
             className={inputStyle}
-            value={personalInfo.nationality || ''}
+            value={personalInfo.nationality || ""}
             onChange={handleChange}
           />
         </div>
@@ -199,7 +208,7 @@ export default function PersonalInformation({
             name="linkedin"
             placeholder="https://linkedin.com/in/username"
             className={inputStyle}
-            value={personalInfo.linkedin || ''}
+            value={personalInfo.linkedin || ""}
             onChange={handleChange}
           />
         </div>
@@ -211,7 +220,7 @@ export default function PersonalInformation({
             name="github"
             placeholder="https://github.com/username"
             className={inputStyle}
-            value={personalInfo.github || ''}
+            value={personalInfo.github || ""}
             onChange={handleChange}
           />
         </div>
@@ -223,7 +232,7 @@ export default function PersonalInformation({
             name="portfolio"
             placeholder="https://yourportfolio.com"
             className={inputStyle}
-            value={personalInfo.portfolio || ''}
+            value={personalInfo.portfolio || ""}
             onChange={handleChange}
           />
         </div>

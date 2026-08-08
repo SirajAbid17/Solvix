@@ -1,5 +1,5 @@
 // AllConverSation.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "../../BgContext/ThemeContext";
 import { setSelectedConversation, updateConversationTitle } from "../../redux/conversationSlice";
@@ -18,7 +18,18 @@ export default function AllConverSation() {
   const [editTitle, setEditTitle] = useState("");
   const [titleLoading, setTitleLoading] = useState(false);
 
+  // Log when conversations change
+  useEffect(() => {
+    console.log("Conversations updated:", conversations.map(c => ({ id: c._id, title: c.title })));
+  }, [conversations]);
+
+  // Log when selected conversation changes
+  useEffect(() => {
+    console.log("Selected conversation:", selectedConversation?.title);
+  }, [selectedConversation]);
+
   const handleSelectConversation = (conversation) => {
+    console.log("Selecting conversation:", conversation.title);
     dispatch(setSelectedConversation(conversation));
   };
 
@@ -92,6 +103,14 @@ export default function AllConverSation() {
     return date.toLocaleDateString();
   };
 
+  // Get the conversation title with fallback
+  const getConversationTitle = (conversation) => {
+    if (conversation.title && conversation.title !== "New Conversation") {
+      return conversation.title;
+    }
+    return "New Conversation";
+  };
+
   return (
     <div
       className={`
@@ -111,7 +130,7 @@ export default function AllConverSation() {
 
         scrollbar-track-transparent
 
-        sm:h-[160px]           // 👈 Responsive bhi adjust
+        sm:h-[160px]
         md:h-[180px]
         lg:h-[250px]
         xl:h-[360px]
@@ -121,6 +140,7 @@ export default function AllConverSation() {
         conversations.map((item, index) => {
           const isSelected = selectedConversation?._id === item._id;
           const isEditing = editingId === item._id;
+          const displayTitle = getConversationTitle(item);
           
           return (
             <div
@@ -150,11 +170,10 @@ export default function AllConverSation() {
               `}
             >
               <div className="min-w-0 flex-1">
-                {/* Time at top - Always visible */}
-                <div className="flex items-center justify-between mb-0.5">  {/* 👈 margin kam */}
+                <div className="flex items-center justify-between mb-0.5">
                   <span
                     className={`
-                      text-[9px]     // 👈 font size chota
+                      text-[9px]
                       font-medium
                       sm:text-[10px]
                       ${
@@ -186,7 +205,6 @@ export default function AllConverSation() {
                   )}
                 </div>
 
-                {/* Title section */}
                 {isEditing ? (
                   <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <input
@@ -201,7 +219,7 @@ export default function AllConverSation() {
                         min-w-0
                         px-2
                         py-1
-                        text-xs         // 👈 font chota
+                        text-xs
                         font-medium
                         rounded-lg
                         outline-none
@@ -233,7 +251,7 @@ export default function AllConverSation() {
                         ${titleLoading ? "opacity-50 cursor-not-allowed" : ""}
                       `}
                     >
-                      <FiCheck size={12} />   {/* 👈 icon chota */}
+                      <FiCheck size={12} />
                     </button>
                     <button
                       onClick={handleCancelEdit}
@@ -251,14 +269,14 @@ export default function AllConverSation() {
                         }
                       `}
                     >
-                      <FiX size={12} />      {/* 👈 icon chota */}
+                      <FiX size={12} />
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between gap-1.5">
                     <h1
                       className={`
-                        text-xs           // 👈 font chota
+                        text-xs
                         font-medium
                         truncate
                         flex-1
@@ -277,10 +295,9 @@ export default function AllConverSation() {
                         }
                       `}
                     >
-                      {item.title || "New Conversation"}
+                      {displayTitle}
                     </h1>
 
-                    {/* Edit Button - Always visible */}
                     <button
                       onClick={(e) => handleStartEdit(e, item)}
                       className={`
@@ -300,7 +317,7 @@ export default function AllConverSation() {
                         }
                       `}
                     >
-                      <FiEdit2 size={12} />   {/* 👈 icon chota */}
+                      <FiEdit2 size={12} />
                     </button>
                   </div>
                 )}
@@ -313,7 +330,7 @@ export default function AllConverSation() {
           <div className="text-center">
             <div
               className={`
-                text-3xl           // 👈 icon chota
+                text-3xl
                 mb-2
                 ${dark ? "text-gray-600" : "text-gray-300"}
               `}
@@ -322,7 +339,7 @@ export default function AllConverSation() {
             </div>
             <p
               className={`
-                text-xs            // 👈 font chota
+                text-xs
                 font-medium
                 ${dark ? "text-gray-500" : "text-gray-400"}
               `}
@@ -331,7 +348,7 @@ export default function AllConverSation() {
             </p>
             <p
               className={`
-                text-[10px]        // 👈 font chota
+                text-[10px]
                 mt-0.5
                 ${dark ? "text-gray-600" : "text-gray-400"}
               `}

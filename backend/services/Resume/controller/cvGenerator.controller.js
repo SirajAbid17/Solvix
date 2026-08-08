@@ -1,142 +1,223 @@
-// controller/cv.controller.js
+// controllers/cv.controller.js
 import cvModel from "../models/cv.model.js";
-import { generateResume } from "../services/cv.service.js";
-import { uploadProfileImage, deleteImage } from "../services/cloudinary.service.js";
-import redis from "../../../shared/redis/redis.js";
+import { CacheService } from "../services/cache.service.js";
+import { CVBuilder } from "../services/cvBuilder.service.js";
+import { deleteImage } from "../services/cloudinary.service.js";
+import {
+  parseBody,
+  parseSkills,
+  parseStructuredData,
+  parseCertifications,
+  parseLanguages,
+  parseAwards,
+  parsePublications,
+  parseReferences,
+  parseCustomSections,
+  parseArrayData,
+} from "../utils/parsers.js";
 
-const CACHE_TIME = 60 * 60; // 1 hour
+const checkUserId = (req, res) => {
+  const userId = req.headers["x-user-id"];
+  if (!userId) {
+    res.status(401).json({ 
+      success: false, 
+      message: "Unauthorized - User ID required" 
+    });
+    return null;
+  }
+  return userId;
+};
 
-// Create CV with optional profile image
+const handleCacheResponse = async (res, cacheKey, data) => {
+  await CacheService.set(cacheKey, data);
+  return res.status(200).json({ ...data, fromCache: true });
+};
+
 export const createCV = async (req, res) => {
   try {
-    const userId = req.headers["x-user-id"];
+    const userId = checkUserId(req, res);
+    if (!userId) return;
 
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - User ID required",
-      });
-    }
+    const body = parseBody(req.body);
+    console.log("Received body:", JSON.stringify(body, null, 2));
 
-    // Parse body (handle both JSON and form-data)
-    let body = req.body;
-    if (req.body.data) {
-      try {
-        body = JSON.parse(req.body.data);
-      } catch (e) {
-        body = req.body;
-      }
-    }
-
-    // Validate required fields
     if (!body.fullName) {
-      return res.status(400).json({
-        success: false,
-        message: "Full name is required",
+      return res.status(400).json({ 
+        success: false, 
+        message: "Full name is required" 
       });
     }
 
-    // Handle profile image upload if present
+    // Parse all data
+    const parsedData = {
+      skills: parseSkills(body.skills),
+      workExperience: parseStructuredData(body.workExperience, "workExperience"),
+      education: parseStructuredData(body.education, "education"),
+      projects: parseStructuredData(body.projects, "projects"),
+      certifications: parseCertifications(body.certifications),
+      languages: parseLanguages(body.languages),
+      interests: parseArrayData(body.interests),
+      hobbies: parseArrayData(body.hobbies),
+      tags: parseArrayData(body.tags),
+      awards: parseAwards(body.awards),
+      publications: parsePublications(body.publications),
+      references: parseReferences(body.references),
+      customSections: parseCustomSections(body.customSections),
+      volunteering: parseStructuredData(body.volunteering, "volunteering"),
+    };
+
+    // Handle profile image
     let profileImage = null;
     if (req.file) {
-      try {
-        const uploadedImage = await uploadProfileImage(
-          req.file.buffer,
-          req.file.originalname,
-          userId
-        );
-        profileImage = {
-          url: uploadedImage.secure_url,
-          publicId: uploadedImage.public_id,
-          alt: `${body.fullName}'s profile image`,
-        };
-      } catch (error) {
-        console.error("Image Upload Error:", error);
-        // Continue without image if upload fails
-      }
-    }
-
-    // Generate cache key
-    const cacheKey = `cv:${userId}:${JSON.stringify(body).slice(0, 100)}`;
-
-    // Check cache
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return res.status(200).json({
-        ...JSON.parse(cached),
-        fromCache: true,
-      });
+      profileImage = await CVBuilder.handleProfileImageUpload(
+        req.file,
+        userId,
+        body.fullName
+      );
     }
 
     // Generate AI resume
-    const aiResume = await generateResume(body);
-
-    // Create CV in database
-    const cv = await cvModel.create({
-      userId,
+    const aiResume = await CVBuilder.generateAIResume({
       ...body,
-      profileImage,
-      generatedResume: aiResume.resume,
-      aiModel: "llama-3.3-70b-versatile",
+      ...parsedData,
     });
 
-    const response = {
+    // Build CV data
+    const cvData = CVBuilder.buildCVData(
+      { ...body, ...parsedData },
+      userId,
+      profileImage,
+      aiResume
+    );
+
+    const cv = await cvModel.create(cvData);
+    await CacheService.clearCaches(userId);
+
+    return res.status(201).json({
       success: true,
-      message: "CV generated successfully",
-      cv,
+      message: "CV created successfully",
+      data: cv,
       ai: aiResume,
-    };
-
-    // Cache the response
-    await redis.set(cacheKey, JSON.stringify(response), "EX", CACHE_TIME);
-    await redis.del(`my-cvs:${userId}`);
-
-    return res.status(201).json(response);
+    });
   } catch (error) {
-    console.error("CV Generation Error:", error);
+    console.error("Create CV Error:", error);
     return res.status(500).json({
       success: false,
-      message: error.message || "Failed to generate CV",
+      message: error.message || "Failed to create CV",
+      details: error.errors || error,
     });
   }
 };
 
-// Update CV with image
+export const getMyCVs = async (req, res) => {
+  try {
+    const userId = checkUserId(req, res);
+    if (!userId) return;
+
+    const cacheKey = CacheService.buildCacheKey("my-cvs", userId);
+    const cached = await CacheService.get(cacheKey);
+    if (cached) {
+      return handleCacheResponse(res, cacheKey, cached);
+    }
+
+    const cvs = await cvModel
+      .find({ userId, status: { $ne: "deleted" } })
+      .select("-generatedResume -previousVersions -ai")
+      .sort({ isPrimary: -1, createdAt: -1 });
+
+    const response = { success: true, total: cvs.length, data: cvs };
+    await CacheService.set(cacheKey, response);
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Get CVs Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch CVs",
+    });
+  }
+};
+
+export const getCVById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = checkUserId(req, res);
+    if (!userId) return;
+
+    const cacheKey = CacheService.buildCacheKey("cv-detail", userId, id);
+    const cached = await CacheService.get(cacheKey);
+    if (cached) {
+      return handleCacheResponse(res, cacheKey, cached);
+    }
+
+    const cv = await cvModel.findOne({
+      _id: id,
+      userId,
+      status: { $ne: "deleted" },
+    });
+
+    if (!cv) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "CV not found" 
+      });
+    }
+
+    // Update analytics
+    cv.analytics = cv.analytics || {};
+    cv.analytics.views = (cv.analytics.views || 0) + 1;
+    cv.analytics.lastViewed = new Date();
+    await cv.save();
+
+    const response = { success: true, data: cv };
+    await CacheService.set(cacheKey, response);
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Get CV Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch CV",
+    });
+  }
+};
+
 export const updateCV = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.headers["x-user-id"];
+    const userId = checkUserId(req, res);
+    if (!userId) return;
 
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - User ID required",
-      });
-    }
-
-    // Parse body
-    let body = req.body;
-    if (req.body.data) {
-      try {
-        body = JSON.parse(req.body.data);
-      } catch (e) {
-        body = req.body;
-      }
-    }
-
-    // Check if CV exists and belongs to user
+    const body = parseBody(req.body);
     const existingCV = await cvModel.findOne({ _id: id, userId });
     if (!existingCV) {
-      return res.status(404).json({
-        success: false,
-        message: "CV not found",
+      return res.status(404).json({ 
+        success: false, 
+        message: "CV not found" 
       });
     }
 
-    // Handle profile image upload if present
+    // Parse all data
+    const parsedData = {
+      skills: parseSkills(body.skills),
+      workExperience: parseStructuredData(body.workExperience, "workExperience"),
+      education: parseStructuredData(body.education, "education"),
+      projects: parseStructuredData(body.projects, "projects"),
+      certifications: parseCertifications(body.certifications),
+      languages: parseLanguages(body.languages),
+      interests: parseArrayData(body.interests),
+      hobbies: parseArrayData(body.hobbies),
+      tags: parseArrayData(body.tags),
+      awards: parseAwards(body.awards),
+      publications: parsePublications(body.publications),
+      references: parseReferences(body.references),
+      customSections: parseCustomSections(body.customSections),
+      volunteering: parseStructuredData(body.volunteering, "volunteering"),
+    };
+
+    // Handle profile image
     let profileImage = existingCV.profileImage;
     if (req.file) {
-      // Delete old image if exists
       if (existingCV.profileImage?.publicId) {
         try {
           await deleteImage(existingCV.profileImage.publicId);
@@ -144,50 +225,58 @@ export const updateCV = async (req, res) => {
           console.error("Delete old image error:", error);
         }
       }
+      profileImage = await CVBuilder.handleProfileImageUpload(
+        req.file,
+        userId,
+        body.fullName || existingCV.personal?.fullName
+      );
+    }
 
-      // Upload new image
-      try {
-        const uploadedImage = await uploadProfileImage(
-          req.file.buffer,
-          req.file.originalname,
-          userId
-        );
-        profileImage = {
-          url: uploadedImage.secure_url,
-          publicId: uploadedImage.public_id,
-          alt: `${body.fullName || existingCV.fullName}'s profile image`,
-        };
-      } catch (error) {
-        console.error("Image Upload Error:", error);
+    if (body.removeImage === true) {
+      if (existingCV.profileImage?.publicId) {
+        try {
+          await deleteImage(existingCV.profileImage.publicId);
+        } catch (error) {
+          console.error("Delete image error:", error);
+        }
       }
+      profileImage = null;
     }
 
-    // Remove image from body if it's a string (from form-data)
-    if (body.profileImage === "undefined" || body.profileImage === "null") {
-      delete body.profileImage;
-    }
-
-    // Regenerate AI resume if content changed
+    // Generate AI resume if content changed
     let aiResume = null;
-    if (body.fullName || body.skills || body.workExperience) {
-      const updatedData = { ...existingCV.toObject(), ...body };
-      aiResume = await generateResume(updatedData);
-      body.generatedResume = aiResume.resume;
+    const contentChanged = !!(body.fullName || body.skills || body.workExperience || body.summary || body.objective);
+
+    if (contentChanged) {
+      aiResume = await CVBuilder.generateAIResume({
+        ...existingCV.toObject(),
+        ...body,
+        ...parsedData,
+      });
     }
 
-    const updatedCV = await cvModel.findByIdAndUpdate(
-      id,
-      { 
-        ...body, 
-        profileImage,
-        aiModel: "llama-3.3-70b-versatile" 
-      },
-      { new: true, runValidators: true }
+    // Build update data
+    let updateData = CVBuilder.buildUpdateData(
+      { ...body, ...parsedData },
+      existingCV,
+      profileImage,
+      aiResume
     );
 
-    // Clear caches
-    await redis.del(`cv:${userId}:*`);
-    await redis.del(`my-cvs:${userId}`);
+    // Handle versioning
+    updateData = await CVBuilder.handleVersioning(
+      existingCV, 
+      updateData, 
+      contentChanged,
+      body.versionReason
+    );
+
+    const updatedCV = await cvModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    await CacheService.clearCaches(userId, id);
 
     return res.status(200).json({
       success: true,
@@ -204,43 +293,25 @@ export const updateCV = async (req, res) => {
   }
 };
 
-// Delete CV with image
 export const deleteCV = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.headers["x-user-id"];
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - User ID required",
-      });
-    }
+    const userId = checkUserId(req, res);
+    if (!userId) return;
 
     const cv = await cvModel.findOne({ _id: id, userId });
-
     if (!cv) {
-      return res.status(404).json({
-        success: false,
-        message: "CV not found",
+      return res.status(404).json({ 
+        success: false, 
+        message: "CV not found" 
       });
     }
 
-    // Delete profile image from Cloudinary
-    if (cv.profileImage?.publicId) {
-      try {
-        await deleteImage(cv.profileImage.publicId);
-      } catch (error) {
-        console.error("Delete image error:", error);
-      }
-    }
+    cv.status = "deleted";
+    cv.archivedAt = new Date();
+    await cv.save();
 
-    await cvModel.findByIdAndDelete(id);
-
-    // Clear caches
-    await redis.del(`my-cvs:${userId}`);
-    await redis.del(`cv:${userId}:*`);
-
+    await CacheService.clearCaches(userId, id);
     return res.status(200).json({
       success: true,
       message: "CV deleted successfully",
@@ -254,41 +325,28 @@ export const deleteCV = async (req, res) => {
   }
 };
 
-// Remove profile image only
 export const removeProfileImage = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.headers["x-user-id"];
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - User ID required",
-      });
-    }
+    const userId = checkUserId(req, res);
+    if (!userId) return;
 
     const cv = await cvModel.findOne({ _id: id, userId });
-
     if (!cv) {
-      return res.status(404).json({
-        success: false,
-        message: "CV not found",
+      return res.status(404).json({ 
+        success: false, 
+        message: "CV not found" 
       });
     }
 
-    // Delete image from Cloudinary
     if (cv.profileImage?.publicId) {
       await deleteImage(cv.profileImage.publicId);
     }
 
-    // Remove image from database
-    cv.profileImage = undefined;
+    cv.profileImage = null;
     await cv.save();
 
-    // Clear caches
-    await redis.del(`my-cvs:${userId}`);
-    await redis.del(`cv:${userId}:*`);
-
+    await CacheService.clearCaches(userId, id);
     return res.status(200).json({
       success: true,
       message: "Profile image removed successfully",
@@ -299,86 +357,6 @@ export const removeProfileImage = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || "Failed to remove image",
-    });
-  }
-};
-
-// Get my CVs (existing)
-export const getMyCVs = async (req, res) => {
-  try {
-    const userId = req.headers["x-user-id"];
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - User ID required",
-      });
-    }
-
-    const cacheKey = `my-cvs:${userId}`;
-    const cached = await redis.get(cacheKey);
-
-    if (cached) {
-      return res.status(200).json({
-        ...JSON.parse(cached),
-        fromCache: true,
-      });
-    }
-
-    const cvs = await cvModel
-      .find({ userId })
-      .select("-generatedResume")
-      .sort({ createdAt: -1 });
-
-    const response = {
-      success: true,
-      total: cvs.length,
-      data: cvs,
-    };
-
-    await redis.set(cacheKey, JSON.stringify(response), "EX", CACHE_TIME);
-
-    return res.status(200).json(response);
-  } catch (error) {
-    console.error("Get CVs Error:", error);
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Failed to fetch CVs",
-    });
-  }
-};
-
-// Get single CV (existing)
-export const getCVById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userId = req.headers["x-user-id"];
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - User ID required",
-      });
-    }
-
-    const cv = await cvModel.findOne({ _id: id, userId });
-
-    if (!cv) {
-      return res.status(404).json({
-        success: false,
-        message: "CV not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: cv,
-    });
-  } catch (error) {
-    console.error("Get CV Error:", error);
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Failed to fetch CV",
     });
   }
 };

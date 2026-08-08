@@ -12,6 +12,9 @@ import Portfolio from "./pages/Portfolio";
 import Interview from "./pages/Interview";
 import ResumeAnalysis from "./components/Resume/ResumeAnalyse/ResumeAnalysis";
 import ShowResume from "./components/Resume/CV-Generate/ShowResume";
+import AllResume from "./pages/AllResume";
+import WebsitePreview from "./pages/WebsitePreview";
+import AllPortfolio from "./pages/AllPortfolio";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -48,7 +51,21 @@ export default function App() {
             <Route path="/portfolio" element={<Portfolio />} />
              <Route path="/mock-interview" element={<Interview />} />
                <Route path="/cv/:id" element={<ShowResume />} />
+<Route path="/all-resume" element={<AllResume />} />
              <Route path="/resume-analysis" element={   <ResumeAnalysis/>}/>
+             {/* <Route
+  path="/portfolio/preview/:slug"
+  element={<WebsitePreview />}
+/> */}
+<Route
+  path="/all-portfolio"
+  element={<AllPortfolio />}
+/>
+
+<Route
+  path="/portfolio/:id"
+  element={<WebsitePreview />}
+/>
         <Route path="*" element={<Page_not_Found />} />
 
       </Routes>

@@ -4,6 +4,7 @@ import Conversationreducer from './conversationSlice'
 import Messagereducer from './messageslice'
 import Resumereducer from './ResumeSlice'
 import CVreducer from './cvSlice'
+import portfolioreducer from './portfolioSlice'
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     conversation: Conversationreducer,
     message:Messagereducer,
     resume:Resumereducer,
-     cv: CVreducer
+     cv: CVreducer,
+     portfolio: portfolioreducer
   },
 })
   

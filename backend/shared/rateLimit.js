@@ -1,4 +1,4 @@
-import redis from "../../../shared/redis/redis.js";
+import redis from "./redis/redis.js";
 
 export const uploadRateLimit = async (req, res, next) => {
   try {
@@ -8,7 +8,7 @@ export const uploadRateLimit = async (req, res, next) => {
 
     const current = await redis.incr(key);
 
-    // First request
+    
     if (current === 1) {
       await redis.expire(key, 15 * 60); 
     }

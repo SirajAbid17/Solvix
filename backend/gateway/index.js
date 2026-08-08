@@ -89,7 +89,6 @@ app.use(
   })
 );
 
-// gateway index.js - Update the CV proxy configuration
 app.use(
   "/cv",
   protect,
@@ -152,6 +151,100 @@ app.use(
       });
     },
   })
+);
+
+app.use(
+  "/portfolio",
+  protect,
+
+  proxy(
+    process.env.PORTFOLIO_SERVICES,
+
+    {
+    
+      proxyReqPathResolver: (req) => {
+        return `/api/portfolio${req.url}`;
+      },
+
+      proxyReqOptDecorator: (
+        proxyReqOpts,
+        srcReq
+      ) => {
+        console.log(
+          "Portfolio User:",
+          srcReq.user
+        );
+
+        if (!srcReq.user) {
+          throw new Error("User not found");
+        }
+
+        const userId =
+          srcReq.user._id ||
+          srcReq.user.userId ||
+          srcReq.user?.user?._id;
+
+        if (!userId) {
+          throw new Error("User ID not found");
+        }
+
+    
+
+        proxyReqOpts.headers["x-user-id"] =
+          String(userId);
+
+        
+        proxyReqOpts.headers["x-user-email"] =
+          srcReq.user.email ||
+          srcReq.user?.user?.email ||
+          "";
+
+      
+        proxyReqOpts.headers["x-user-name"] =
+          srcReq.user.name ||
+          srcReq.user?.user?.name ||
+          "";
+
+      
+        if (srcReq.headers.authorization) {
+          proxyReqOpts.headers.authorization =
+            srcReq.headers.authorization;
+        }
+
+    
+        if (srcReq.headers.cookie) {
+          proxyReqOpts.headers.cookie =
+            srcReq.headers.cookie;
+        }
+
+      
+        if (srcReq.headers["content-type"]) {
+          proxyReqOpts.headers["content-type"] =
+            srcReq.headers["content-type"];
+        }
+
+        return proxyReqOpts;
+      },
+
+      
+      parseReqBody: false,
+
+
+      proxyErrorHandler: (err, res) => {
+        console.error(
+          "Portfolio Proxy Error:",
+          err
+        );
+
+        res.status(500).json({
+          success: false,
+          message:
+            err.message ||
+            "Portfolio service unavailable",
+        });
+      },
+    }
+  )
 );
 
 app.listen(PORT,()=>{

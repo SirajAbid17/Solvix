@@ -1,8 +1,7 @@
 import express from "express";
 import upload from "../middleware/multer.js";
 import { myResumes, uploadResume } from "../controller/resume.controller.js";
-import { uploadRateLimit } from "../middleware/rateLimit.js";
-
+import { uploadRateLimit } from "../../../shared/rateLimit.js";
 
 const router = express.Router();
 

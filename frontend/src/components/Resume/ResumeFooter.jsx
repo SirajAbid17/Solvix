@@ -8,9 +8,12 @@ export default function ResumeFooter() {
           © {new Date().getFullYear()} Solvix AI. All rights reserved.
         </p>
 
-        <p>
-          Build your career. <span className="font-medium text-gray-700 dark:text-gray-300">Solvix AI.</span>
-        </p>
+       <p className="text-center text-sm tracking-wide text-gray-600 dark:text-gray-400">
+  Unlock your future with
+  <span className="ml-1.5 font-semibold text-gray-900 dark:text-white">
+    Solvix AI
+  </span>
+</p>
       </div>
     </footer>
   );

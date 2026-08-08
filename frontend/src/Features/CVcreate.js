@@ -1,17 +1,11 @@
-// Features/CVcreate/index.js
 import api from "../utlis/axios";
 
 export const createCV = async (formData) => {
   try {
     const response = await api.post("/cv/generate", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    
     console.log('API Response:', response.data);
-    
-    // Return the data directly
     return response.data;
   } catch (error) {
     console.error('API Error:', error);
@@ -40,12 +34,11 @@ export const getCVById = async (id) => {
   }
 };
 
+
 export const updateCV = async (id, formData) => {
   try {
     const { data } = await api.put(`/cv/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
   } catch (error) {
