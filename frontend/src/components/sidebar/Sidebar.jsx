@@ -1,4 +1,3 @@
-// Sidebar.jsx - Updated Register section
 import React, { useEffect, useState } from "react";
 import { BsLayoutTextSidebarReverse } from "react-icons/bs";
 import { BiSolidEditAlt } from "react-icons/bi";
@@ -18,12 +17,17 @@ import api from "../../utlis/axios";
 import { setuserData } from "../../redux/userSlice";
 
 export default function Sidebar() {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [open, setOpen] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
+
   const { dark } = useTheme();
-  const dispatch = useDispatch();
+
   const { userdata } = useSelector((state) => state.user);
+
+  
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -34,7 +38,8 @@ export default function Sidebar() {
 
       try {
         const data = await GetConversation();
-        dispatch(setConversations(data));
+
+        dispatch(setConversations(data || []));
       } catch (error) {
         console.error("Error loading conversations:", error);
         dispatch(clearConversations());
@@ -44,83 +49,141 @@ export default function Sidebar() {
     loadConversations();
   }, [userdata, dispatch]);
 
+  // ============================================
+  // NEW CHAT
+  // ============================================
+
   const handleNewChat = async () => {
     try {
       const data = await CreateConversation();
-      dispatch(addConversation(data));
+
+      if (data) {
+        dispatch(addConversation(data));
+      }
+
       console.log("New conversation created:", data);
     } catch (error) {
       console.error("Error creating new conversation:", error);
     }
   };
 
-  return (
-    <div
-      className={`
-        h-screen
-        flex flex-col
-        overflow-hidden
-        transition-all duration-500 ease-in-out
-        relative
+  // ============================================
+  // LOGOUT
+  // ============================================
 
-        ${dark ? "bg-black text-white" : "bg-white text-black"}
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+
+      dispatch(setuserData(null));
+      dispatch(clearConversations());
+
+      setShowUserModal(false);
+
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  // ============================================
+  // SIDEBAR
+  // ============================================
+
+  return (
+    <aside
+      className={`
+        relative
+        flex
+        h-screen
+        min-h-0
+        shrink-0
+        flex-col
+        overflow-hidden
+
+        transition-[width]
+        duration-300
+        ease-in-out
 
         border-r
-        ${dark ? "border-white/5" : "border-gray-200"}
+
+        ${
+          dark
+            ? "border-white/[0.08] bg-black text-white"
+            : "border-gray-200 bg-white text-black"
+        }
 
         ${open ? "w-72" : "w-16"}
-
-        sm:${open ? "w-72" : "w-16"}
-        md:${open ? "w-64" : "w-16"}
-        lg:${open ? "w-72" : "w-16"}
-        xl:${open ? "w-80" : "w-16"}
-        2xl:${open ? "w-96" : "w-16"}
       `}
     >
-      {/* Header */}
+      {/* ============================================
+          HEADER
+      ============================================ */}
+
       <div
         className={`
-          flex items-center
-          ${open ? "justify-between" : "justify-center"}
-          p-3
-
-          sm:p-4
-
+          flex
+          h-14
+          shrink-0
+          items-center
           border-b
-          ${dark ? "border-white/10" : "border-gray-200"}
+          px-3
+
+          ${
+            open
+              ? "justify-between"
+              : "justify-center"
+          }
+
+          ${
+            dark
+              ? "border-white/[0.08]"
+              : "border-gray-200"
+          }
         `}
       >
         {/* Sidebar Toggle */}
+
         <button
-          onClick={() => setOpen(!open)}
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
           className={`
-            text-xl
-            transition-all duration-300
-            hover:scale-110
-            p-1
+            flex
+            h-9
+            w-9
+            shrink-0
+            items-center
+            justify-center
+            rounded-lg
 
-            sm:text-2xl
+            text-lg
+            transition-all
+            duration-200
 
-            ${dark
-              ? "text-gray-400 hover:text-white"
-              : "text-gray-500 hover:text-black"
+            ${
+              dark
+                ? "text-gray-400 hover:bg-white/[0.06] hover:text-white"
+                : "text-gray-500 hover:bg-gray-100 hover:text-black"
             }
           `}
+          title={open ? "Collapse sidebar" : "Expand sidebar"}
         >
           <BsLayoutTextSidebarReverse />
         </button>
 
-        {/* Logo + Plan + New Chat Icon */}
+        {/* Logo */}
+
         {open && (
-          <div className="flex items-center  sm:gap-3">
-            {/* Logo */}
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 pl-2">
             <h1
               className={`
-                text-xl
-                
+                min-w-0
+                truncate
+                text-lg
                 font-extrabold
                 tracking-wide
-                sm:text-2xl
+
+                sm:text-xl
 
                 ${dark ? "text-white" : "text-black"}
               `}
@@ -128,167 +191,265 @@ export default function Sidebar() {
               Solvix AI
             </h1>
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Plan */}
-              <span
-                className={`
-                  text-[8px]
-                  px-2 py-0.5
-                  rounded-full
-                  border
-                  font-medium
-                  tracking-wider
-                  uppercase
+            {/* Plan */}
 
-                  sm:text-[10px]
-                  sm:px-2.5
-                  sm:py-1
+            <span
+              className={`
+                shrink-0
+                rounded-full
+                border
+                px-2
+                py-0.5
+                text-[8px]
+                font-medium
+                uppercase
+                tracking-wider
 
-                  ${dark
-                    ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border-blue-500/20"
-                    : "bg-gray-100 text-gray-600 border-gray-200"
-                  }
-                `}
-              >
-                Free
-              </span>
+                sm:text-[9px]
 
-              {/* New Chat Icon */}
-              <button
-                onClick={handleNewChat}
-                className={`
-                  text-lg
-                  p-1
-                  rounded-lg
-                  hover:scale-110
-                  transition-all
+                ${
+                  dark
+                    ? "border-blue-500/20 bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300"
+                    : "border-gray-200 bg-gray-100 text-gray-600"
+                }
+              `}
+            >
+              Free
+            </span>
 
-                  sm:text-xl
-                  sm:p-1.5
+            {/* New Chat Icon */}
 
-                  ${dark
-                    ? "text-gray-400 hover:text-white hover:bg-white/10"
-                    : "text-gray-500 hover:text-black hover:bg-gray-100"
-                  }
-                `}
-              >
-                <BiSolidEditAlt />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleNewChat}
+              className={`
+                flex
+                h-8
+                w-8
+                shrink-0
+                items-center
+                justify-center
+                rounded-lg
+
+                text-lg
+                transition-all
+                duration-200
+
+                hover:scale-105
+
+                ${
+                  dark
+                    ? "text-gray-400 hover:bg-white/[0.06] hover:text-white"
+                    : "text-gray-500 hover:bg-gray-100 hover:text-black"
+                }
+              `}
+              title="New chat"
+            >
+              <BiSolidEditAlt />
+            </button>
           </div>
         )}
       </div>
 
-      {/* New Chat Button */}
-      <button
-        onClick={handleNewChat}
-        className={`
-          flex items-center justify-center
-          gap-2
+      {/* ============================================
+          NEW CHAT BUTTON
+      ============================================ */}
 
-          mx-2 mt-2
-          px-3 py-2
+      <div className="shrink-0 px-2 pt-2">
+        <button
+          type="button"
+          onClick={handleNewChat}
+          className={`
+            flex
+            h-10
+            w-full
+            items-center
+            justify-center
+            gap-2
+            overflow-hidden
+            rounded-lg
+            border
 
-          font-medium
-          rounded-lg
-          border
+            px-3
 
-          active:scale-95
-          transition-all duration-300
+            text-sm
+            font-medium
 
-          sm:mx-3 sm:mt-3
-          sm:px-4 sm:py-3
+            transition-all
+            duration-200
 
-          ${dark
-            ? "bg-black text-white border-white/20 hover:bg-white hover:text-black hover:border-white"
-            : "bg-white text-black border-gray-300 hover:bg-black hover:text-white hover:border-black"
-          }
+            active:scale-[0.98]
 
-          ${!open && "px-2"}
-        `}
-      >
-        {open ? (
-          <span className="text-xs sm:text-sm">+ New Chat</span>
-        ) : (
-          <BiSolidEditAlt className="text-lg sm:text-xl" />
-        )}
-      </button>
+            ${
+              dark
+                ? "border-white/[0.15] bg-black text-white hover:border-white/30 hover:bg-white hover:text-black"
+                : "border-gray-300 bg-white text-black hover:border-black hover:bg-black hover:text-white"
+            }
 
-      {/* Conversations */}
+            ${!open ? "px-2" : ""}
+          `}
+        >
+          {open ? (
+            <>
+              <BiSolidEditAlt className="shrink-0 text-base" />
+
+              <span className="truncate">
+                New Chat
+              </span>
+            </>
+          ) : (
+            <BiSolidEditAlt className="shrink-0 text-lg" />
+          )}
+        </button>
+      </div>
+
+      {/* ============================================
+          CONVERSATIONS
+      ============================================ */}
+
       {open && (
-        <div className="flex-1 overflow-hidden mt-2">
-          <AllConverSation />
+        <div
+          className="
+            min-h-0
+            min-w-0
+            flex-1
+            overflow-y-auto
+            overflow-x-hidden
+            overscroll-contain
+            px-2
+            pb-2
+            pt-2
+
+            scrollbar-thin
+          "
+        >
+          <div className="min-w-0 w-full">
+            <AllConverSation />
+          </div>
         </div>
       )}
 
-      {/* User Profile - Updated */}
-      <div className="mt-auto">
+      {/* ============================================
+          USER SECTION
+      ============================================ */}
+
+      <div
+        className={`
+          mt-auto
+          w-full
+          shrink-0
+          border-t
+          p-2
+
+          ${
+            dark
+              ? "border-white/[0.08]"
+              : "border-gray-200"
+          }
+        `}
+      >
         {userdata ? (
-          <div
-            className={`
-              p-2
-              border-t
-              transition-colors duration-300
-              ${dark ? "border-white/10" : "border-gray-200"}
-            `}
-          >
+          <>
+            {/* ======================================
+                OPEN USER
+            ====================================== */}
+
             {open ? (
-              // Full user info when sidebar is open
-              <div
+              <button
+                type="button"
+                onClick={() => setShowUserModal(true)}
                 className={`
-                  flex items-center gap-2
-                  p-2
-                  rounded-sm
+                  flex
+                  w-full
+                  min-w-0
+                  items-center
+                  gap-2
+                  rounded-lg
                   border
-                  transition-all duration-200
-                  cursor-pointer
-                  ${dark
-                    ? "bg-white/5 border-white/10 hover:bg-white/10"
-                    : "bg-white border-gray-200 hover:bg-gray-50 shadow-sm"
+                  p-2
+                  text-left
+
+                  transition-all
+                  duration-200
+
+                  ${
+                    dark
+                      ? "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07]"
+                      : "border-gray-200 bg-white hover:bg-gray-50"
                   }
                 `}
-                onClick={() => setShowUserModal(true)}
               >
                 {/* Avatar */}
+
                 <img
                   src={userdata.avatar}
-                  alt={userdata.name}
+                  alt={userdata.name || "User"}
                   className={`
-                    w-8 h-8
+                    h-9
+                    w-9
+                    shrink-0
                     rounded-full
-                    object-cover
                     border
-                    ${dark ? "border-white/10" : "border-gray-200"}
+                    object-cover
+
+                    ${
+                      dark
+                        ? "border-white/10"
+                        : "border-gray-200"
+                    }
                   `}
                 />
 
                 {/* User Info */}
-                <div className="flex-1 min-w-0">
+
+                <div className="min-w-0 flex-1">
                   <h1
                     className={`
+                      truncate
                       text-xs
                       font-semibold
-                      truncate
-                      ${dark ? "text-white" : "text-gray-900"}
+
+                      ${
+                        dark
+                          ? "text-white"
+                          : "text-gray-900"
+                      }
                     `}
                   >
-                    {userdata.name}
+                    {userdata.name || "User"}
                   </h1>
 
                   <p
                     className={`
-                      text-[10px]
                       mt-0.5
-                      ${dark ? "text-gray-400" : "text-gray-500"}
+                      truncate
+                      text-[10px]
+
+                      ${
+                        dark
+                          ? "text-gray-500"
+                          : "text-gray-500"
+                      }
                     `}
                   >
                     Free Plan
                   </p>
                 </div>
 
-                {/* Arrow indicator */}
+                {/* Arrow */}
+
                 <svg
-                  className={`w-4 h-4 ${dark ? "text-gray-400" : "text-gray-500"}`}
+                  className={`
+                    h-4
+                    w-4
+                    shrink-0
+
+                    ${
+                      dark
+                        ? "text-gray-500"
+                        : "text-gray-400"
+                    }
+                  `}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -300,133 +461,201 @@ export default function Sidebar() {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </div>
+              </button>
             ) : (
-              // Only avatar when sidebar is closed
-              <div
-                className="flex justify-center cursor-pointer"
+              /* ====================================
+                 CLOSED USER
+              ==================================== */
+
+              <button
+                type="button"
                 onClick={() => setShowUserModal(true)}
+                className="
+                  flex
+                  w-full
+                  items-center
+                  justify-center
+                "
               >
                 <img
                   src={userdata.avatar}
-                  alt={userdata.name}
+                  alt={userdata.name || "User"}
                   className={`
-                    w-10 h-10
+                    h-9
+                    w-9
                     rounded-full
-                    object-cover
                     border-2
-                    transition-all duration-200
-                    hover:scale-110
-                    ${dark
-                      ? "border-white/20 hover:border-white/40"
-                      : "border-gray-300 hover:border-gray-500"
+                    object-cover
+
+                    transition-all
+                    duration-200
+
+                    hover:scale-105
+
+                    ${
+                      dark
+                        ? "border-white/20 hover:border-white/40"
+                        : "border-gray-300 hover:border-gray-500"
                     }
                   `}
                 />
-              </div>
+              </button>
             )}
-          </div>
+          </>
         ) : (
-          // Login button when no user
-          <Register />
+          <div className="w-full">
+            <Register />
+          </div>
         )}
       </div>
 
-      {/* User Modal - Center of screen */}
+      {/* ============================================
+          USER MODAL
+      ============================================ */}
+
       {showUserModal && userdata && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="
+            fixed
+            inset-0
+            z-[100]
+            flex
+            items-center
+            justify-center
+            bg-black/50
+            p-4
+            backdrop-blur-sm
+          "
           onClick={() => setShowUserModal(false)}
         >
           <div
             className={`
-              w-96
-              max-w-[90vw]
-              rounded-2xl
-              shadow-2xl
-              p-6
               relative
-              transition-all
-              duration-300
-              scale-100
-              ${dark
-                ? "bg-gray-900 text-white border border-white/10"
-                : "bg-white text-gray-900 border border-gray-200"
+              w-full
+              max-w-sm
+              rounded-2xl
+              border
+              p-6
+              shadow-2xl
+
+              ${
+                dark
+                  ? "border-white/[0.08] bg-[#111] text-white"
+                  : "border-gray-200 bg-white text-gray-900"
               }
             `}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
           >
-            {/* Close button */}
+            {/* Close */}
+
             <button
+              type="button"
               onClick={() => setShowUserModal(false)}
               className={`
-                absolute top-3 right-3
-                p-1
+                absolute
+                right-3
+                top-3
+                flex
+                h-8
+                w-8
+                items-center
+                justify-center
                 rounded-full
+
                 transition-all
-                hover:scale-110
-                ${dark
-                  ? "text-gray-400 hover:text-white hover:bg-white/10"
-                  : "text-gray-500 hover:text-black hover:bg-gray-100"
+
+                ${
+                  dark
+                    ? "text-gray-400 hover:bg-white/[0.06] hover:text-white"
+                    : "text-gray-500 hover:bg-gray-100 hover:text-black"
                 }
               `}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
 
-            {/* User Profile Content */}
+            {/* Profile */}
+
             <div className="flex flex-col items-center text-center">
-              {/* Avatar */}
               <img
                 src={userdata.avatar}
-                alt={userdata.name}
+                alt={userdata.name || "User"}
                 className={`
-                  w-24 h-24
-                  rounded-full
-                  object-cover
-                  border-4
                   mb-4
-                  ${dark ? "border-white/20" : "border-gray-200"}
+                  h-20
+                  w-20
+                  rounded-full
+                  border-4
+                  object-cover
+
+                  ${
+                    dark
+                      ? "border-white/10"
+                      : "border-gray-200"
+                  }
                 `}
               />
 
-              {/* Name */}
               <h2
                 className={`
-                  text-xl
+                  text-lg
                   font-bold
-                  mb-1
-                  ${dark ? "text-white" : "text-gray-900"}
+
+                  ${
+                    dark
+                      ? "text-white"
+                      : "text-gray-900"
+                  }
                 `}
               >
-                {userdata.name}
+                {userdata.name || "User"}
               </h2>
 
-              {/* Email */}
               <p
                 className={`
+                  mt-1
+                  max-w-full
+                  truncate
                   text-sm
-                  mb-4
-                  ${dark ? "text-gray-400" : "text-gray-500"}
+
+                  ${
+                    dark
+                      ? "text-gray-500"
+                      : "text-gray-500"
+                  }
                 `}
               >
                 {userdata.email || "user@email.com"}
               </p>
 
-              {/* Plan Badge */}
+              {/* Plan */}
+
               <span
                 className={`
-                  text-xs
-                  px-4 py-1.5
+                  mt-4
                   rounded-full
                   border
+                  px-4
+                  py-1.5
+                  text-xs
                   font-medium
-                  mb-4
-                  ${dark
-                    ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border-blue-500/20"
-                    : "bg-gray-100 text-gray-600 border-gray-200"
+
+                  ${
+                    dark
+                      ? "border-blue-500/20 bg-blue-500/10 text-blue-300"
+                      : "border-gray-200 bg-gray-100 text-gray-600"
                   }
                 `}
               >
@@ -434,25 +663,32 @@ export default function Sidebar() {
               </span>
 
               {/* Buttons */}
-              <div className="w-full space-y-2">
+
+              <div className="mt-5 w-full space-y-2">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowUserModal(false);
-                    // Navigate to user dashboard
                     navigate("/user-dashboard");
                   }}
                   className={`
                     w-full
-                    px-4 py-2.5
                     rounded-lg
+                    border
+                    px-4
+                    py-2.5
                     text-sm
                     font-semibold
-                    border
-                    transition-all duration-200
-                    active:scale-95
-                    ${dark
-                      ? "bg-white/10 border-white/20 hover:bg-white hover:text-black"
-                      : "bg-gray-100 border-gray-200 hover:bg-black hover:text-white hover:border-black"
+
+                    transition-all
+                    duration-200
+
+                    active:scale-[0.98]
+
+                    ${
+                      dark
+                        ? "border-white/10 bg-white/[0.05] hover:bg-white hover:text-black"
+                        : "border-gray-200 bg-gray-100 hover:bg-black hover:text-white"
                     }
                   `}
                 >
@@ -460,33 +696,26 @@ export default function Sidebar() {
                 </button>
 
                 <button
-                  onClick={() => {
-                    setShowUserModal(false);
-                    // Handle logout
-                    const logout = async () => {
-                      try {
-                        await api.post("/auth/logout");
-                        dispatch(setuserData(null));
-                        dispatch(clearConversations());
-                        navigate("/");
-                      } catch (error) {
-                        console.log(error);
-                      }
-                    };
-                    logout();
-                  }}
+                  type="button"
+                  onClick={handleLogout}
                   className={`
                     w-full
-                    px-4 py-2.5
                     rounded-lg
+                    border
+                    px-4
+                    py-2.5
                     text-sm
                     font-semibold
-                    border
-                    transition-all duration-200
-                    active:scale-95
-                    ${dark
-                      ? "text-red-400 border-red-400/30 hover:bg-red-500/10"
-                      : "text-red-600 border-red-300 hover:bg-red-50"
+
+                    transition-all
+                    duration-200
+
+                    active:scale-[0.98]
+
+                    ${
+                      dark
+                        ? "border-red-500/20 text-red-400 hover:bg-red-500/10"
+                        : "border-red-200 text-red-600 hover:bg-red-50"
                     }
                   `}
                 >
@@ -497,6 +726,7 @@ export default function Sidebar() {
           </div>
         </div>
       )}
-    </div>
+    </aside>
   );
 }
+

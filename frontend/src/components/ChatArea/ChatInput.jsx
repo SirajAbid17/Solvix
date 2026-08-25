@@ -1,4 +1,3 @@
-// ChatInput.jsx - Complete file
 import React, { useState } from "react";
 import { useTheme } from "../../BgContext/ThemeContext";
 import { FiPaperclip, FiMic, FiSend } from "react-icons/fi";
@@ -19,6 +18,8 @@ import {
 import Document from "./Document";
 import UpdateConversation from "../../Features/UpdateConversation";
 import { updateConversationTitle, setSelectedConversation } from "../../redux/conversationSlice";
+import VoiceText from "./VoiceText";
+import toast from "react-hot-toast";
 
 export default function ChatInput() {
   const { dark } = useTheme();
@@ -58,6 +59,47 @@ export default function ChatInput() {
     (state) => state.conversation.selectedConversation,
   );
 
+  // ✅ PDF Download Function
+  const downloadPDF = (pdfBase64, title) => {
+    try {
+      console.log("📄 Downloading PDF, Base64 length:", pdfBase64?.length);
+      
+      if (!pdfBase64) {
+        toast.error('No PDF data available');
+        return false;
+      }
+
+      // Convert Base64 to Blob
+      const byteCharacters = atob(pdfBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title || 'document'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 100);
+
+      toast.success('📄 PDF downloaded successfully!');
+      return true;
+    } catch (error) {
+      console.error('PDF download failed:', error);
+      toast.error('Failed to download PDF');
+      return false;
+    }
+  };
+
   const handleSend = async () => {
     const text = message.trim();
 
@@ -68,7 +110,6 @@ export default function ChatInput() {
       return;
     }
 
-    // ✅ FIX: Check for both "New Chat" and "New Conversation"
     const isNewConversation = !selectedConversation.title || 
                               selectedConversation.title === "New Conversation" ||
                               selectedConversation.title === "New Chat";
@@ -79,20 +120,16 @@ export default function ChatInput() {
         newTitle = newTitle.substring(0, 30) + '...';
       }
       
-    
-      // Update Redux - both in conversations list and selected conversation
       dispatch(updateConversationTitle({
         id: selectedConversation._id,
         title: newTitle
       }));
       
-      // Also update the selected conversation directly
       dispatch(setSelectedConversation({
         ...selectedConversation,
         title: newTitle
       }));
       
-      // Update in database
       try {
         await UpdateConversation({
           id: selectedConversation._id,
@@ -115,7 +152,7 @@ export default function ChatInput() {
         role: "user",
         content: text,
         conversationId: selectedConversation._id,
-      }),
+      })
     );
 
     setMessage("");
@@ -123,7 +160,23 @@ export default function ChatInput() {
     try {
       setLoading(true);
       const data = await ChatAgent(payload);
-      console.log("AI Response:", data);
+      
+      console.log("🔍 Full Response:", data);
+      console.log("🔍 PDF Generated:", data.pdfGenerated);
+      console.log("🔍 PDF Length:", data.pdf?.length);
+
+      let pdfData = null;
+      if (data.pdf && data.pdfGenerated === true) {
+        pdfData = data.pdf;
+        console.log("📄 PDF received! Length:", pdfData.length);
+        
+        // ✅ Auto download
+        setTimeout(() => {
+          downloadPDF(pdfData, data.response?.slice(0, 30) || "document");
+        }, 500);
+      } else {
+        console.warn("⚠️ No PDF in response!");
+      }
 
       dispatch(
         addMessage({
@@ -131,8 +184,11 @@ export default function ChatInput() {
           content: data.response || "No response",
           conversationId: selectedConversation._id,
           images: data.images || [],
-        }),
+          pdf: pdfData,
+          pdfGenerated: data.pdfGenerated === true,
+        })
       );
+
     } catch (error) {
       console.error("Chat Error:", error.response?.data || error.message);
       dispatch(
@@ -141,7 +197,9 @@ export default function ChatInput() {
           content: "Sorry, something went wrong. Please try again.",
           conversationId: selectedConversation._id,
           images: [],
-        }),
+          pdf: null,
+          pdfGenerated: false,
+        })
       );
     } finally {
       setLoading(false);
@@ -349,7 +407,6 @@ export default function ChatInput() {
               selectedFiles={selectedFiles}
             />
 
-            {/* Textarea */}
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -369,6 +426,10 @@ export default function ChatInput() {
                 min-h-[40px]
                 flex-1
                 resize-none
+                overflow-y-auto
+                [scrollbar-width:none]
+                [-ms-overflow-style:none]
+                [&::-webkit-scrollbar]:hidden
                 bg-transparent
                 px-2
                 py-2.5
@@ -383,31 +444,15 @@ export default function ChatInput() {
               `}
             />
 
-            {/* Right Actions */}
             <div className="flex shrink-0 items-center gap-1">
-              <button
-                type="button"
-                title="Voice input"
-                disabled={loading}
-                className={`
-                  flex
-                  h-10
-                  w-10
-                  items-center
-                  justify-center
-                  rounded-xl
-                  transition-all
-                  hover:scale-105
-                  active:scale-95
-                  ${
-                    dark
-                      ? "text-gray-400 hover:bg-white/10 hover:text-white"
-                      : "text-gray-500 hover:bg-gray-200 hover:text-black"
-                  }
-                `}
-              >
-                <FiMic size={19} />
-              </button>
+              <VoiceText
+                onTranscript={(text) => {
+                  console.log('Final transcript:', text);
+                }}
+                setMessage={setMessage}
+                dark={dark}
+                loading={loading}
+              />
 
               <button
                 type="button"
@@ -420,7 +465,7 @@ export default function ChatInput() {
                   w-10
                   items-center
                   justify-center
-                  rounded-xl
+                  rounded-md
                   transition-all
                   hover:scale-105
                   active:scale-95

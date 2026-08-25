@@ -20,10 +20,29 @@ export const agentState = Annotation.Root({
   conversationId: Annotation({
     default: () => null,
   }),
-    searchResults: Annotation({
+
+  searchResults: Annotation({
     default: () => [],
   }),
+
   images: Annotation({
-    default: () => [], 
+    default: () => [],
+  }),
+
+  // ✅ ADD PDF FIELDS
+  pdfBuffer: Annotation({
+    default: () => null,
+  }),
+
+  pdfGenerated: Annotation({
+    default: () => false,
+  }),
+
+  document: Annotation({
+    default: () => null,
+  }),
+
+  isPartialData: Annotation({
+    default: () => false,
   }),
 });

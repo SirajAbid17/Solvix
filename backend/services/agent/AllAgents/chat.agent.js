@@ -5,7 +5,6 @@ export const ChatAgent = async (state) => {
   try {
     const llm = await GetModels("chat");
     
-    // Better handling of search results
     let webSearchContext = "";
     if (state.searchResults && state.searchResults.length > 0) {
       webSearchContext = `
@@ -16,7 +15,7 @@ ${index + 1}. ${result.title || 'Result'}
    - Content: ${result.content || result.snippet || ''}
 `).join('\n')}
 
-### Images Found:
+
 ${state.images && state.images.length > 0 
   ? state.images.map(img => `- ${img.url || img.src || ''}`).join('\n')
   : 'No images found'}

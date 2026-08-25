@@ -13,7 +13,7 @@ const messageSchmea=new mongoose.Schema({
         type:String
       },
       images: {
-    type: [String],  // 👈 YAHAN CHANGE - Images array
+    type: [String],  
     default: []
   }
 },{timestamps:true})

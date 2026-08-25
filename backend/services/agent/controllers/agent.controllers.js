@@ -59,6 +59,8 @@ export const Agents = async (req, res) => {
     });
 
     // 4. Invoke the graph
+    console.log("🚀 Invoking graph with:", { prompt, conversationId, agent });
+    
     const result = await graph.invoke({
       prompt,
       messages: previousMessages,
@@ -66,8 +68,51 @@ export const Agents = async (req, res) => {
       agent: agent || "Auto",
     });
 
+    console.log("🔍 Result from graph:", {
+      hasPdfBuffer: !!result.pdfBuffer,
+      pdfGenerated: result.pdfGenerated,
+      hasAiResponse: !!result.aiResponse,
+      resultKeys: Object.keys(result),
+    });
+
     const aiResponse = result.aiResponse;
     const images = result.images || [];
+    const pdfBuffer = result.pdfBuffer;
+    const pdfGenerated = result.pdfGenerated || false;
+
+    // ✅ Format images with full URLs
+    const formattedImages = images.map(img => {
+      if (typeof img === 'string') {
+        if (img.startsWith('http')) {
+          return img;
+        } else {
+          const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+          return img.startsWith('/') ? `${baseUrl}${img}` : `${baseUrl}/${img}`;
+        }
+      } else if (img.url) {
+        if (!img.url.startsWith('http')) {
+          const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+          img.url = img.url.startsWith('/') ? `${baseUrl}${img.url}` : `${baseUrl}/${img.url}`;
+        }
+        return img;
+      }
+      return img;
+    });
+
+    // ✅ Convert PDF buffer to Base64 for frontend
+    let pdfBase64 = null;
+    if (pdfBuffer && pdfGenerated === true) {
+      try {
+        const buffer = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
+        pdfBase64 = buffer.toString('base64');
+        console.log(`✅ PDF converted to Base64, length: ${pdfBase64.length}`);
+      } catch (error) {
+        console.error("❌ Failed to convert PDF to Base64:", error);
+        pdfBase64 = null;
+      }
+    } else {
+      console.warn(`⚠️ No PDF buffer or pdfGenerated is ${pdfGenerated}`);
+    }
 
     // 5. Save AI response in MongoDB
     if (aiResponse) {
@@ -78,9 +123,12 @@ export const Agents = async (req, res) => {
             conversationId,
             role: "assistant",
             content: aiResponse,
-            images: images, // Send images properly
+            images: formattedImages,
+            pdfGenerated: pdfGenerated,
+            pdf: pdfBase64,
           }
         );
+        console.log("✅ Saved message with PDF:", pdfGenerated);
       } catch (error) {
         console.error("Error saving AI response to MongoDB:", error.message);
       }
@@ -89,14 +137,20 @@ export const Agents = async (req, res) => {
       await saveConversationMessage(conversationId, {
         role: "assistant",
         content: aiResponse,
-        images: images,
+        images: formattedImages,
+        pdfGenerated: pdfGenerated,
+        pdf: pdfBase64,
       });
     }
 
+    // ✅ RETURN RESPONSE WITH PDF
     return res.status(200).json({
       response: aiResponse || "No response generated",
-      images: images,
+      images: formattedImages,
+      pdf: pdfBase64,
+      pdfGenerated: pdfGenerated,
     });
+
   } catch (error) {
     console.error("Agent error:", error.response?.data || error.message);
 

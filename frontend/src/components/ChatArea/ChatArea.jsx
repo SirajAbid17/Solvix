@@ -1,4 +1,3 @@
-// ChatArea.jsx
 import React, { useEffect } from 'react'
 import Navbar from './Navbar'
 import ChatInput from './ChatInput'

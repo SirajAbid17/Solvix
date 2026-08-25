@@ -10,11 +10,24 @@ const messageSlice = createSlice({
 
   reducers: {
     setMessages: (state, action) => {
-      state.messages = action.payload;
+      // ✅ Ensure all messages have PDF fields
+      state.messages = action.payload.map(msg => ({
+        ...msg,
+        pdf: msg.pdf || null,
+        pdfGenerated: msg.pdfGenerated || false,
+        images: msg.images || []
+      }));
     },
 
     addMessage: (state, action) => {
-      state.messages.push(action.payload);
+      // ✅ Ensure PDF fields exist
+      const message = {
+        ...action.payload,
+        pdf: action.payload.pdf || null,
+        pdfGenerated: action.payload.pdfGenerated || false,
+        images: action.payload.images || [],
+      };
+      state.messages.push(message);
     },
 
     clearMessages: (state) => {
@@ -30,4 +43,3 @@ export const {
 } = messageSlice.actions;
 
 export default messageSlice.reducer;
-

@@ -1,257 +1,168 @@
-
-import React, { useRef, useState } from "react";
-import { useTheme } from "../../BgContext/ThemeContext";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  FiPaperclip,
-  FiFile,
-  FiImage,
-  FiX,
+  FiPlus,
+  FiFileText,
+  FiUser,
+  FiFolder,
+  FiMic,
+  FiZap,
+  FiLock,
 } from "react-icons/fi";
+import { useTheme } from "../../BgContext/ThemeContext";
 
-export default function Document({
-  onFileSelect,
-  onFileRemove,
-  selectedFiles = [],
-}) {
+export default function Document() {
   const { dark } = useTheme();
+  const navigate = useNavigate();
 
-  const fileInputRef = useRef(null);
-  const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
+  const popupRef = useRef(null);
 
-  // Settings
-  const MAX_SIZE = 10 * 1024 * 1024;
-  const MAX_FILES = 5;
-
-  // Open file picker
-  const openFilePicker = () => {
-    fileInputRef.current?.click();
-  };
-
-  // Handle file selection
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-
-    // Check maximum files
-    if (selectedFiles.length + files.length > MAX_FILES) {
-      setError("Maximum 5 files allowed");
-
-      setTimeout(() => {
-        setError("");
-      }, 3000);
-
-      e.target.value = "";
-      return;
-    }
-
-    // Check file size
-    const validFiles = [];
-
-    files.forEach((file) => {
-      if (file.size > MAX_SIZE) {
-        setError(file.name + " is larger than 10MB");
-      } else {
-        validFiles.push(file);
+  // Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setOpen(false);
       }
-    });
+    };
 
-    // Add valid files
-    if (validFiles.length > 0) {
-      onFileSelect([...selectedFiles, ...validFiles]);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
 
-    // Reset input
-    e.target.value = "";
-  };
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
-  // Remove one file
-  const removeFile = (index) => {
-    if (onFileRemove) {
-      onFileRemove(index);
-    }
-  };
+  const options = [
+    {
+      name: "Resume Analyzer",
+      icon: FiFileText,
+      path: "/resume",
+    },
+    {
+      name: "CV Generator",
+      icon: FiUser,
+      path: "/cv-generator",
+    },
+    {
+      name: "Portfolio Generate",
+      icon: FiFolder,
+      path: "/portfolio",
+    },
+    {
+      name: "Mock Interview",
+      icon: FiMic,
+      path: "/mock-interview",
+    },
+  ];
 
-  // Remove all files
-  const clearAllFiles = () => {
-    if (onFileRemove) {
-      onFileRemove("all");
-    }
-  };
-
-  // File icon
-  const getFileIcon = (file) => {
-    if (file.type && file.type.startsWith("image/")) {
-      return <FiImage size={18} />;
-    }
-
-    return <FiFile size={18} />;
+  const handleNavigate = (path) => {
+    setOpen(false);
+    navigate(path);
   };
 
   return (
-    <div className="relative">
-
-      {/* Attach Button */}
+    <div ref={popupRef} className="relative">
+      {/* Plus Button */}
       <button
         type="button"
-        onClick={openFilePicker}
-        title="Attach file"
-        className={
-          "relative w-10 h-10 flex items-center justify-center rounded-xl " +
-          "transition-all duration-200 hover:scale-105 active:scale-95 " +
-          (dark
-            ? "text-gray-400 hover:bg-white/10 hover:text-white"
-            : "text-gray-500 hover:bg-gray-100 hover:text-black")
-        }
+        onClick={() => setOpen((prev) => !prev)}
+        title="Solvix Tools"
+        className={`flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${
+          dark
+            ? "bg-[rgb(41,41,41)] text-gray-300 hover:bg-[rgb(55,55,55)] hover:text-white"
+            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-black"
+        }`}
       >
-        <FiPaperclip size={19} />
-
-        {/* File Count */}
-        {selectedFiles.length > 0 && (
-          <span
-            className="
-              absolute
-              -top-1
-              -right-1
-              w-5
-              h-5
-              rounded-full
-              bg-blue-500
-              text-white
-              text-[10px]
-              font-bold
-              flex
-              items-center
-              justify-center
-            "
-          >
-            {selectedFiles.length}
-          </span>
-        )}
+        <FiPlus size={18} />
       </button>
 
-      {/* Hidden File Input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx"
-        onChange={handleFileChange}
-        className="hidden"
-      />
-
-      {/* Error Message */}
-      {error && (
+      {/* Menu */}
+      {open && (
         <div
-          className="
-            absolute
-            bottom-full
-            left-0
-            mb-2
-            z-50
-            px-3
-            py-2
-            rounded-lg
-            bg-red-500
-            text-white
-            text-xs
-            whitespace-nowrap
-            shadow-lg
-          "
-        >
-          {error}
-        </div>
-      )}
-
-      {/* Selected Files Popup */}
-      {selectedFiles.length > 0 && (
-        <div
-          className={
-            "absolute bottom-full left-0 mb-2 w-72 p-3 rounded-xl shadow-xl z-40 " +
-            (dark
-              ? "bg-[#1a1a1a] border border-white/10"
-              : "bg-white border border-gray-200")
-          }
+          className={`absolute bottom-full left-0 z-50 mb-3.5 w-56 rounded-md border p-2 shadow-2xl ${
+            dark
+              ? "border-white/10 bg-[#1a1a1a]"
+              : "border-gray-200 bg-white"
+          }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-3">
-            <span
-              className={
-                "text-xs font-medium " +
-                (dark ? "text-gray-400" : "text-gray-500")
-              }
+          <div className="flex items-center justify-between px-3 py-2">
+            <p
+              className={`text-xs font-semibold ${
+                dark ? "text-gray-400" : "text-gray-500"
+              }`}
             >
-              {selectedFiles.length} file(s) attached
-            </span>
+              Solvix Tools
+            </p>
 
-            <button
-              type="button"
-              onClick={clearAllFiles}
-              className="text-xs text-red-500 hover:text-red-600"
+            <div
+              className={`flex items-center gap-1 rounded-full px-2 py-1 text-[9px] font-bold tracking-wide ${
+                dark
+                  ? "bg-yellow-500/10 text-yellow-400"
+                  : "bg-yellow-50 text-yellow-600"
+              }`}
             >
-              Clear all
-            </button>
+              <FiZap size={10} />
+              <span>PRO</span>
+            </div>
           </div>
 
-          {/* Files */}
-          <div className="space-y-2">
-            {selectedFiles.map((file, index) => (
-              <div
-                key={index}
-                className={
-                  "flex items-center gap-2 p-2 rounded-lg transition " +
-                  (dark
-                    ? "hover:bg-white/5"
-                    : "hover:bg-gray-100")
-                }
-              >
-                {/* File Icon */}
-                <div
-                  className={
-                    "w-9 h-9 rounded-lg flex items-center justify-center " +
-                    (dark
-                      ? "bg-white/10 text-gray-300"
-                      : "bg-gray-100 text-gray-500")
-                  }
-                >
-                  {getFileIcon(file)}
-                </div>
+          <div
+            className={`my-1 h-px ${
+              dark ? "bg-white/5" : "bg-gray-100"
+            }`}
+          />
 
-                {/* File Info */}
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={
-                      "text-xs font-medium truncate " +
-                      (dark
-                        ? "text-gray-300"
-                        : "text-gray-700")
-                    }
-                  >
-                    {file.name}
-                  </p>
+          {/* Options */}
+          <div className="h-53 space-y-1">
+            {options.map((item) => {
+              const Icon = item.icon;
 
-                  <p className="text-[10px] text-gray-400">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-
-                {/* Remove Button */}
+              return (
                 <button
+                  key={item.path}
                   type="button"
-                  onClick={() => removeFile(index)}
-                  className={
-                    "p-1 rounded-md transition " +
-                    (dark
-                      ? "text-gray-400 hover:bg-red-500/10 hover:text-red-400"
-                      : "text-gray-400 hover:bg-red-50 hover:text-red-500")
-                  }
+                  onClick={() => handleNavigate(item.path)}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${
+                    dark
+                      ? "text-gray-300 hover:bg-white/5 hover:text-white"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
                 >
-                  <FiX size={15} />
+                  {/* Icon */}
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                      dark
+                        ? "bg-white/5 text-gray-400"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    <Icon size={16} />
+                  </span>
+
+                  {/* Name */}
+                  <span className="truncate text-xs font-medium">
+                    {item.name}
+                  </span>
+
+                  {/* Paid */}
+                  <span
+                    className={`ml-auto flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[9px] font-semibold ${
+                      dark
+                        ? "bg-yellow-500/10 text-yellow-400"
+                        : "bg-yellow-50 text-yellow-600"
+                    }`}
+                  >
+                    <FiLock size={9} />
+                    Paid
+                  </span>
                 </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
     </div>
   );
 }
-

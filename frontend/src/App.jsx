@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import { Route, Routes } from "react-router-dom";
 import Page_not_Found from "./pages/Page_not_Found";
 import GetcurrentUser from "./Features/GetcurrentUser";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setuserData } from "./redux/userSlice";
 import UserDashboard from "./pages/UserDashboard";
 import Resume from "./pages/Resume";
@@ -15,11 +15,12 @@ import ShowResume from "./components/Resume/CV-Generate/ShowResume";
 import AllResume from "./pages/AllResume";
 import WebsitePreview from "./pages/WebsitePreview";
 import AllPortfolio from "./pages/AllPortfolio";
+import LoginRequired from "./pages/LoginRequired";
 
 export default function App() {
   const dispatch = useDispatch();
  
-
+  const user = useSelector((state) => state.user.userdata);
   useEffect(() => {
     const getuser = async () => {
       try {
@@ -44,7 +45,10 @@ export default function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={user ? <Home /> : <LoginRequired />}
+        />
         <Route path="/user-dashboard" element={<UserDashboard />} />
            <Route path="/resume" element={<Resume />} />
            <Route path="/cv-generator" element={<CVGenerate />} />
