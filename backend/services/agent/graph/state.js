@@ -29,7 +29,7 @@ export const agentState = Annotation.Root({
     default: () => [],
   }),
 
-  // ✅ ADD PDF FIELDS
+  // ✅ PDF FIELDS
   pdfBuffer: Annotation({
     default: () => null,
   }),
@@ -44,5 +44,42 @@ export const agentState = Annotation.Root({
 
   isPartialData: Annotation({
     default: () => false,
+  }),
+
+  pdfUrl: Annotation({
+    default: () => null,
+  }),
+
+  pdfBase64: Annotation({
+    default: () => null,
+  }),
+
+  // ✅ PPT FIELDS
+  ppt: Annotation({
+    default: () => null,
+  }),
+
+  pptBuffer: Annotation({
+    default: () => null,
+  }),
+
+  pptGenerated: Annotation({
+    default: () => false,
+  }),
+
+  pptFileName: Annotation({
+    default: () => null,
+  }),
+
+  pptData: Annotation({
+    default: () => null,
+  }),
+
+  pptUrl: Annotation({
+    default: () => null,
+  }),
+
+  pptBase64: Annotation({
+    default: () => null,
   }),
 });

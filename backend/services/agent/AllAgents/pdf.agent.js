@@ -1,7 +1,6 @@
 import { GetModels } from "../config/aimodels.js";
 import generatePdf from "../utlis/GeneratePdf.js";
-
-
+import { uploadToCloudinary } from "../utlis/UploadFile.js";
 
 function createFallbackDocument(prompt) {
   const topic = prompt || "Document";
@@ -33,146 +32,100 @@ function createFallbackDocument(prompt) {
   };
 }
 
-function extractPartialData(content) {
-  try {
-   
-    let title = "Document";
-    let subtitle = "";
-    let sections = [];
-    
-    // Try to extract title
-    const titleMatch = content.match(/"title"\s*:\s*"([^"]*)"/);
-    if (titleMatch) title = titleMatch[1];
-    
-    // Try to extract subtitle
-    const subtitleMatch = content.match(/"subtitle"\s*:\s*"([^"]*)"/);
-    if (subtitleMatch) subtitle = subtitleMatch[1];
-    
-    // Extract all headings
-    const headingRegex = /"heading"\s*:\s*"([^"]*)"/g;
-    const headings = [];
-    let match;
-    while ((match = headingRegex.exec(content)) !== null) {
-      headings.push(match[1]);
-    }
-    
-    // Extract all points
-    const pointsRegex = /"points"\s*:\s*\[\s*"([^"]*?)"\s*,\s*"([^"]*?)"\s*,\s*"([^"]*?)"\s*\]/g;
-    const allPoints = [];
-    let pointsMatch;
-    while ((pointsMatch = pointsRegex.exec(content)) !== null) {
-      for (let i = 1; i < pointsMatch.length; i++) {
-        if (pointsMatch[i] && pointsMatch[i].trim()) {
-          allPoints.push(pointsMatch[i]);
-        }
-      }
-    }
-    
-    // Alternative points extraction
-    if (allPoints.length === 0) {
-      const simplePointRegex = /"points"\s*:\s*\[\s*"([^"]*?)"/g;
-      let simpleMatch;
-      while ((simpleMatch = simplePointRegex.exec(content)) !== null) {
-        if (simpleMatch[1] && simpleMatch[1].trim()) {
-          allPoints.push(simpleMatch[1]);
-        }
-      }
-    }
-    
-    
-    
-    // Build sections from extracted data
-    if (headings.length > 0 && allPoints.length > 0) {
-      const pointsPerSection = Math.ceil(allPoints.length / headings.length);
-      headings.forEach((heading, index) => {
-        const start = index * pointsPerSection;
-        const end = Math.min(start + pointsPerSection, allPoints.length);
-        const sectionPoints = allPoints.slice(start, end);
-        if (sectionPoints.length > 0) {
-          sections.push({ 
-            heading: heading.trim(), 
-            points: sectionPoints.map(p => p.trim())
-          });
-        }
-      });
-    } else if (headings.length > 0) {
-      headings.forEach(heading => {
-        sections.push({ 
-          heading: heading.trim(), 
-          points: [
-            `${heading.trim()} is an important topic to understand.`,
-            `Key concepts related to ${heading.trim()} are covered in detail.`,
-            `Practical applications of ${heading.trim()} are discussed.`
-          ]
-        });
-      });
-    } else if (allPoints.length > 0) {
-      sections.push({ 
-        heading: "Content", 
-        points: allPoints.map(p => p.trim())
-      });
-    }
-    
-    if (sections.length === 0) {
-      sections = [
-        { 
-          heading: "Overview", 
-          points: [
-            `${title} covers essential topics and concepts.`,
-            "Comprehensive information is provided in this document.",
-            "Key points are highlighted for easy reference."
-          ]
-        }
-      ];
-    }
-    
-    return { title, subtitle, sections };
-  } catch (e) {
-    console.warn("Extract failed:", e.message);
-    return null;
-  }
-}
-
 function normalizeDocument(document, prompt) {
-  if (!document.title) {
-    const topic = prompt || "Document";
-    document.title = topic.length > 50 ? topic.substring(0, 50) + "..." : topic;
-    document.title = document.title.charAt(0).toUpperCase() + document.title.slice(1);
+  if (!document || typeof document !== "object") {
+    document = {};
   }
-  if (!document.subtitle) document.subtitle = "Generated document";
-  
+
+  if (!document.title || !String(document.title).trim()) {
+    const topic = prompt || "Document";
+    document.title = topic.length > 80 ? topic.substring(0, 80) + "..." : topic;
+    document.title = document.title.charAt(0).toUpperCase() + document.title.slice(1);
+  } else {
+    document.title = String(document.title).trim();
+  }
+
+  if (!document.subtitle || !String(document.subtitle).trim()) {
+    document.subtitle = "Generated document";
+  } else {
+    document.subtitle = String(document.subtitle).trim();
+  }
+
   if (!Array.isArray(document.sections) || document.sections.length === 0) {
     document.sections = [
-      { 
-        heading: "Content", 
+      {
+        heading: "Content",
+        content: `${document.title} provides comprehensive information about the requested topic. The document explains important concepts, relevant details, practical considerations, and useful information for better understanding.`,
         points: [
-          `${document.title} covers all essential topics.`,
-          "Detailed information is provided in the following sections.",
-          "Key concepts and best practices are explained clearly."
-        ]
-      }
+          `${document.title} covers all essential topics related to the subject.`,
+          "Detailed information is provided throughout the document.",
+          "Important concepts and practical considerations are explained clearly.",
+          "Relevant examples and useful insights are included where appropriate.",
+        ],
+      },
     ];
   }
-  
-  document.sections = document.sections.map((section, index) => {
-    let points = Array.isArray(section?.points) ? section.points.filter(Boolean).map(String) : [];
-    
-    if (points.length === 0 || points.every(p => p.toLowerCase().trim() === "points" || p.toLowerCase().trim() === "heading covers important aspects of the topic.")) {
-      const heading = section?.heading || `Section ${index + 1}`;
-      points = [
-        `${heading} covers important aspects of the topic.`,
-        `Key concepts related to ${heading} are explained.`,
-        `Practical insights are provided for better understanding.`,
-        `Best practices and common approaches are discussed.`
-      ];
-    }
-    
-    return {
-      heading: section?.heading || `Section ${index + 1}`,
-      points: points
-    };
-  });
-  
+
+  document.sections = document.sections
+    .map((section, index) => {
+      const heading = section?.heading && String(section.heading).trim()
+        ? String(section.heading).trim()
+        : `Section ${index + 1}`;
+
+      let content = "";
+      if (section?.content !== null && section?.content !== undefined) {
+        content = String(section.content).trim();
+      }
+
+      let points = Array.isArray(section?.points)
+        ? section.points
+            .filter((point) => point !== null && point !== undefined)
+            .map((point) => String(point).trim())
+            .filter(Boolean)
+        : [];
+
+      points = points.filter((point) => {
+        const normalized = point.toLowerCase().trim();
+        return (
+          normalized !== "points" &&
+          normalized !== "point" &&
+          normalized !== "heading" &&
+          normalized !== "content" &&
+          normalized !== "heading covers important aspects of the topic."
+        );
+      });
+
+      if (!content) {
+        content = `${heading} provides important information about this topic. This section explains the main concepts, relevant details, practical considerations, and important aspects that help the reader understand the subject clearly.`;
+      }
+
+      if (points.length === 0) {
+        points = [
+          `${heading} covers important aspects of the topic.`,
+          `Key concepts related to ${heading} are explained in detail.`,
+          `Practical insights related to ${heading} are provided for better understanding.`,
+          `Important considerations and common approaches related to ${heading} are discussed.`,
+        ];
+      }
+
+      return { heading, content, points };
+    })
+    .filter(Boolean);
+
+  if (document.sections.length === 0) {
+    document.sections = [
+      {
+        heading: "Overview",
+        content: `This document provides comprehensive information about ${document.title}.`,
+        points: [
+          `${document.title} covers the essential concepts of the requested topic.`,
+          "Important information is organized into clear sections.",
+          "Practical insights are provided for better understanding.",
+        ],
+      },
+    ];
+  }
+
   return document;
 }
 
@@ -191,258 +144,336 @@ function formatDocumentAsText(document) {
   return text;
 }
 
-async function callAIWithRetry(llm, prompt, maxRetries = 2) {
+async function callAIWithRetry(llm, prompt, maxRetries = 3) {
   let lastError = null;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`🔄 AI attempt ${attempt}/${maxRetries}...`);
-      
       const response = await llm.invoke(prompt);
-      
+
       let content = response?.content;
-      
-      if (content) {
-        if (Array.isArray(content)) {
-          content = content.map((item) => {
+
+      if (Array.isArray(content)) {
+        content = content
+          .map((item) => {
             if (typeof item === "string") return item;
             return item?.text || "";
-          }).join("");
-        }
-        content = String(content).trim();
-        
-        if (content.length > 0) {
-          console.log(`✅ AI response received (${content.length} chars)`);
-          return { success: true, content, rawResponse: response };
-        }
+          })
+          .join("");
       }
-      
-      console.warn(`⚠️ Attempt ${attempt}: Empty response from AI`);
-      lastError = new Error("AI returned empty content");
-      
-      if (attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000;
-        console.log(`⏳ Waiting ${delay}ms before retry...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+
+      if (!content) {
+        throw new Error("AI returned empty content");
       }
-      
+
+      content = String(content).trim();
+
+      if (!content.length) {
+        throw new Error("AI returned empty content");
+      }
+
+      return { success: true, content, rawResponse: response };
     } catch (error) {
-      console.warn(`⚠️ Attempt ${attempt} failed:`, error.message);
       lastError = error;
-      
-      if (attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000;
-        console.log(`⏳ Waiting ${delay}ms before retry...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+
+      const message = error?.message || String(error);
+      const isRateLimit =
+        message.includes("429") ||
+        message.includes("rate_limit_exceeded") ||
+        message.toLowerCase().includes("rate limit") ||
+        message.toLowerCase().includes("tokens per minute");
+
+      if (attempt >= maxRetries) break;
+
+      let delay = 5000;
+
+      const retryMatch = message.match(/try again in\s+([\d.]+)s/i);
+      if (retryMatch) {
+        const seconds = parseFloat(retryMatch[1]);
+        if (!isNaN(seconds)) {
+          delay = Math.ceil(seconds * 1000) + 2000;
+        }
+      } else if (isRateLimit) {
+        delay = 15000;
+      } else {
+        delay = Math.pow(2, attempt) * 1000;
       }
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
-  
+
   return { success: false, error: lastError };
 }
 
-// ============================================
-// MAIN PDF AGENT - DYNAMIC AI GENERATED
-// ============================================
-
 export const PdfAgent = async (state) => {
   try {
-    console.log("📄 PdfAgent started...");
-    console.log("📄 Prompt:", state?.prompt);
-    
     const llm = await GetModels("pdf");
 
-    // ✅ DYNAMIC PROMPT - Let AI generate the content based on the user's request
-    const prompt = `You are an expert document writer. Create a comprehensive, detailed document based on the user's request.
+    const userTopic = state?.prompt?.trim() || "Create a comprehensive document about technology";
 
-## User Request
-${state?.prompt || "Create a comprehensive document about technology"}
+    const structurePrompt = `
+You are an expert professional document planner.
 
-## Output Format
-Return ONLY valid JSON with this structure:
+The user wants a document about:
+
+"${userTopic}"
+
+Create a suitable structure specifically for this topic.
+
+Different topics require different sections.
+
+For example:
+- A biography should cover early life, career, achievements, legacy, etc.
+- A technology topic should cover concepts, architecture, applications, benefits, limitations, etc.
+- A business topic should cover market, strategy, operations, finance, risks, etc.
+- A historical topic should cover background, timeline, major events, impact, legacy, etc.
+- A scientific topic should cover definitions, principles, methodology, applications, limitations, future directions, etc.
+
+Do NOT blindly follow these examples. Decide the best structure yourself based on the user's topic.
+
+Return ONLY valid JSON.
+
 {
-  "title": "Descriptive Document Title",
-  "subtitle": "A brief, informative subtitle",
+  "title": "Appropriate document title",
+  "subtitle": "Informative subtitle",
   "sections": [
     {
-      "heading": "Section 1 Heading",
-      "points": [
-        "Detailed point 1 with 10-25 words explaining the concept",
-        "Detailed point 2 with 10-25 words providing more information",
-        "Detailed point 3 with 10-25 words giving practical insights",
-        "Detailed point 4 with 10-25 words covering best practices"
-      ]
-    },
-    {
-      "heading": "Section 2 Heading",
-      "points": [
-        "Detailed point 1 with 10-25 words",
-        "Detailed point 2 with 10-25 words",
-        "Detailed point 3 with 10-25 words"
-      ]
+      "heading": "Section heading",
+      "description": "What this section should explain"
     }
   ]
 }
 
-## Rules
-1. Create 4-6 sections based on the user's topic
-2. Each section MUST have 3-5 detailed points
-3. Each point MUST be 10-25 words with specific, useful information
-4. Make the content relevant, practical, and comprehensive
-5. Return ONLY valid JSON - no markdown, no code fences, no explanation
-6. Use double quotes for all strings
-7. No trailing commas
+Rules:
+1. Create between 8 and 12 meaningful sections.
+2. Sections must be specifically relevant to the user's topic.
+3. Avoid duplicate sections.
+4. Order sections logically.
+5. Do not invent unrelated sections.
+6. Return ONLY JSON.
+7. No markdown.
+8. No code fences.
+9. Use valid double-quoted JSON.
+`;
 
-Generate the JSON now:`;
+    const structureResult = await callAIWithRetry(llm, structurePrompt, 2);
 
-    console.log("🤖 Calling AI model for dynamic PDF generation...");
-    
-    const aiResult = await callAIWithRetry(llm, prompt, 2);
-    
-    let document = null;
-    let isPartialData = false;
-    let content = null;
-    
-    if (aiResult.success) {
-      content = aiResult.content;
-      console.log("📝 Raw content length:", content.length);
-      console.log("📝 Content preview:", content.substring(0, 300));
-      
-      // Clean up
-      content = content
-        .replace(/^```json\s*/i, "")
-        .replace(/^```\s*/i, "")
-        .replace(/\s*```$/i, "")
-        .trim();
-      
-      // Fix JSON issues
-      content = content.replace(/,(\s*[}\]])/g, '$1');
-      content = content.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');
-      
+    let structure = null;
+
+    if (structureResult.success) {
       try {
-        console.log("🔍 Trying to parse JSON...");
-        document = JSON.parse(content);
-        console.log("✅ JSON parsed successfully!");
-        
-        // Validate document structure
-        if (!document.title) {
-          document.title = state?.prompt?.substring(0, 50) || "Document";
-        }
-        
-        if (!document.sections || !Array.isArray(document.sections) || document.sections.length === 0) {
-          console.warn("⚠️ No sections found in AI response");
-          document = null;
-        } else {
-          // Ensure each section has valid points
-          document.sections = document.sections.map(section => {
-            if (!section.heading) {
-              section.heading = "Section";
-            }
-            if (!section.points || !Array.isArray(section.points) || section.points.length === 0) {
-              section.points = [
-                `${section.heading} covers important aspects of the topic.`,
-                `Key concepts related to ${section.heading} are explained.`,
-                `Practical insights are provided for better understanding.`
-              ];
-            }
-            // Filter empty points
-            section.points = section.points.filter(p => p && p.trim().length > 0);
-            return section;
-          });
-          
-          console.log(`✅ Document created with ${document.sections.length} sections`);
-        }
-        
-      } catch (parseError) {
-        console.warn(`⚠️ JSON parse failed: ${parseError.message}`);
-        console.log("🔄 Attempting to extract partial data from AI response...");
-        document = extractPartialData(content);
-        if (document) {
-          console.log("✅ Partial data extracted successfully!");
-          isPartialData = true;
+        let structureContent = structureResult.content
+          .replace(/^```json/i, "")
+          .replace(/^```/i, "")
+          .replace(/```$/i, "")
+          .trim();
+
+        structure = JSON.parse(structureContent);
+      } catch (error) {
+        // Fallback to default structure
+      }
+    }
+
+    if (!structure || !Array.isArray(structure.sections) || structure.sections.length === 0) {
+      structure = {
+        title: userTopic.length > 80 ? userTopic.substring(0, 80) + "..." : userTopic,
+        subtitle: `A comprehensive exploration of ${userTopic}`,
+        sections: [
+          { heading: "Introduction", description: `Introduction and overview of ${userTopic}` },
+          { heading: "Background and History", description: `Background and historical development of ${userTopic}` },
+          { heading: "Core Concepts", description: `Important concepts and fundamentals related to ${userTopic}` },
+          { heading: "Major Developments", description: `Important developments and changes related to ${userTopic}` },
+          { heading: "Applications and Impact", description: `Applications, influence and practical impact of ${userTopic}` },
+          { heading: "Advantages and Benefits", description: `Major benefits and positive aspects of ${userTopic}` },
+          { heading: "Challenges and Limitations", description: `Challenges, limitations and problems associated with ${userTopic}` },
+          { heading: "Future Outlook", description: `Future possibilities, trends and developments related to ${userTopic}` },
+        ],
+      };
+    }
+
+    const sectionsPlan = structure.sections.slice(0, 12);
+    const generatedSections = [];
+    const batchSize = 3;
+
+    for (let i = 0; i < sectionsPlan.length; i += batchSize) {
+      const batch = sectionsPlan.slice(i, i + batchSize);
+
+      const sectionPrompt = `
+You are an expert professional document writer.
+
+USER TOPIC:
+"${userTopic}"
+
+DOCUMENT TITLE:
+"${structure.title}"
+
+DOCUMENT SUBTITLE:
+"${structure.subtitle}"
+
+Write detailed content for the following sections:
+
+${JSON.stringify(batch, null, 2)}
+
+Return ONLY a valid JSON array.
+
+[
+  {
+    "heading": "Section heading",
+    "content": "A detailed and informative explanation of this section.",
+    "points": [
+      "Detailed useful point.",
+      "Detailed useful point.",
+      "Detailed useful point.",
+      "Detailed useful point."
+    ]
+  }
+]
+
+Rules:
+1. Generate every requested section.
+2. Do not skip any section.
+3. Each section must contain 120-200 words in the content field.
+4. Each section must contain 4-6 detailed points.
+5. Each point should contain approximately 20-35 words.
+6. Make content specific to "${userTopic}".
+7. Do not repeat information unnecessarily.
+8. Include useful examples where appropriate.
+9. Include facts, concepts, applications, challenges and practical insights where relevant to the topic.
+10. Do not force irrelevant categories onto the topic.
+11. If the topic is a person, focus on their actual life, career, achievements and impact.
+12. If the topic is technology, focus on concepts, implementation, applications, benefits and limitations.
+13. If the topic is historical, focus on events, context, causes, consequences and legacy.
+14. Adapt the writing style and information to the actual topic.
+15. Return ONLY JSON.
+16. No markdown.
+17. No code fences.
+18. No explanation outside JSON.
+19. Use valid double-quoted JSON.
+20. Do not add trailing commas.
+`;
+
+      const sectionResult = await callAIWithRetry(llm, sectionPrompt, 2);
+
+      if (sectionResult.success) {
+        try {
+          let sectionContent = sectionResult.content
+            .replace(/^```json/i, "")
+            .replace(/^```/i, "")
+            .replace(/```$/i, "")
+            .trim();
+
+          const parsedSections = JSON.parse(sectionContent);
+
+          if (Array.isArray(parsedSections)) {
+            generatedSections.push(...parsedSections);
+          }
+        } catch (error) {
+          // Skip failed section
         }
       }
-    } else {
-      console.warn("⚠️ AI call failed");
     }
 
-    // If no document from AI, use fallback
-    if (!document) {
-      console.warn("⚠️ No document from AI, creating fallback document...");
-      document = createFallbackDocument(state?.prompt);
-      isPartialData = true;
+    let document = {
+      title: structure.title || userTopic,
+      subtitle: structure.subtitle || `Comprehensive document about ${userTopic}`,
+      sections: generatedSections,
+    };
+
+    if (!Array.isArray(document.sections) || document.sections.length === 0) {
+      document = createFallbackDocument(userTopic);
     }
 
-    document = normalizeDocument(document, state?.prompt);
+    document = normalizeDocument(document, userTopic);
 
-    console.log(`📄 Document finalized:`);
-    console.log(`   Title: ${document.title}`);
-    console.log(`   Sections: ${document.sections.length}`);
-    let totalPoints = 0;
-    document.sections.forEach((s, i) => {
-      console.log(`   Section ${i+1}: ${s.heading} (${s.points.length} points)`);
-      totalPoints += s.points.length;
-    });
-    console.log(`   Total Points: ${totalPoints}`);
-    if (isPartialData) console.log("   ⚠️ Note: Using fallback/partial data");
-
-    console.log("📄 Generating PDF...");
+    // ✅ Generate PDF
     const pdfBuffer = await generatePdf(document);
 
     if (!pdfBuffer) {
       throw new Error("Failed to generate PDF");
     }
 
-    console.log(`✅ PDF generated successfully! Buffer size: ${pdfBuffer.length} bytes`);
-
     const aiResponseText = formatDocumentAsText(document);
 
-    const result = {
+    // ✅ Upload PDF to Cloudinary
+    let pdfUrl = null;
+    let pdfBase64 = null;
+
+    try {
+      const buffer = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
+      const uploadResult = await uploadToCloudinary(buffer, "pdf", `pdf_${Date.now()}`);
+      
+      if (uploadResult.success) {
+        pdfUrl = uploadResult.url;
+        pdfBase64 = buffer.toString("base64");
+        console.log("✅ PDF uploaded to Cloudinary:", pdfUrl);
+      }
+    } catch (uploadError) {
+      console.error("❌ Cloudinary upload failed:", uploadError);
+      // Fallback: return base64
+      pdfBase64 = Buffer.isBuffer(pdfBuffer) ? pdfBuffer.toString("base64") : Buffer.from(pdfBuffer).toString("base64");
+    }
+
+    return {
       ...state,
-      document: document,
-      pdfBuffer: pdfBuffer,
+      document,
+      pdfBuffer,
       pdfGenerated: true,
-      isPartialData: isPartialData,
+      pdfUrl: pdfUrl, // ✅ Cloudinary URL
+      pdfBase64: pdfBase64, // ✅ Base64 fallback
+      isPartialData: false,
       aiResponse: aiResponseText,
       error: null,
     };
 
-    return result;
-
   } catch (error) {
-    console.error("❌ PdfAgent Error:", error);
-
-    // Final fallback
+    console.error("PdfAgent error:", error);
+    
     try {
-      console.log("🔄 Creating fallback PDF...");
-      
-      const fallbackDocument = createFallbackDocument(state?.prompt);
+      const fallbackDocument = normalizeDocument(createFallbackDocument(state?.prompt), state?.prompt);
       const pdfBuffer = await generatePdf(fallbackDocument);
-      
+
       if (pdfBuffer) {
-        console.log("✅ Fallback PDF generated!");
         const fallbackText = formatDocumentAsText(fallbackDocument);
+
+        // ✅ Try to upload fallback PDF to Cloudinary
+        let pdfUrl = null;
+        let pdfBase64 = null;
         
+        try {
+          const buffer = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
+          const uploadResult = await uploadToCloudinary(buffer, "pdf", `pdf_fallback_${Date.now()}`);
+          if (uploadResult.success) {
+            pdfUrl = uploadResult.url;
+            pdfBase64 = buffer.toString("base64");
+          }
+        } catch (uploadError) {
+          pdfBase64 = Buffer.isBuffer(pdfBuffer) ? pdfBuffer.toString("base64") : Buffer.from(pdfBuffer).toString("base64");
+        }
+
         return {
           ...state,
           document: fallbackDocument,
-          pdfBuffer: pdfBuffer,
+          pdfBuffer,
           pdfGenerated: true,
+          pdfUrl: pdfUrl,
+          pdfBase64: pdfBase64,
           isPartialData: true,
           aiResponse: fallbackText,
           error: "Using fallback data",
         };
       }
-      
     } catch (fallbackError) {
-      console.error("❌ Fallback also failed:", fallbackError);
+      console.error("Fallback PDF generation failed:", fallbackError);
     }
-    
+
     return {
       ...state,
       document: null,
       pdfBuffer: null,
       pdfGenerated: false,
+      pdfUrl: null,
+      pdfBase64: null,
       isPartialData: true,
       aiResponse: `# ${state?.prompt || "Document"}\n\nI couldn't generate the PDF. Please try again.`,
       error: error?.message || "PDF generation failed",

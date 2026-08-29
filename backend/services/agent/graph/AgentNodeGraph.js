@@ -10,21 +10,22 @@ import { ChatAgent } from "../AllAgents/chat.agent.js";
 
 const workflow = new StateGraph(agentState);
 
+
 workflow.addNode("router", routerAgent);
 workflow.addNode("chat", ChatAgent);
 workflow.addNode("search", SearchAgent);
 workflow.addNode("coding", CodingAgent);
 workflow.addNode("pdf", PdfAgent);
-workflow.addNode("ppt", pptAgent);
+
+workflow.addNode("pptGenerator", pptAgent);
 workflow.addNode("image", ImageAgent);
 
 workflow.addEdge(START, "router");
 
-// ✅ FIX: Use conditional edges with proper routing
 workflow.addConditionalEdges(
   "router",
   (state) => {
-    console.log("🔀 Router state:", state);
+    console.log("Router selected agent:", state.agent);
     switch (state.agent) {
       case "chat":
         return "chat";
@@ -35,7 +36,7 @@ workflow.addConditionalEdges(
       case "pdf":
         return "pdf";
       case "ppt":
-        return "ppt";
+        return "pptGenerator";
       case "image":
         return "image";
       default:
@@ -44,14 +45,12 @@ workflow.addConditionalEdges(
   }
 );
 
-// ✅ FIX: After search, go to chat
-workflow.addEdge("search", "chat");
 
-// ✅ FIX: All nodes go to END after completion
+workflow.addEdge("search", "chat");
 workflow.addEdge("chat", END);
 workflow.addEdge("coding", END);
 workflow.addEdge("pdf", END);
-workflow.addEdge("ppt", END);
+workflow.addEdge("pptGenerator", END);
 workflow.addEdge("image", END);
 
 export const graph = workflow.compile();

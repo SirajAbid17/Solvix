@@ -1,20 +1,32 @@
 import React, { useEffect, useState } from "react";
+
 import { BsLayoutTextSidebarReverse } from "react-icons/bs";
 import { BiSolidEditAlt } from "react-icons/bi";
+
 import { useTheme } from "../../BgContext/ThemeContext";
+
 import Register from "../Register";
+
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   addConversation,
   clearConversations,
   setConversations,
 } from "../../redux/conversationSlice";
+
 import GetConversation from "../../Features/GetConversation";
 import CreateConversation from "../../Features/CreateConversation";
+
 import AllConverSation from "./AllConverSation";
+
 import { useNavigate } from "react-router-dom";
+
 import api from "../../utlis/axios";
+
 import { setuserData } from "../../redux/userSlice";
+
+import UserCelebration from "./UserCelebration";
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -27,7 +39,9 @@ export default function Sidebar() {
 
   const { userdata } = useSelector((state) => state.user);
 
-  
+  // =========================================================
+  // LOAD CONVERSATIONS
+  // =========================================================
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -42,6 +56,7 @@ export default function Sidebar() {
         dispatch(setConversations(data || []));
       } catch (error) {
         console.error("Error loading conversations:", error);
+
         dispatch(clearConversations());
       }
     };
@@ -49,9 +64,9 @@ export default function Sidebar() {
     loadConversations();
   }, [userdata, dispatch]);
 
-  // ============================================
+  // =========================================================
   // NEW CHAT
-  // ============================================
+  // =========================================================
 
   const handleNewChat = async () => {
     try {
@@ -67,9 +82,9 @@ export default function Sidebar() {
     }
   };
 
-  // ============================================
+  // =========================================================
   // LOGOUT
-  // ============================================
+  // =========================================================
 
   const handleLogout = async () => {
     try {
@@ -86,10 +101,6 @@ export default function Sidebar() {
     }
   };
 
-  // ============================================
-  // SIDEBAR
-  // ============================================
-
   return (
     <aside
       className={`
@@ -100,12 +111,10 @@ export default function Sidebar() {
         shrink-0
         flex-col
         overflow-hidden
-
+        border-r
         transition-[width]
         duration-300
         ease-in-out
-
-        border-r
 
         ${
           dark
@@ -116,9 +125,9 @@ export default function Sidebar() {
         ${open ? "w-72" : "w-16"}
       `}
     >
-      {/* ============================================
+      {/* =====================================================
           HEADER
-      ============================================ */}
+      ===================================================== */}
 
       <div
         className={`
@@ -129,20 +138,12 @@ export default function Sidebar() {
           border-b
           px-3
 
-          ${
-            open
-              ? "justify-between"
-              : "justify-center"
-          }
+          ${open ? "justify-between" : "justify-center"}
 
-          ${
-            dark
-              ? "border-white/[0.08]"
-              : "border-gray-200"
-          }
+          ${dark ? "border-white/[0.08]" : "border-gray-200"}
         `}
       >
-        {/* Sidebar Toggle */}
+        {/* SIDEBAR TOGGLE */}
 
         <button
           type="button"
@@ -155,7 +156,6 @@ export default function Sidebar() {
             items-center
             justify-center
             rounded-lg
-
             text-lg
             transition-all
             duration-200
@@ -171,10 +171,20 @@ export default function Sidebar() {
           <BsLayoutTextSidebarReverse />
         </button>
 
-        {/* Logo */}
+        {/* LOGO */}
 
         {open && (
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 pl-2">
+          <div
+            className="
+              flex
+              min-w-0
+              flex-1
+              items-center
+              justify-end
+              gap-2
+              pl-2
+            "
+          >
             <h1
               className={`
                 min-w-0
@@ -182,7 +192,6 @@ export default function Sidebar() {
                 text-lg
                 font-extrabold
                 tracking-wide
-
                 sm:text-xl
 
                 ${dark ? "text-white" : "text-black"}
@@ -191,7 +200,7 @@ export default function Sidebar() {
               Solvix AI
             </h1>
 
-            {/* Plan */}
+            {/* PLAN */}
 
             <span
               className={`
@@ -204,7 +213,6 @@ export default function Sidebar() {
                 font-medium
                 uppercase
                 tracking-wider
-
                 sm:text-[9px]
 
                 ${
@@ -217,7 +225,7 @@ export default function Sidebar() {
               Free
             </span>
 
-            {/* New Chat Icon */}
+            {/* NEW CHAT ICON */}
 
             <button
               type="button"
@@ -230,11 +238,9 @@ export default function Sidebar() {
                 items-center
                 justify-center
                 rounded-lg
-
                 text-lg
                 transition-all
                 duration-200
-
                 hover:scale-105
 
                 ${
@@ -251,9 +257,9 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* ============================================
+      {/* =====================================================
           NEW CHAT BUTTON
-      ============================================ */}
+      ===================================================== */}
 
       <div className="shrink-0 px-2 pt-2">
         <button
@@ -269,15 +275,11 @@ export default function Sidebar() {
             overflow-hidden
             rounded-lg
             border
-
             px-3
-
             text-sm
             font-medium
-
             transition-all
             duration-200
-
             active:scale-[0.98]
 
             ${
@@ -293,9 +295,7 @@ export default function Sidebar() {
             <>
               <BiSolidEditAlt className="shrink-0 text-base" />
 
-              <span className="truncate">
-                New Chat
-              </span>
+              <span className="truncate">New Chat</span>
             </>
           ) : (
             <BiSolidEditAlt className="shrink-0 text-lg" />
@@ -303,62 +303,85 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* ============================================
-          CONVERSATIONS
-      ============================================ */}
+      {/* =====================================================
+          CONVERSATIONS + CELEBRATION
+          BALLOONS ARE LIMITED TO THIS AREA ONLY
+      ===================================================== */}
 
       {open && (
         <div
           className="
+            relative
             min-h-0
             min-w-0
             flex-1
-            overflow-y-auto
-            overflow-x-hidden
-            overscroll-contain
-            px-2
-            pb-2
-            pt-2
-
-            scrollbar-thin
+            overflow-hidden
           "
         >
-          <div className="min-w-0 w-full">
+          {/* =================================================
+              CELEBRATION LAYER
+
+              This is inside the conversation area.
+              It does NOT cover ChatArea or Coding.
+          ================================================= */}
+
+          {userdata && <UserCelebration />}
+
+          {/* =================================================
+              CONVERSATION LIST
+          ================================================= */}
+
+          <div
+            className="
+              relative
+              z-[10]
+              h-full
+              min-h-0
+              min-w-0
+              w-full
+              overflow-y-auto
+              overflow-x-hidden
+              overscroll-contain
+              px-2
+              pb-2
+              pt-2
+              scrollbar-thin
+            "
+          >
             <AllConverSation />
           </div>
         </div>
       )}
 
-      {/* ============================================
+      {/* =====================================================
           USER SECTION
-      ============================================ */}
+      ===================================================== */}
 
       <div
         className={`
+          relative
           mt-auto
           w-full
           shrink-0
           border-t
           p-2
 
-          ${
-            dark
-              ? "border-white/[0.08]"
-              : "border-gray-200"
-          }
+          ${dark ? "border-white/[0.08]" : "border-gray-200"}
         `}
       >
         {userdata ? (
           <>
-            {/* ======================================
+            {/* =================================================
                 OPEN USER
-            ====================================== */}
+            ================================================= */}
 
             {open ? (
               <button
                 type="button"
                 onClick={() => setShowUserModal(true)}
                 className={`
+                  relative
+                  z-[30]
                   flex
                   w-full
                   min-w-0
@@ -368,7 +391,6 @@ export default function Sidebar() {
                   border
                   p-2
                   text-left
-
                   transition-all
                   duration-200
 
@@ -379,8 +401,6 @@ export default function Sidebar() {
                   }
                 `}
               >
-                {/* Avatar */}
-
                 <img
                   src={userdata.avatar}
                   alt={userdata.name || "User"}
@@ -392,15 +412,9 @@ export default function Sidebar() {
                     border
                     object-cover
 
-                    ${
-                      dark
-                        ? "border-white/10"
-                        : "border-gray-200"
-                    }
+                    ${dark ? "border-white/10" : "border-gray-200"}
                   `}
                 />
-
-                {/* User Info */}
 
                 <div className="min-w-0 flex-1">
                   <h1
@@ -409,34 +423,16 @@ export default function Sidebar() {
                       text-xs
                       font-semibold
 
-                      ${
-                        dark
-                          ? "text-white"
-                          : "text-gray-900"
-                      }
+                      ${dark ? "text-white" : "text-gray-900"}
                     `}
                   >
                     {userdata.name || "User"}
                   </h1>
 
-                  <p
-                    className={`
-                      mt-0.5
-                      truncate
-                      text-[10px]
-
-                      ${
-                        dark
-                          ? "text-gray-500"
-                          : "text-gray-500"
-                      }
-                    `}
-                  >
+                  <p className="mt-0.5 truncate text-[10px] text-gray-500">
                     Free Plan
                   </p>
                 </div>
-
-                {/* Arrow */}
 
                 <svg
                   className={`
@@ -444,11 +440,7 @@ export default function Sidebar() {
                     w-4
                     shrink-0
 
-                    ${
-                      dark
-                        ? "text-gray-500"
-                        : "text-gray-400"
-                    }
+                    ${dark ? "text-gray-500" : "text-gray-400"}
                   `}
                   fill="none"
                   stroke="currentColor"
@@ -463,14 +455,16 @@ export default function Sidebar() {
                 </svg>
               </button>
             ) : (
-              /* ====================================
+              /* =================================================
                  CLOSED USER
-              ==================================== */
+              ================================================= */
 
               <button
                 type="button"
                 onClick={() => setShowUserModal(true)}
                 className="
+                  relative
+                  z-[30]
                   flex
                   w-full
                   items-center
@@ -486,10 +480,8 @@ export default function Sidebar() {
                     rounded-full
                     border-2
                     object-cover
-
                     transition-all
                     duration-200
-
                     hover:scale-105
 
                     ${
@@ -509,9 +501,9 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* ============================================
+      {/* =====================================================
           USER MODAL
-      ============================================ */}
+      ===================================================== */}
 
       {showUserModal && userdata && (
         <div
@@ -546,7 +538,7 @@ export default function Sidebar() {
             `}
             onClick={(event) => event.stopPropagation()}
           >
-            {/* Close */}
+            {/* CLOSE */}
 
             <button
               type="button"
@@ -561,7 +553,6 @@ export default function Sidebar() {
                 items-center
                 justify-center
                 rounded-full
-
                 transition-all
 
                 ${
@@ -586,7 +577,7 @@ export default function Sidebar() {
               </svg>
             </button>
 
-            {/* Profile */}
+            {/* PROFILE */}
 
             <div className="flex flex-col items-center text-center">
               <img
@@ -600,11 +591,7 @@ export default function Sidebar() {
                   border-4
                   object-cover
 
-                  ${
-                    dark
-                      ? "border-white/10"
-                      : "border-gray-200"
-                  }
+                  ${dark ? "border-white/10" : "border-gray-200"}
                 `}
               />
 
@@ -613,34 +600,15 @@ export default function Sidebar() {
                   text-lg
                   font-bold
 
-                  ${
-                    dark
-                      ? "text-white"
-                      : "text-gray-900"
-                  }
+                  ${dark ? "text-white" : "text-gray-900"}
                 `}
               >
                 {userdata.name || "User"}
               </h2>
 
-              <p
-                className={`
-                  mt-1
-                  max-w-full
-                  truncate
-                  text-sm
-
-                  ${
-                    dark
-                      ? "text-gray-500"
-                      : "text-gray-500"
-                  }
-                `}
-              >
+              <p className="mt-1 max-w-full truncate text-sm text-gray-500">
                 {userdata.email || "user@email.com"}
               </p>
-
-              {/* Plan */}
 
               <span
                 className={`
@@ -662,9 +630,9 @@ export default function Sidebar() {
                 Free Plan
               </span>
 
-              {/* Buttons */}
-
               <div className="mt-5 w-full space-y-2">
+                {/* DASHBOARD */}
+
                 <button
                   type="button"
                   onClick={() => {
@@ -679,10 +647,8 @@ export default function Sidebar() {
                     py-2.5
                     text-sm
                     font-semibold
-
                     transition-all
                     duration-200
-
                     active:scale-[0.98]
 
                     ${
@@ -695,6 +661,8 @@ export default function Sidebar() {
                   User Dashboard
                 </button>
 
+                {/* LOGOUT */}
+
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -706,10 +674,8 @@ export default function Sidebar() {
                     py-2.5
                     text-sm
                     font-semibold
-
                     transition-all
                     duration-200
-
                     active:scale-[0.98]
 
                     ${
@@ -729,4 +695,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-

@@ -247,6 +247,52 @@ app.use(
   )
 );
 
+app.use(
+    "/billing",
+    protect,
+    proxy(process.env.BILLING_SERVICES, {
+        // ✅ IMPORTANT: Remove /billing from path when forwarding
+        proxyReqPathResolver: (req) => {
+            // Remove /billing from the path
+            const path = req.originalUrl.replace('/billing', '');
+            console.log(`🔄 Billing Proxy: ${req.originalUrl} → ${path}`);
+            return path || '/';
+        },
+        proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+            console.log("💰 Billing User:", srcReq.user?.userId || srcReq.user?._id);
+
+            if (srcReq.user) {
+                const userId = srcReq.user._id || srcReq.user.userId || srcReq.user?.user?._id;
+                if (userId) {
+                    proxyReqOpts.headers["x-user-id"] = String(userId);
+                }
+                proxyReqOpts.headers["x-user-email"] = srcReq.user.email || srcReq.user?.user?.email || "";
+                proxyReqOpts.headers["x-user-name"] = srcReq.user.name || srcReq.user?.user?.name || "";
+            }
+
+            if (srcReq.headers.authorization) {
+                proxyReqOpts.headers.authorization = srcReq.headers.authorization;
+            }
+            if (srcReq.headers.cookie) {
+                proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+            }
+            if (srcReq.headers["content-type"]) {
+                proxyReqOpts.headers["content-type"] = srcReq.headers["content-type"];
+            }
+
+            return proxyReqOpts;
+        },
+        proxyErrorHandler: (err, res) => {
+            console.error("❌ Billing Proxy Error:", err);
+            res.status(500).json({
+                success: false,
+                message: err.message || "Billing service unavailable",
+            });
+        },
+    })
+);
+
+
 app.listen(PORT,()=>{
     console.log(`gateway running on port ${PORT}`)
 })

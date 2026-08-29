@@ -2,12 +2,10 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { portfolioAnalysisPrompt } from "./prompt.service.js";
 
-// ============================================================
-// CONFIGURATION
-// ============================================================
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
+const MODEL = "gemini-3.6-flash";
+ 
 const getModel = (temperature = 0.15) => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error(

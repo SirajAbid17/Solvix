@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import axios from "axios";
+
 import { graph } from "../graph/AgentNodeGraph.js";
+
 import {
   getConversationMessages,
   saveConversationMessage,
@@ -19,7 +21,10 @@ export const Agents = async (req, res) => {
       });
     }
 
-    // 1. Get conversation history
+    // =====================================================
+    // GET PREVIOUS MESSAGES
+    // =====================================================
+
     let previousMessages = await getConversationMessages(conversationId);
 
     if (!previousMessages || previousMessages.length === 0) {
@@ -28,17 +33,19 @@ export const Agents = async (req, res) => {
           `${process.env.CHAT_SERVICES_URL}/chat/get-messages/${conversationId}`
         );
         previousMessages = messagesResponse.data || [];
-        
         if (previousMessages.length > 0) {
           await saveConversationMessages(conversationId, previousMessages);
         }
       } catch (error) {
-        console.error("Error fetching messages from MongoDB:", error.message);
+        console.log("Previous messages fetch failed:", error.message);
         previousMessages = [];
       }
     }
 
-    // 2. Save USER message in MongoDB
+    // =====================================================
+    // SAVE USER MESSAGE
+    // =====================================================
+
     try {
       await axios.post(
         `${process.env.CHAT_SERVICES_URL}/chat/save-messages`,
@@ -49,18 +56,18 @@ export const Agents = async (req, res) => {
         }
       );
     } catch (error) {
-      console.error("Error saving user message to MongoDB:", error.message);
+      console.log("Chat service user save failed:", error.message);
     }
 
-    // 3. Save USER message in Redis
     await saveConversationMessage(conversationId, {
       role: "user",
       content: prompt,
     });
 
-    // 4. Invoke the graph
-    console.log("🚀 Invoking graph with:", { prompt, conversationId, agent });
-    
+    // =====================================================
+    // RUN MULTI AGENT GRAPH
+    // =====================================================
+
     const result = await graph.invoke({
       prompt,
       messages: previousMessages,
@@ -68,53 +75,55 @@ export const Agents = async (req, res) => {
       agent: agent || "Auto",
     });
 
-    console.log("🔍 Result from graph:", {
-      hasPdfBuffer: !!result.pdfBuffer,
-      pdfGenerated: result.pdfGenerated,
-      hasAiResponse: !!result.aiResponse,
-      resultKeys: Object.keys(result),
-    });
+    console.log("GRAPH RESULT:", result);
 
-    const aiResponse = result.aiResponse;
-    const images = result.images || [];
-    const pdfBuffer = result.pdfBuffer;
-    const pdfGenerated = result.pdfGenerated || false;
+    const aiResponse = result?.aiResponse || "";
+    const images = result?.images || [];
 
-    // ✅ Format images with full URLs
-    const formattedImages = images.map(img => {
-      if (typeof img === 'string') {
-        if (img.startsWith('http')) {
-          return img;
-        } else {
-          const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-          return img.startsWith('/') ? `${baseUrl}${img}` : `${baseUrl}/${img}`;
-        }
-      } else if (img.url) {
-        if (!img.url.startsWith('http')) {
-          const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-          img.url = img.url.startsWith('/') ? `${baseUrl}${img.url}` : `${baseUrl}/${img.url}`;
+    // =====================================================
+    // FORMAT IMAGES
+    // =====================================================
+
+    const formattedImages = images.map((img) => {
+      if (typeof img === "string") {
+        if (img.startsWith("http")) return img;
+        const baseUrl = process.env.BASE_URL || "http://localhost:5003";
+        return img.startsWith("/") ? `${baseUrl}${img}` : `${baseUrl}/${img}`;
+      }
+      if (img?.url) {
+        if (!img.url.startsWith("http")) {
+          const baseUrl = process.env.BASE_URL || "http://localhost:5003";
+          img.url = img.url.startsWith("/")
+            ? `${baseUrl}${img.url}`
+            : `${baseUrl}/${img.url}`;
         }
         return img;
       }
       return img;
     });
 
-    // ✅ Convert PDF buffer to Base64 for frontend
-    let pdfBase64 = null;
-    if (pdfBuffer && pdfGenerated === true) {
-      try {
-        const buffer = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
-        pdfBase64 = buffer.toString('base64');
-        console.log(`✅ PDF converted to Base64, length: ${pdfBase64.length}`);
-      } catch (error) {
-        console.error("❌ Failed to convert PDF to Base64:", error);
-        pdfBase64 = null;
-      }
-    } else {
-      console.warn(`⚠️ No PDF buffer or pdfGenerated is ${pdfGenerated}`);
-    }
+    // =====================================================
+    // PDF - Get URL and base64 from result
+    // =====================================================
 
-    // 5. Save AI response in MongoDB
+    const pdfGenerated = result?.pdfGenerated || false;
+    const pdfUrl = result?.pdfUrl || null;
+    const pdfBase64 = result?.pdfBase64 || result?.pdfBuffer ? Buffer.from(result.pdfBuffer).toString("base64") : null;
+
+    // =====================================================
+    // PPT - Get URL and base64 from result
+    // =====================================================
+
+    const pptGenerated = result?.pptGenerated || false;
+    const pptFileName = result?.pptFileName || "solvix-presentation.pptx";
+    const pptData = result?.pptData || result?.ppt || null;
+    const pptUrl = result?.pptUrl || null;
+    const pptBase64 = result?.pptBase64 || result?.pptBuffer ? Buffer.from(result.pptBuffer).toString("base64") : null;
+
+    // =====================================================
+    // SAVE ASSISTANT MESSAGE
+    // =====================================================
+
     if (aiResponse) {
       try {
         await axios.post(
@@ -124,36 +133,55 @@ export const Agents = async (req, res) => {
             role: "assistant",
             content: aiResponse,
             images: formattedImages,
-            pdfGenerated: pdfGenerated,
-            pdf: pdfBase64,
+            pdfGenerated,
+            pdf: pdfUrl || pdfBase64, // ✅ Send URL if available, fallback to base64
+            pptGenerated,
+            ppt: pptUrl || pptBase64, // ✅ Send URL if available, fallback to base64
+            pptFileName,
+            pptData: pptData,
+          },
+          {
+            timeout: 10000,
           }
         );
-        console.log("✅ Saved message with PDF:", pdfGenerated);
+        console.log("✅ Assistant message saved to Chat Service");
       } catch (error) {
-        console.error("Error saving AI response to MongoDB:", error.message);
+        console.log("⚠️ Chat service save skipped:", error.message);
       }
 
-      // 6. Save AI response in Redis
       await saveConversationMessage(conversationId, {
         role: "assistant",
         content: aiResponse,
         images: formattedImages,
-        pdfGenerated: pdfGenerated,
-        pdf: pdfBase64,
+        pdfGenerated,
+        pdf: pdfUrl || pdfBase64,
+        pptGenerated,
+        ppt: pptUrl || pptBase64,
+        pptFileName,
+        pptData: pptData,
       });
+      console.log("✅ Assistant message saved to Redis");
     }
 
-    // ✅ RETURN RESPONSE WITH PDF
+    // =====================================================
+    // FINAL RESPONSE
+    // =====================================================
+
     return res.status(200).json({
       response: aiResponse || "No response generated",
       images: formattedImages,
+      pdfUrl: pdfUrl,
       pdf: pdfBase64,
       pdfGenerated: pdfGenerated,
+      pptUrl: pptUrl,
+      ppt: pptBase64,
+      pptGenerated: pptGenerated,
+      pptFileName: pptFileName,
+      pptData: pptData,
     });
 
   } catch (error) {
-    console.error("Agent error:", error.response?.data || error.message);
-
+    console.error("AGENTS CONTROLLER ERROR:", error);
     return res.status(500).json({
       error: error.response?.data?.error || error.message,
     });

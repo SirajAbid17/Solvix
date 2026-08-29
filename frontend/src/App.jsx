@@ -16,6 +16,8 @@ import AllResume from "./pages/AllResume";
 import WebsitePreview from "./pages/WebsitePreview";
 import AllPortfolio from "./pages/AllPortfolio";
 import LoginRequired from "./pages/LoginRequired";
+import Pricing from "./pages/Pricing";
+import PaymentSuccess from "./components/pricing/PaymentSuccess";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -57,19 +59,22 @@ export default function App() {
                <Route path="/cv/:id" element={<ShowResume />} />
 <Route path="/all-resume" element={<AllResume />} />
              <Route path="/resume-analysis" element={   <ResumeAnalysis/>}/>
-             {/* <Route
+             <Route
   path="/portfolio/preview/:slug"
   element={<WebsitePreview />}
-/> */}
+/>
 <Route
   path="/all-portfolio"
   element={<AllPortfolio />}
 />
 
+
 <Route
   path="/portfolio/:id"
   element={<WebsitePreview />}
 />
+<Route path="/pricing" element={<Pricing/>}/>
+<Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="*" element={<Page_not_Found />} />
 
       </Routes>

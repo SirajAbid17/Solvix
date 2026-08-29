@@ -69,7 +69,6 @@ export default function ChatInput() {
         return false;
       }
 
-      // Convert Base64 to Blob
       const byteCharacters = atob(pdfBase64);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
@@ -78,7 +77,6 @@ export default function ChatInput() {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
 
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -162,32 +160,78 @@ export default function ChatInput() {
       const data = await ChatAgent(payload);
       
       console.log("🔍 Full Response:", data);
-      console.log("🔍 PDF Generated:", data.pdfGenerated);
-      console.log("🔍 PDF Length:", data.pdf?.length);
+      
+      // ✅ Extract images properly - they should already be Cloudinary URLs
+      let imageUrls = [];
+      if (data.images && Array.isArray(data.images)) {
+        imageUrls = data.images.map(img => {
+          // If image is a string, use it directly
+          if (typeof img === 'string') {
+            return img;
+          }
+          // If image is an object, extract URL
+          if (typeof img === 'object' && img !== null) {
+            return img.url || img.src || '';
+          }
+          return '';
+        }).filter(url => url); // Remove empty URLs
+      }
+      
+      console.log("🖼️ Image URLs to save:", imageUrls);
 
+      // ✅ Handle PPT data
+      let pptData = null;
+      let pptUrl = null;
+      let pptGenerated = false;
+      let pptFileName = null;
+
+      if (data.pptGenerated === true) {
+        pptGenerated = true;
+        pptUrl = data.pptUrl || null;
+        pptFileName = data.pptFileName || "solvix-presentation.pptx";
+        pptData = data.pptData || null;
+        
+        console.log("📊 PPT Generated!");
+        console.log("📊 PPT URL:", pptUrl);
+        
+        if (pptUrl) {
+          toast.success('📊 PowerPoint generated! Click download button to save.');
+        }
+      }
+
+      // ✅ Handle PDF data
       let pdfData = null;
       if (data.pdf && data.pdfGenerated === true) {
         pdfData = data.pdf;
         console.log("📄 PDF received! Length:", pdfData.length);
         
-        // ✅ Auto download
         setTimeout(() => {
           downloadPDF(pdfData, data.response?.slice(0, 30) || "document");
         }, 500);
-      } else {
-        console.warn("⚠️ No PDF in response!");
       }
 
+      // ✅ Add message with ALL data (images, PDF, PPT)
       dispatch(
         addMessage({
           role: "assistant",
           content: data.response || "No response",
           conversationId: selectedConversation._id,
-          images: data.images || [],
-          pdf: pdfData,
+          // ✅ Images - Store the Cloudinary URLs
+          images: imageUrls,
+          // ✅ PDF fields
+          pdf: pdfData || data.pdf || null,
+          pdfUrl: data.pdfUrl || null,
           pdfGenerated: data.pdfGenerated === true,
+          // ✅ PPT fields
+          ppt: data.ppt || null,
+          pptUrl: pptUrl || data.pptUrl || null,
+          pptGenerated: pptGenerated || data.pptGenerated === true,
+          pptFileName: pptFileName || data.pptFileName || "solvix-presentation.pptx",
+          pptData: pptData || data.pptData || null,
         })
       );
+
+      toast.success('Response received!');
 
     } catch (error) {
       console.error("Chat Error:", error.response?.data || error.message);
@@ -199,8 +243,14 @@ export default function ChatInput() {
           images: [],
           pdf: null,
           pdfGenerated: false,
+          ppt: null,
+          pptGenerated: false,
+          pptUrl: null,
+          pptFileName: null,
+          pptData: null,
         })
       );
+      toast.error('Failed to get response');
     } finally {
       setLoading(false);
     }
