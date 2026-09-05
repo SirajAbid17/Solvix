@@ -1,7 +1,4 @@
-// routes/portfolio.routes.js
-
 import express from "express";
-
 import {
   uploadPortfolio,
   analyzePortfolioController,
@@ -9,7 +6,6 @@ import {
   getAllUserPortfolios,
   deletePortfolio,
 } from "../controllers/portfolio.controller.js";
-
 import { upload } from "../middlewares/upload.middleware.js";
 import { portfolioUser } from "../middlewares/user.middleware.js";
 

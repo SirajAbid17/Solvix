@@ -7,7 +7,6 @@ const ResumeSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
     originalName: String,
     fileUrl: String,
     extractedText: String,

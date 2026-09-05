@@ -5,6 +5,7 @@ import { uploadRateLimit } from "../../../shared/rateLimit.js";
 
 const router = express.Router();
 
-router.post("/upload", upload.single("resume"),uploadRateLimit, uploadResume);
+router.post("/upload", upload.single("resume"), uploadRateLimit, uploadResume);
 router.get("/my-resumes", myResumes);
+
 export default router;

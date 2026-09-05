@@ -1,22 +1,22 @@
 import mongoose from "mongoose";
 
-const messageSchmea=new mongoose.Schema({
-      conversationId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'Conversation'
-      },
-      role:{
-        type:String,
-        enum:["user","assistant"]
-      },
-      content:{
-        type:String
-      },
-      images: {
-    type: [String],  
+const messageSchema = new mongoose.Schema({
+  conversationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Conversation'
+  },
+  role: {
+    type: String,
+    enum: ["user", "assistant"]
+  },
+  content: {
+    type: String
+  },
+  images: {
+    type: [String],
     default: []
   }
-},{timestamps:true})
+}, { timestamps: true });
 
-const Message=mongoose.model("Message",messageSchmea)
-export default Message
+const Message = mongoose.model("Message", messageSchema);
+export default Message;

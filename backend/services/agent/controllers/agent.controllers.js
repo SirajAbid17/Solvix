@@ -1,11 +1,10 @@
 import dotenv from "dotenv";
 import axios from "axios";
-
 import { graph } from "../graph/AgentNodeGraph.js";
 
 import {
-  getConversationMessages,
-  saveConversationMessage,
+  getConversationMessages,  
+saveConversationMessage,
   saveConversationMessages,
 } from "../utlis/RedisMemory.js";
 
@@ -21,6 +20,12 @@ export const Agents = async (req, res) => {
       });
     }
 
+    // ✅ Get user info from headers (passed by gateway)
+    const userId = req.headers["x-user-id"];
+    const remainingCredits = req.headers["x-remaining-credits"];
+
+    console.log(`👤 User: ${userId} | Credits Remaining: ${remainingCredits}`);
+
     // =====================================================
     // GET PREVIOUS MESSAGES
     // =====================================================
@@ -30,7 +35,7 @@ export const Agents = async (req, res) => {
     if (!previousMessages || previousMessages.length === 0) {
       try {
         const messagesResponse = await axios.get(
-          `${process.env.CHAT_SERVICES_URL}/chat/get-messages/${conversationId}`
+          `${process.env.CHAT_SERVICES_URL || 'http://localhost:5002'}/chat/get-messages/${conversationId}`
         );
         previousMessages = messagesResponse.data || [];
         if (previousMessages.length > 0) {
@@ -48,7 +53,7 @@ export const Agents = async (req, res) => {
 
     try {
       await axios.post(
-        `${process.env.CHAT_SERVICES_URL}/chat/save-messages`,
+        `${process.env.CHAT_SERVICES_URL || 'http://localhost:5002'}/chat/save-messages`,
         {
           conversationId,
           role: "user",
@@ -73,6 +78,7 @@ export const Agents = async (req, res) => {
       messages: previousMessages,
       conversationId,
       agent: agent || "Auto",
+      userId, // ✅ Pass userId for tracking
     });
 
     console.log("GRAPH RESULT:", result);
@@ -108,7 +114,7 @@ export const Agents = async (req, res) => {
 
     const pdfGenerated = result?.pdfGenerated || false;
     const pdfUrl = result?.pdfUrl || null;
-    const pdfBase64 = result?.pdfBase64 || result?.pdfBuffer ? Buffer.from(result.pdfBuffer).toString("base64") : null;
+    const pdfBase64 = result?.pdfBase64 || (result?.pdfBuffer ? Buffer.from(result.pdfBuffer).toString("base64") : null);
 
     // =====================================================
     // PPT - Get URL and base64 from result
@@ -118,7 +124,7 @@ export const Agents = async (req, res) => {
     const pptFileName = result?.pptFileName || "solvix-presentation.pptx";
     const pptData = result?.pptData || result?.ppt || null;
     const pptUrl = result?.pptUrl || null;
-    const pptBase64 = result?.pptBase64 || result?.pptBuffer ? Buffer.from(result.pptBuffer).toString("base64") : null;
+    const pptBase64 = result?.pptBase64 || (result?.pptBuffer ? Buffer.from(result.pptBuffer).toString("base64") : null);
 
     // =====================================================
     // SAVE ASSISTANT MESSAGE
@@ -127,16 +133,16 @@ export const Agents = async (req, res) => {
     if (aiResponse) {
       try {
         await axios.post(
-          `${process.env.CHAT_SERVICES_URL}/chat/save-messages`,
+          `${process.env.CHAT_SERVICES_URL || 'http://localhost:5002'}/chat/save-messages`,
           {
             conversationId,
             role: "assistant",
             content: aiResponse,
             images: formattedImages,
             pdfGenerated,
-            pdf: pdfUrl || pdfBase64, // ✅ Send URL if available, fallback to base64
+            pdf: pdfUrl || pdfBase64,
             pptGenerated,
-            ppt: pptUrl || pptBase64, // ✅ Send URL if available, fallback to base64
+            ppt: pptUrl || pptBase64,
             pptFileName,
             pptData: pptData,
           },
@@ -178,6 +184,7 @@ export const Agents = async (req, res) => {
       pptGenerated: pptGenerated,
       pptFileName: pptFileName,
       pptData: pptData,
+      creditsRemaining: remainingCredits, // ✅ Send remaining credits back
     });
 
   } catch (error) {

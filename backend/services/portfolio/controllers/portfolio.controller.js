@@ -39,117 +39,74 @@ export const uploadPortfolio = async (req, res) => {
       });
     }
 
-    console.log(
-      "Portfolio PDF:",
-      req.file.originalname
-    );
-
-    console.log(
-      "PDF Size:",
-      req.file.size
-    );
+    console.log("Portfolio PDF:", req.file.originalname);
+    console.log("PDF Size:", req.file.size);
 
     // ========================================================
     // Extract PDF
     // ========================================================
 
-    const { text, chunks } =
-      await extractPdfText(
-        req.file.buffer
-      );
+    const { text, chunks } = await extractPdfText(req.file.buffer);
 
     if (!text || !text.trim()) {
       return res.status(400).json({
         success: false,
-        message:
-          "Could not extract text from PDF",
+        message: "Could not extract text from PDF",
       });
     }
 
-    console.log(
-      "Pages:",
-      chunks?.length || 0
-    );
-
-    console.log(
-      "Characters:",
-      text.length
-    );
+    console.log("Pages:", chunks?.length || 0);
+    console.log("Characters:", text.length);
 
     // ========================================================
     // Upload PDF
     // ========================================================
 
-    const uploadedPdf =
-      await uploadPdf(
-        req.file.buffer
-      );
+    const uploadedPdf = await uploadPdf(req.file.buffer);
 
     if (!uploadedPdf) {
-      throw new Error(
-        "PDF upload failed"
-      );
+      throw new Error("PDF upload failed");
     }
 
     // ========================================================
     // Generate Slug
     // ========================================================
 
-    const originalName =
-      req.file.originalname
-        .replace(/\.pdf$/i, "")
-        .trim();
+    const originalName = req.file.originalname
+      .replace(/\.pdf$/i, "")
+      .trim();
 
-    const cleanTitle =
-      originalName ||
-      "My Portfolio";
+    const cleanTitle = originalName || "My Portfolio";
 
-    const slug =
-      `portfolio-${Date.now()}-${Math.random()
-        .toString(36)
-        .substring(2, 8)}`
-        .toLowerCase();
+    const slug = `portfolio-${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2, 8)}`
+      .toLowerCase();
 
     // ========================================================
     // Create Portfolio
     // ========================================================
 
-    const portfolio =
-      await Portfolio.create({
-        userId,
-
-        title: cleanTitle,
-
-        slug,
-
-        pdf: {
-          url:
-            uploadedPdf.secure_url,
-
-          publicId:
-            uploadedPdf.public_id,
-
-          originalName:
-            req.file.originalname,
-
-          size:
-            req.file.size,
-        },
-
-        extractedText: text,
-
-        status: "uploaded",
-
-        analysisStatus: "pending",
-      });
+    const portfolio = await Portfolio.create({
+      userId,
+      title: cleanTitle,
+      slug,
+      pdf: {
+        url: uploadedPdf.secure_url,
+        publicId: uploadedPdf.public_id,
+        originalName: req.file.originalname,
+        size: req.file.size,
+      },
+      extractedText: text,
+      status: "uploaded",
+      analysisStatus: "pending",
+    });
 
     // ========================================================
     // Clear User Cache
     // ========================================================
 
-    await redis.del(
-      `user-portfolios:${userId}`
-    );
+    await redis.del(`user-portfolios:${userId}`);
 
     // ========================================================
     // Response
@@ -157,43 +114,21 @@ export const uploadPortfolio = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-
-      message:
-        "Portfolio uploaded successfully",
-
-      portfolioId:
-        portfolio._id,
-
-      slug:
-        portfolio.slug,
-
-      title:
-        portfolio.title,
-
-      totalPages:
-        chunks?.length || 0,
-
-      extractedCharacters:
-        text.length,
-
-      status:
-        portfolio.status,
-
-      analysisStatus:
-        portfolio.analysisStatus,
+      message: "Portfolio uploaded successfully",
+      portfolioId: portfolio._id,
+      slug: portfolio.slug,
+      title: portfolio.title,
+      totalPages: chunks?.length || 0,
+      extractedCharacters: text.length,
+      status: portfolio.status,
+      analysisStatus: portfolio.analysisStatus,
     });
 
   } catch (error) {
-
-    console.error(
-      "Upload Portfolio Error:",
-      error
-    );
-
+    console.error("Upload Portfolio Error:", error);
     return res.status(500).json({
       success: false,
-      message:
-        error.message,
+      message: error.message,
     });
   }
 };
@@ -202,13 +137,9 @@ export const uploadPortfolio = async (req, res) => {
 // 2. ANALYZE PORTFOLIO
 // ============================================================
 
-export const analyzePortfolioController = async (
-  req,
-  res
-) => {
+export const analyzePortfolioController = async (req, res) => {
   try {
     const { id } = req.params;
-
     const userId = getUserId(req);
 
     // ========================================================
@@ -218,8 +149,7 @@ export const analyzePortfolioController = async (
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message:
-          "Unauthorized - User ID not found",
+        message: "Unauthorized - User ID not found",
       });
     }
 
@@ -230,18 +160,14 @@ export const analyzePortfolioController = async (
     if (!id) {
       return res.status(400).json({
         success: false,
-        message:
-          "Portfolio ID is required",
+        message: "Portfolio ID is required",
       });
     }
 
-    if (
-      !mongoose.Types.ObjectId.isValid(id)
-    ) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message:
-          "Invalid portfolio ID",
+        message: "Invalid portfolio ID",
       });
     }
 
@@ -249,17 +175,15 @@ export const analyzePortfolioController = async (
     // Find Portfolio
     // ========================================================
 
-    const portfolio =
-      await Portfolio.findOne({
-        _id: id,
-        userId,
-      });
+    const portfolio = await Portfolio.findOne({
+      _id: id,
+      userId,
+    });
 
     if (!portfolio) {
       return res.status(404).json({
         success: false,
-        message:
-          "Portfolio not found or unauthorized",
+        message: "Portfolio not found or unauthorized",
       });
     }
 
@@ -267,14 +191,10 @@ export const analyzePortfolioController = async (
     // Check Extracted Text
     // ========================================================
 
-    if (
-      !portfolio.extractedText ||
-      !portfolio.extractedText.trim()
-    ) {
+    if (!portfolio.extractedText || !portfolio.extractedText.trim()) {
       return res.status(400).json({
         success: false,
-        message:
-          "Portfolio extracted text not found",
+        message: "Portfolio extracted text not found",
       });
     }
 
@@ -282,14 +202,10 @@ export const analyzePortfolioController = async (
     // Prevent Duplicate Analysis
     // ========================================================
 
-    if (
-      portfolio.analysisStatus ===
-      "processing"
-    ) {
+    if (portfolio.analysisStatus === "processing") {
       return res.status(409).json({
         success: false,
-        message:
-          "Portfolio analysis is already in progress",
+        message: "Portfolio analysis is already in progress",
       });
     }
 
@@ -297,31 +213,16 @@ export const analyzePortfolioController = async (
     // Start Analysis
     // ========================================================
 
-    console.log(
-      "Starting portfolio analysis:",
-      portfolio._id.toString()
-    );
+    console.log("Starting portfolio analysis:", portfolio._id.toString());
 
-    // IMPORTANT:
-    // Send portfolio ID
-    // NOT extractedText
-
-    const result =
-      await analyzePortfolio(
-        portfolio._id
-      );
+    const result = await analyzePortfolio(portfolio._id);
 
     // ========================================================
     // Clear Redis Cache
     // ========================================================
 
-    await redis.del(
-      `portfolio:${portfolio.slug}`
-    );
-
-    await redis.del(
-      `user-portfolios:${userId}`
-    );
+    await redis.del(`portfolio:${portfolio.slug}`);
+    await redis.del(`user-portfolios:${userId}`);
 
     // ========================================================
     // Response
@@ -329,63 +230,31 @@ export const analyzePortfolioController = async (
 
     return res.status(200).json({
       success: true,
-
-      message:
-        "Portfolio generated successfully",
-
-      portfolioId:
-        result.portfolioId ||
-        portfolio._id,
-
-      slug:
-        result.slug ||
-        portfolio.slug,
-
-      title:
-        result.title ||
-        portfolio.title,
-
-      analysis:
-        result.analysis ||
-        null,
-
+      message: "Portfolio generated successfully",
+      portfolioId: result.portfolioId || portfolio._id,
+      slug: result.slug || portfolio.slug,
+      title: result.title || portfolio.title,
+      analysis: result.analysis || null,
       generatedCode: {
-        html:
-          result.generatedCode?.html ||
-          "",
-
-        css:
-          result.generatedCode?.css ||
-          "",
-
-        js:
-          result.generatedCode?.js ||
-          "",
-
-        generatedAt:
-          result.generatedCode
-            ?.generatedAt ||
-          null,
+        html: result.generatedCode?.html || "",
+        css: result.generatedCode?.css || "",
+        js: result.generatedCode?.js || "",
+        generatedAt: result.generatedCode?.generatedAt || null,
       },
     });
 
   } catch (error) {
-
-    console.error(
-      "Analyze Portfolio Controller Error:",
-      error
-    );
-
+    console.error("Analyze Portfolio Controller Error:", error);
     return res.status(500).json({
       success: false,
-
-      message:
-        error.message ||
-        "Portfolio analysis failed",
+      message: error.message || "Portfolio analysis failed",
     });
   }
 };
 
+// ============================================================
+// 3. GET PORTFOLIO BY SLUG
+// ============================================================
 
 export const getPortfolioBySlug = async (req, res) => {
   try {
@@ -429,13 +298,11 @@ export const getPortfolioBySlug = async (req, res) => {
     }
 
     // ========================================================
-    // Database - REMOVED status filters
+    // Database
     // ========================================================
 
     const portfolio = await Portfolio.findOne({
       slug,
-      // REMOVED: status: "completed",
-      // REMOVED: analysisStatus: "completed",
     });
 
     if (!portfolio) {
@@ -499,6 +366,9 @@ export const getPortfolioBySlug = async (req, res) => {
   }
 };
 
+// ============================================================
+// 4. GET ALL USER PORTFOLIOS
+// ============================================================
 
 export const getAllUserPortfolios = async (req, res) => {
   try {
@@ -527,13 +397,11 @@ export const getAllUserPortfolios = async (req, res) => {
     }
 
     // ========================================================
-    // Database - GET ALL PORTFOLIOS (not just completed)
+    // Database
     // ========================================================
 
     const portfolios = await Portfolio.find({
       userId,
-      // REMOVED: status: "completed",
-      // REMOVED: analysisStatus: "completed",
     })
       .select(
         "title slug isPublic status analysisStatus createdAt updatedAt generatedCode error"
@@ -598,16 +466,10 @@ export const getAllUserPortfolios = async (req, res) => {
 // 5. DELETE PORTFOLIO
 // ============================================================
 
-export const deletePortfolio = async (
-  req,
-  res
-) => {
+export const deletePortfolio = async (req, res) => {
   try {
-    const { id } =
-      req.params;
-
-    const userId =
-      getUserId(req);
+    const { id } = req.params;
+    const userId = getUserId(req);
 
     // ========================================================
     // Validate User
@@ -616,8 +478,7 @@ export const deletePortfolio = async (
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message:
-          "Unauthorized - User ID not found",
+        message: "Unauthorized - User ID not found",
       });
     }
 
@@ -625,13 +486,10 @@ export const deletePortfolio = async (
     // Validate ID
     // ========================================================
 
-    if (
-      !mongoose.Types.ObjectId.isValid(id)
-    ) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message:
-          "Invalid portfolio ID",
+        message: "Invalid portfolio ID",
       });
     }
 
@@ -639,17 +497,15 @@ export const deletePortfolio = async (
     // Find Portfolio
     // ========================================================
 
-    const portfolio =
-      await Portfolio.findOne({
-        _id: id,
-        userId,
-      });
+    const portfolio = await Portfolio.findOne({
+      _id: id,
+      userId,
+    });
 
     if (!portfolio) {
       return res.status(404).json({
         success: false,
-        message:
-          "Portfolio not found",
+        message: "Portfolio not found",
       });
     }
 
@@ -666,13 +522,8 @@ export const deletePortfolio = async (
     // Clear Cache
     // ========================================================
 
-    await redis.del(
-      `portfolio:${portfolio.slug}`
-    );
-
-    await redis.del(
-      `user-portfolios:${userId}`
-    );
+    await redis.del(`portfolio:${portfolio.slug}`);
+    await redis.del(`user-portfolios:${userId}`);
 
     // ========================================================
     // Response
@@ -680,22 +531,14 @@ export const deletePortfolio = async (
 
     return res.status(200).json({
       success: true,
-
-      message:
-        "Portfolio deleted successfully",
+      message: "Portfolio deleted successfully",
     });
 
   } catch (error) {
-
-    console.error(
-      "Delete Portfolio Error:",
-      error
-    );
-
+    console.error("Delete Portfolio Error:", error);
     return res.status(500).json({
       success: false,
-      message:
-        error.message,
+      message: error.message,
     });
   }
 };

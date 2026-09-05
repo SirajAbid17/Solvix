@@ -1,10 +1,30 @@
-import express from "express"
-import { Login, Logout } from "../controllers/auth.controller.js"
+import express from "express";
 
-const Router=express.Router()
+import {
+  Login,
+  Logout,
+  UpdateUserPayment,
+  GetUserCredits,
+  DeductCredits, // ✅ ADDED
+} from "../controllers/auth.controller.js";
 
-Router.post('/login',Login)
-Router.post('/logout',Logout)
+const Router = express.Router();
 
-export default Router
+Router.post("/login", Login);
 
+Router.post("/logout", Logout);
+
+Router.post(
+  "/update-plan",
+  UpdateUserPayment
+);
+
+Router.get(
+  "/user-credits/:firebaseId",
+  GetUserCredits
+);
+
+// ✅ NEW ENDPOINT
+Router.post("/deduct-credits", DeductCredits);
+
+export default Router;

@@ -1,220 +1,336 @@
 import stripe from "../config/stripe.js";
 import { plans } from "../plans/plan.js";
 import Payment from "../models/payment.model.js";
+import axios from "axios";
+
+/*
+====================================================
+UPDATE USER PLAN
+====================================================
+*/
+
+const updateUserPlan = async (userId, plan, credits) => {
+  try {
+    const authServiceUrl = process.env.AUTH_SERVICES_URL || "http://localhost:5001";
+    const url = `${authServiceUrl}/update-plan`;
+
+    console.log("");
+    console.log("🔄 Updating Auth Service");
+    console.log("URL:", url);
+    console.log("User ID:", userId);
+    console.log("Plan:", plan);
+    console.log("Credits:", credits);
+
+    const response = await axios.post(
+      url,
+      {
+        userId: String(userId),
+        plan,
+        credits: Number(credits),
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: 10000,
+      }
+    );
+
+    console.log("✅ Auth Service Updated");
+    return response.data;
+  } catch (error) {
+    console.error("❌ Auth Update Failed:", error.message);
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Response:", error.response.data);
+    }
+    throw new Error(error.response?.data?.message || "Failed to update user");
+  }
+};
+
+/*
+====================================================
+CREATE ORDER
+====================================================
+*/
 
 export const createOrder = async (req, res) => {
-    try {
-        console.log("📥 Create Order Request Received");
-        console.log("📋 Headers:", req.headers);
-        console.log("📦 Body:", req.body);
+  try {
+    const { planType } = req.body;
+    const userId = req.headers["x-user-id"];
 
-        const { planType } = req.body;
-        const userId = req.headers["x-user-id"];
-        
-        console.log("👤 User ID:", userId);
-        console.log("📋 Plan Type:", planType);
-        
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: "User ID not found in headers"
-            });
-        }
+    console.log("");
+    console.log("========================================");
+    console.log("📥 CREATE ORDER");
+    console.log("========================================");
+    console.log("👤 User ID:", userId);
+    console.log("📦 Plan:", planType);
 
-        const selectedPlan = plans[planType];
-        if (!selectedPlan) {
-            return res.status(404).json({
-                success: false,
-                message: "Plan not found"
-            });
-        }
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User ID not found in headers",
+      });
+    }
 
-        // If free plan - directly add credits
-        if (selectedPlan.price === 0) {
-            const payment = new Payment({
-                userId: userId,
-                orderId: `free_${Date.now()}`,
-                amount: 0,
-                currency: "USD",
-                credits: selectedPlan.credits,
-                plan: planType,
-                status: "Successfully"
-            });
-            await payment.save();
+    const selectedPlan = plans[planType];
 
-            return res.status(200).json({
-                success: true,
-                message: "Free plan activated",
-                credits: selectedPlan.credits,
-                payment
-            });
-        }
+    if (!selectedPlan) {
+      return res.status(404).json({
+        success: false,
+        message: "Plan not found",
+      });
+    }
 
-        // Create Stripe session for paid plans
-        console.log("💳 Creating Stripe session for:", selectedPlan);
-        
-        const session = await stripe.checkout.sessions.create({
-            mode: "payment",
-            payment_method_types: ["card"],
-            line_items: [
-                {
-                    price_data: {
-                        product_data: {
-                            name: `Solvix_AI ${selectedPlan.name} Plan`,
-                            description: `${selectedPlan.credits} credits`
-                        },
-                        unit_amount: Math.round(selectedPlan.price * 100),
-                        currency: "usd"
-                    },
-                    quantity: 1
-                }
-            ],
-            metadata: {
-                userId: userId,
-                credits: String(selectedPlan.credits),
-                plan: planType
+    // FREE PLAN
+    if (Number(selectedPlan.price) === 0) {
+      const result = await updateUserPlan(userId, planType, selectedPlan.credits);
+
+      const payment = await Payment.create({
+        userId: String(userId),
+        orderId: `free_${Date.now()}_${userId}`,
+        amount: 0,
+        currency: "USD",
+        credits: selectedPlan.credits,
+        plan: planType,
+        status: "Paid",
+        creditsAdded: true,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Free plan activated",
+        user: result.data?.user,
+        payment,
+      });
+    }
+
+    // STRIPE CHECKOUT
+    console.log("💳 Creating Stripe Checkout...");
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            product_data: {
+              name: `Solvix AI ${selectedPlan.name} Plan`,
+              description: `${selectedPlan.credits} AI credits`,
             },
-            success_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/pricing`
-        });
+            unit_amount: Math.round(selectedPlan.price * 100),
+            currency: "usd",
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        userId: String(userId),
+        plan: String(planType),
+        credits: String(selectedPlan.credits),
+      },
+      success_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/pricing`,
+    });
 
-        console.log("✅ Stripe session created:", session.id);
+    const payment = await Payment.create({
+      userId: String(userId),
+      orderId: session.id,
+      amount: selectedPlan.price,
+      currency: "USD",
+      credits: selectedPlan.credits,
+      plan: planType,
+      status: "Created",
+      creditsAdded: false,
+    });
 
-        // Save payment record
-        const payment = new Payment({
-            userId: userId,
-            orderId: session.id,
-            amount: selectedPlan.price,
-            currency: "USD",
-            credits: selectedPlan.credits,
-            plan: planType,
-            status: "Created"
-        });
-        await payment.save();
+    console.log("");
+    console.log("========================================");
+    console.log("✅ STRIPE CHECKOUT CREATED");
+    console.log("Session:", session.id);
+    console.log("User:", userId);
+    console.log("Plan:", planType);
+    console.log("Credits:", selectedPlan.credits);
+    console.log("Amount:", selectedPlan.price);
+    console.log("========================================");
 
-        return res.status(200).json({
-            success: true,
-            sessionUrl: session.url,
-            sessionId: session.id,
-            payment
-        });
-
-    } catch (error) {
-        console.error("❌ Create Order Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Failed to create order"
-        });
-    }
+    return res.status(200).json({
+      success: true,
+      sessionUrl: session.url,
+      sessionId: session.id,
+      payment,
+    });
+  } catch (error) {
+    console.error("❌ Create Order Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to create order",
+    });
+  }
 };
 
-// Webhook handler
-export const handleWebhook = async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    let event;
+/*
+====================================================
+VERIFY STRIPE PAYMENT
+====================================================
+*/
 
-    try {
-        event = stripe.webhooks.constructEvent(
-            req.body,
-            sig,
-            process.env.STRIPE_WEBHOOK_SECRET
-        );
-    } catch (err) {
-        console.error('Webhook signature verification failed:', err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    try {
-        if (event.type === 'checkout.session.completed') {
-            const session = event.data.object;
-            
-            const payment = await Payment.findOneAndUpdate(
-                { orderId: session.id },
-                { 
-                    status: "Paid",
-                    paymentId: session.payment_intent
-                },
-                { new: true }
-            );
-
-            if (payment) {
-                console.log(`✅ Payment successful for user ${session.metadata.userId}`);
-                console.log(`✅ Credits added: ${session.metadata.credits}`);
-            }
-        }
-
-        res.json({ received: true });
-    } catch (error) {
-        console.error('Webhook processing error:', error);
-        res.status(500).json({ error: 'Webhook processing failed' });
-    }
-};
-
-// Get payment status
 export const getPaymentStatus = async (req, res) => {
-    try {
-        const { sessionId } = req.params;
-        const userId = req.headers["x-user-id"];
+  try {
+    const { sessionId } = req.params;
+    const userId = req.headers["x-user-id"];
 
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: "User ID not found"
-            });
-        }
+    console.log("");
+    console.log("========================================");
+    console.log("🔍 VERIFY PAYMENT");
+    console.log("========================================");
+    console.log("Session ID:", sessionId);
+    console.log("User ID:", userId);
 
-        const payment = await Payment.findOne({ 
-            orderId: sessionId,
-            userId: userId 
-        });
-
-        if (!payment) {
-            return res.status(404).json({
-                success: false,
-                message: "Payment not found"
-            });
-        }
-
-        return res.status(200).json({
-            success: true,
-            payment
-        });
-
-    } catch (error) {
-        console.error("Get Payment Status Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User ID not found",
+      });
     }
+
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Session ID is required",
+      });
+    }
+
+    const payment = await Payment.findOne({
+      orderId: sessionId,
+      userId: String(userId),
+    });
+
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment record not found",
+      });
+    }
+
+    if (payment.creditsAdded) {
+      console.log("⚠️ Credits already added");
+      return res.status(200).json({
+        success: true,
+        message: "Payment already processed",
+        payment,
+      });
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log("Stripe Payment Status:", session.payment_status);
+
+    if (session.payment_status !== "paid") {
+      payment.status = "Failed";
+      await payment.save();
+      return res.status(400).json({
+        success: false,
+        message: "Payment has not been completed",
+        paymentStatus: session.payment_status,
+      });
+    }
+
+    const metadata = session.metadata || {};
+    const stripeUserId = metadata.userId;
+    const stripePlan = metadata.plan;
+    const stripeCredits = Number(metadata.credits);
+
+    if (!stripeUserId || !stripePlan || !stripeCredits) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Stripe payment metadata",
+      });
+    }
+
+    if (String(stripeUserId) !== String(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Payment does not belong to this user",
+      });
+    }
+
+    if (stripePlan !== payment.plan) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment plan mismatch",
+      });
+    }
+
+    if (stripeCredits !== payment.credits) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment credits mismatch",
+      });
+    }
+
+    console.log("💳 Adding credits...");
+    const result = await updateUserPlan(userId, stripePlan, stripeCredits);
+
+    payment.status = "Paid";
+    payment.paymentId = session.payment_intent || undefined;
+    payment.creditsAdded = true;
+    await payment.save();
+
+    console.log("");
+    console.log("========================================");
+    console.log("🎉 PAYMENT COMPLETED");
+    console.log("User:", userId);
+    console.log("Plan:", stripePlan);
+    console.log("Credits Added:", stripeCredits);
+    console.log("========================================");
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment verified and credits added",
+      payment,
+      user: result.data?.user || null,
+    });
+  } catch (error) {
+    console.error("❌ Payment Verification Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Payment verification failed",
+    });
+  }
 };
 
-// Get user's payment history
+/*
+====================================================
+GET PAYMENT HISTORY
+====================================================
+*/
+
 export const getPaymentHistory = async (req, res) => {
-    try {
-        const userId = req.headers["x-user-id"];
+  try {
+    const userId = req.headers["x-user-id"];
 
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: "User ID not found"
-            });
-        }
-
-        const payments = await Payment.find({ userId })
-            .sort({ createdAt: -1 })
-            .limit(50);
-
-        return res.status(200).json({
-            success: true,
-            payments
-        });
-
-    } catch (error) {
-        console.error("Get Payment History Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User ID not found",
+      });
     }
+
+    const payments = await Payment.find({
+      userId: String(userId),
+    })
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    return res.status(200).json({
+      success: true,
+      payments,
+    });
+  } catch (error) {
+    console.error("❌ Payment History Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

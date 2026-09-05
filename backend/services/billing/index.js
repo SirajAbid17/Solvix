@@ -9,29 +9,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5006;
 
-// Database connection
 DbConnect();
 
-// ✅ Middleware - JSON parsing for all routes except webhook
-app.use(express.json());
-app.use(cors({
+app.use(
+  cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true
-}));
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-// ✅ Mount billing routes
-app.use('/', BillingRoute);
+app.use(express.json());
+app.use("/", BillingRoute);
 
-// ✅ Health check
 app.get("/health", (req, res) => {
-    res.json({ 
-        status: "OK", 
-        service: "billing",
-        timestamp: new Date().toISOString()
-    });
+  res.json({
+    status: "OK",
+    service: "billing",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.listen(PORT, () => {
-    console.log(`💰 Billing Service running on http://localhost:${PORT}`);
-    console.log(`📡 Webhook endpoint: http://localhost:${PORT}/webhook`);
+  console.log(`💰 Billing Service running on http://localhost:${PORT}`);
 });

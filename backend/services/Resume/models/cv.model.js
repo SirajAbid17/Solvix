@@ -170,30 +170,23 @@ const customSectionSchema = new mongoose.Schema({
 // ============================================
 
 const cvSchema = new mongoose.Schema({
-  // User & Basic Information
   userId: {
     type: String,
     required: [true, "User ID is required"],
     index: true,
   },
-  
   templateId: {
     type: Number,
     default: 1,
     min: 1,
     max: 50,
   },
-  
   title: {
     type: String,
     default: "My Resume",
     trim: true,
     maxlength: [100, "Title cannot exceed 100 characters"],
   },
-
-  // ============================================
-  // Personal Information
-  // ============================================
   personal: {
     fullName: {
       type: String,
@@ -238,30 +231,17 @@ const cvSchema = new mongoose.Schema({
     },
     drivingLicense: { type: String, trim: true },
   },
-
-  // ============================================
-  // Social & Links
-  // ============================================
   social: socialSchema,
-
-  // ============================================
-  // Professional Summary
-  // ============================================
   summary: {
     type: String,
     trim: true,
     maxlength: [5000, "Summary cannot exceed 5000 characters"],
   },
-  
   objective: {
     type: String,
     trim: true,
     maxlength: [2000, "Objective cannot exceed 2000 characters"],
   },
-
-  // ============================================
-  // Skills - Enhanced Structure
-  // ============================================
   skills: {
     technical: [{ type: String, trim: true }],
     soft: [{ type: String, trim: true }],
@@ -278,66 +258,18 @@ const cvSchema = new mongoose.Schema({
       category: { type: String, trim: true },
     }],
   },
-
-  // ============================================
-  // Work Experience
-  // ============================================
   workExperience: [experienceSchema],
-  
-  // ============================================
-  // Education
-  // ============================================
   education: [educationSchema],
-
-  // ============================================
-  // Projects
-  // ============================================
   projects: [projectSchema],
-
-  // ============================================
-  // Certifications
-  // ============================================
   certifications: [certificationSchema],
-
-  // ============================================
-  // Languages
-  // ============================================
   languages: [languageSchema],
-
-  // ============================================
-  // Awards & Honors
-  // ============================================
   awards: [awardSchema],
-
-  // ============================================
-  // Publications
-  // ============================================
   publications: [publicationSchema],
-
-  // ============================================
-  // Interests & Hobbies
-  // ============================================
   interests: [{ type: String, trim: true }],
   hobbies: [{ type: String, trim: true }],
-
-  // ============================================
-  // Volunteering
-  // ============================================
   volunteering: [volunteeringSchema],
-
-  // ============================================
-  // References
-  // ============================================
   references: [referenceSchema],
-
-  // ============================================
-  // Custom Sections
-  // ============================================
   customSections: [customSectionSchema],
-
-  // ============================================
-  // Profile Image
-  // ============================================
   profileImage: {
     url: { type: String, trim: true },
     publicId: { type: String, trim: true },
@@ -345,10 +277,6 @@ const cvSchema = new mongoose.Schema({
     size: { type: Number },
     format: { type: String, trim: true },
   },
-
-  // ============================================
-  // Resume Settings & Customization
-  // ============================================
   resumeSettings: {
     font: {
       type: String,
@@ -400,15 +328,11 @@ const cvSchema = new mongoose.Schema({
       order: { type: Number },
     }],
   },
-
-  // ============================================
-  // AI & Optimization Data
-  // ============================================
   ai: {
     generatedSummary: { type: String, trim: true },
-    atsScore: { 
-      type: Number, 
-      min: 0, 
+    atsScore: {
+      type: Number,
+      min: 0,
       max: 100,
       validate: {
         validator: Number.isInteger,
@@ -433,66 +357,39 @@ const cvSchema = new mongoose.Schema({
     }],
     improvementScore: { type: Number, min: 0, max: 100 },
   },
-
-  // ============================================
-  // Generated Outputs
-  // ============================================
   generatedResume: mongoose.Schema.Types.Mixed,
-  
   pdfUrl: { type: String, trim: true },
-  
   docxUrl: { type: String, trim: true },
-  
   htmlContent: { type: String, trim: true },
-
-  // ============================================
-  // AI Model Tracking
-  // ============================================
   aiModel: {
     type: String,
     enum: ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo", "claude-3", "gemini-pro", "custom"],
     default: "gpt-3.5-turbo",
   },
-
-  // ============================================
-  // Visibility & Sharing
-  // ============================================
   visibility: {
     type: String,
     enum: ["private", "public", "unlisted", "shareable"],
     default: "private",
   },
-  
   shareToken: {
     type: String,
     trim: true,
     unique: true,
     sparse: true,
   },
-  
   shareExpiry: { type: Date },
-
-  // ============================================
-  // Versioning & History
-  // ============================================
   version: {
     type: Number,
     default: 1,
     min: 1,
   },
-  
   previousVersions: [{
     version: { type: Number },
     data: mongoose.Schema.Types.Mixed,
     updatedAt: { type: Date, default: Date.now },
     reason: { type: String, trim: true },
   }],
-  
   isLatestVersion: { type: Boolean, default: true },
-
-  // ============================================
-  // Analytics & Usage
-  // ============================================
   analytics: {
     views: { type: Number, default: 0 },
     downloads: { type: Number, default: 0 },
@@ -505,43 +402,27 @@ const cvSchema = new mongoose.Schema({
       userAgent: { type: String },
     }],
   },
-
-  // ============================================
-  // Status & Metadata
-  // ============================================
   status: {
     type: String,
     enum: ["draft", "in-progress", "completed", "archived", "deleted"],
     default: "draft",
   },
-  
   isPrimary: {
     type: Boolean,
     default: false,
   },
-  
   tags: [{ type: String, trim: true }],
-  
   notes: { type: String, trim: true },
-
-  // ============================================
-  // Timestamps
-  // ============================================
   lastActivity: { type: Date },
-  
   publishedAt: { type: Date },
-  
   archivedAt: { type: Date },
-
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
 
-// ============================================
 // Indexes for Performance
-// ============================================
 cvSchema.index({ userId: 1, createdAt: -1 });
 cvSchema.index({ userId: 1, isPrimary: 1 });
 cvSchema.index({ shareToken: 1 }, { sparse: true });

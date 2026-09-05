@@ -40,6 +40,14 @@ export default function Sidebar() {
   const { userdata } = useSelector((state) => state.user);
 
   // =========================================================
+  // PLAN NAME
+  // =========================================================
+
+  const planName = userdata?.plan
+    ? userdata.plan.charAt(0).toUpperCase() + userdata.plan.slice(1)
+    : "Free";
+
+  // =========================================================
   // LOAD CONVERSATIONS
   // =========================================================
 
@@ -88,7 +96,13 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post(
+        "/auth/logout",
+        {},
+        {
+          withCredentials: true,
+        },
+      );
 
       dispatch(setuserData(null));
       dispatch(clearConversations());
@@ -97,9 +111,16 @@ export default function Sidebar() {
 
       navigate("/");
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("Logout error:", error.response?.data || error.message);
     }
   };
+
+  // =========================================================
+  // AVATAR FALLBACK
+  // =========================================================
+
+  const avatar =
+    userdata?.avatar && userdata.avatar.trim() !== "" ? userdata.avatar : null;
 
   return (
     <aside
@@ -222,7 +243,7 @@ export default function Sidebar() {
                 }
               `}
             >
-              Free
+              {planName}
             </span>
 
             {/* NEW CHAT ICON */}
@@ -305,7 +326,6 @@ export default function Sidebar() {
 
       {/* =====================================================
           CONVERSATIONS + CELEBRATION
-          BALLOONS ARE LIMITED TO THIS AREA ONLY
       ===================================================== */}
 
       {open && (
@@ -318,18 +338,11 @@ export default function Sidebar() {
             overflow-hidden
           "
         >
-          {/* =================================================
-              CELEBRATION LAYER
-
-              This is inside the conversation area.
-              It does NOT cover ChatArea or Coding.
-          ================================================= */}
+          {/* CELEBRATION */}
 
           {userdata && <UserCelebration />}
 
-          {/* =================================================
-              CONVERSATION LIST
-          ================================================= */}
+          {/* CONVERSATION LIST */}
 
           <div
             className="
@@ -401,20 +414,47 @@ export default function Sidebar() {
                   }
                 `}
               >
-                <img
-                  src={userdata.avatar}
-                  alt={userdata.name || "User"}
-                  className={`
-                    h-9
-                    w-9
-                    shrink-0
-                    rounded-full
-                    border
-                    object-cover
+                {/* AVATAR */}
 
-                    ${dark ? "border-white/10" : "border-gray-200"}
-                  `}
-                />
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    alt={userdata.name || "User"}
+                    className={`
+                      h-9
+                      w-9
+                      shrink-0
+                      rounded-full
+                      border
+                      object-cover
+
+                      ${dark ? "border-white/10" : "border-gray-200"}
+                    `}
+                  />
+                ) : (
+                  <div
+                    className={`
+                      flex
+                      h-9
+                      w-9
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-full
+                      border
+                      text-xs
+                      font-bold
+
+                      ${
+                        dark
+                          ? "border-white/10 bg-white/10 text-white"
+                          : "border-gray-200 bg-gray-100 text-gray-700"
+                      }
+                    `}
+                  >
+                    {userdata.name?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                )}
 
                 <div className="min-w-0 flex-1">
                   <h1
@@ -429,8 +469,10 @@ export default function Sidebar() {
                     {userdata.name || "User"}
                   </h1>
 
+                  {/* DYNAMIC PLAN */}
+
                   <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                    Free Plan
+                    {planName} Plan
                   </p>
                 </div>
 
@@ -471,26 +513,50 @@ export default function Sidebar() {
                   justify-center
                 "
               >
-                <img
-                  src={userdata.avatar}
-                  alt={userdata.name || "User"}
-                  className={`
-                    h-9
-                    w-9
-                    rounded-full
-                    border-2
-                    object-cover
-                    transition-all
-                    duration-200
-                    hover:scale-105
+                {avatar ? (
+                  <img
+                    src={avatar}
+                    alt={userdata.name || "User"}
+                    className={`
+                      h-9
+                      w-9
+                      rounded-full
+                      border-2
+                      object-cover
+                      transition-all
+                      duration-200
+                      hover:scale-105
 
-                    ${
-                      dark
-                        ? "border-white/20 hover:border-white/40"
-                        : "border-gray-300 hover:border-gray-500"
-                    }
-                  `}
-                />
+                      ${
+                        dark
+                          ? "border-white/20 hover:border-white/40"
+                          : "border-gray-300 hover:border-gray-500"
+                      }
+                    `}
+                  />
+                ) : (
+                  <div
+                    className={`
+                      flex
+                      h-9
+                      w-9
+                      items-center
+                      justify-center
+                      rounded-full
+                      border-2
+                      text-xs
+                      font-bold
+
+                      ${
+                        dark
+                          ? "border-white/20 bg-white/10 text-white"
+                          : "border-gray-300 bg-gray-100 text-gray-700"
+                      }
+                    `}
+                  >
+                    {userdata.name?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                )}
               </button>
             )}
           </>
@@ -580,20 +646,47 @@ export default function Sidebar() {
             {/* PROFILE */}
 
             <div className="flex flex-col items-center text-center">
-              <img
-                src={userdata.avatar}
-                alt={userdata.name || "User"}
-                className={`
-                  mb-4
-                  h-20
-                  w-20
-                  rounded-full
-                  border-4
-                  object-cover
+              {/* PROFILE AVATAR */}
 
-                  ${dark ? "border-white/10" : "border-gray-200"}
-                `}
-              />
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt={userdata.name || "User"}
+                  className={`
+                    mb-4
+                    h-20
+                    w-20
+                    rounded-full
+                    border-4
+                    object-cover
+
+                    ${dark ? "border-white/10" : "border-gray-200"}
+                  `}
+                />
+              ) : (
+                <div
+                  className={`
+                    mb-4
+                    flex
+                    h-20
+                    w-20
+                    items-center
+                    justify-center
+                    rounded-full
+                    border-4
+                    text-2xl
+                    font-bold
+
+                    ${
+                      dark
+                        ? "border-white/10 bg-white/10 text-white"
+                        : "border-gray-200 bg-gray-100 text-gray-700"
+                    }
+                  `}
+                >
+                  {userdata.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+              )}
 
               <h2
                 className={`
@@ -609,6 +702,8 @@ export default function Sidebar() {
               <p className="mt-1 max-w-full truncate text-sm text-gray-500">
                 {userdata.email || "user@email.com"}
               </p>
+
+              {/* DYNAMIC PLAN */}
 
               <span
                 className={`
@@ -627,8 +722,10 @@ export default function Sidebar() {
                   }
                 `}
               >
-                Free Plan
+                {planName} Plan
               </span>
+
+              {/* CREDITS */}
 
               <div className="mt-5 w-full space-y-2">
                 {/* DASHBOARD */}

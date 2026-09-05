@@ -1,13 +1,9 @@
 import crypto from "crypto";
 import Resume from "../models/resume.model.js";
 import ResumeAnalysis from "../models/resumeAnalysis.model.js";
-
 import { extractTextFromPDF } from "../services/pdf.service.js";
 import { uploadPDFToCloudinary } from "../services/cloudinary.service.js";
-import {
-  analyzeResume,
-  findJobs,
-} from "../services/Gemini.service.js";
+import { analyzeResume, findJobs } from "../services/Gemini.service.js";
 import redis from "../../../shared/redis/redis.js";
 
 const CACHE_TIME = 60 * 60;
@@ -30,15 +26,12 @@ export const uploadResume = async (req, res) => {
       });
     }
 
-    // Generate hash from PDF
     const pdfHash = crypto
       .createHash("sha256")
       .update(req.file.buffer)
       .digest("hex");
 
     const cacheKey = `resume:${userId}:${pdfHash}`;
-
-    // Check Redis First
     const cached = await redis.get(cacheKey);
 
     if (cached) {
@@ -48,16 +41,12 @@ export const uploadResume = async (req, res) => {
       });
     }
 
-    // Extract Text
     const extractedText = await extractTextFromPDF(req.file.buffer);
-
-    // Upload PDF
     const uploadedFile = await uploadPDFToCloudinary(
       req.file.buffer,
       req.file.originalname
     );
 
-    // Save Resume
     const resume = await Resume.create({
       userId,
       originalName: req.file.originalname,
@@ -66,17 +55,12 @@ export const uploadResume = async (req, res) => {
       status: "completed",
     });
 
-    // AI Analysis
     const analysis = await analyzeResume(extractedText);
-
-    // Jobs
     const jobs = await findJobs(analysis);
 
-    // Save Analysis
     const resumeAnalysis = await ResumeAnalysis.create({
       userId,
       resume: resume._id,
-
       resumeScore: analysis.resumeScore,
       atsScore: analysis.atsScore,
       summary: analysis.summary,
@@ -88,7 +72,6 @@ export const uploadResume = async (req, res) => {
       missingKeywords: analysis.missingKeywords,
       recommendedRoles: analysis.recommendedRoles,
       sectionScores: analysis.sectionScores,
-
       jobs,
       aiResponse: analysis,
     });
@@ -101,21 +84,12 @@ export const uploadResume = async (req, res) => {
       jobs,
     };
 
-    // Save Response in Redis
-    await redis.set(
-      cacheKey,
-      JSON.stringify(response),
-      "EX",
-      CACHE_TIME
-    );
-
-    // Clear my resumes cache
+    await redis.set(cacheKey, JSON.stringify(response), "EX", CACHE_TIME);
     await redis.del(`my-resumes:${userId}`);
 
     return res.status(201).json(response);
   } catch (error) {
     console.log(error);
-
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -126,9 +100,7 @@ export const uploadResume = async (req, res) => {
 export const myResumes = async (req, res) => {
   try {
     const userId = req.headers["x-user-id"];
-
     const cacheKey = `my-resumes:${userId}`;
-
     const cached = await redis.get(cacheKey);
 
     if (cached) {
@@ -150,13 +122,7 @@ export const myResumes = async (req, res) => {
       data,
     };
 
-    await redis.set(
-      cacheKey,
-      JSON.stringify(response),
-      "EX",
-      CACHE_TIME
-    );
-
+    await redis.set(cacheKey, JSON.stringify(response), "EX", CACHE_TIME);
     return res.json(response);
   } catch (error) {
     return res.status(500).json({

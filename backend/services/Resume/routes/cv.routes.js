@@ -1,13 +1,12 @@
-// routes/cv.routes.js
 import express from "express";
 import { uploadImage } from "../middleware/multer.js";
-import { 
-  createCV, 
-  deleteCV, 
-  getCVById, 
-  getMyCVs, 
-  removeProfileImage, 
-  updateCV 
+import {
+  createCV,
+  deleteCV,
+  getCVById,
+  getMyCVs,
+  removeProfileImage,
+  updateCV
 } from "../controller/cvGenerator.controller.js";
 import { uploadRateLimit } from "../../../shared/rateLimit.js";
 
