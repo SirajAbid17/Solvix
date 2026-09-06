@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useEffect, useRef } from "react";
 
 import {
   FiCode,
@@ -10,7 +11,10 @@ import {
   FiAlertCircle,
   FiTool,
   FiCheckCircle,
+  FiCpu,
 } from "react-icons/fi";
+
+import gsap from "gsap";
 
 export default function CodePreviewUI({
   dark,
@@ -24,114 +28,428 @@ export default function CodePreviewUI({
   executeCode,
   setIsFullscreen,
 }) {
-  // =========================================================
-  // NO CODE UI
-  // =========================================================
+  const welcomeRef = useRef(null);
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const glowRef = useRef(null);
 
-  if (!latestCode) {
-    return (
-      <div
-        className={`
-          flex
+  /*
+  ============================================================
+  SOLVIX WELCOME SCREEN ANIMATION
+  ============================================================
+  */
+
+  useEffect(() => {
+    if (latestCode) return;
+
+    const ctx = gsap.context(() => {
+      const timeline = gsap.timeline({
+        defaults: {
+          ease: "power3.out",
+        },
+      });
+
+      // Initial states
+      gsap.set(titleRef.current, {
+        opacity: 0,
+        y: 25,
+        filter: "blur(8px)",
+      });
+
+      gsap.set(subtitleRef.current, {
+        opacity: 0,
+        y: 15,
+        filter: "blur(5px)",
+      });
+
+      gsap.set(".solvix-agent", {
+        opacity: 0,
+        y: 18,
+        scale: 0.9,
+      });
+
+      gsap.set(".solvix-icon", {
+        opacity: 0,
+        scale: 0.5,
+        rotate: -20,
+      });
+
+      gsap.set(".solvix-status", {
+        opacity: 0,
+        y: 10,
+      });
+
+      // Icon entrance
+      timeline
+        .to(".solvix-icon", {
+          opacity: 1,
+          scale: 1,
+          rotate: 0,
+          duration: 0.7,
+          ease: "back.out(1.7)",
+        })
+
+        // Heading
+        .to(
+          titleRef.current,
+          {
+            opacity: 1,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.8,
+          },
+          "-=0.35",
+        )
+
+        // Subtitle
+        .to(
+          subtitleRef.current,
+          {
+            opacity: 1,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.6,
+          },
+          "-=0.45",
+        )
+
+        // Agents
+        .to(
+          ".solvix-agent",
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.45,
+            stagger: 0.055,
+            ease: "back.out(1.4)",
+          },
+          "-=0.2",
+        )
+
+        // Status
+        .to(
+          ".solvix-status",
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+          },
+          "-=0.15",
+        );
+
+      /*
+      ==========================================================
+      FLOATING AGENT ANIMATION
+      ==========================================================
+      */
+
+      gsap.to(".solvix-agent", {
+        y: -3,
+        duration: 2,
+        stagger: {
+          each: 0.12,
+          repeat: -1,
+          yoyo: true,
+        },
+        ease: "sine.inOut",
+      });
+
+      /*
+      ==========================================================
+      BACKGROUND GLOW
+      ==========================================================
+      */
+
+      gsap.to(glowRef.current, {
+        scale: 1.2,
+        opacity: 0.65,
+        duration: 4,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    }, welcomeRef);
+
+    return () => ctx.revert();
+  }, [latestCode]);
+
+  /*
+  ============================================================
+  AGENTS
+  ============================================================
+  */
+
+  const agents = [
+    "Chat",
+    "Search",
+    "Image",
+    "Coding",
+    "PPT",
+    "PDF",
+    "Resume Analysis",
+    "CV Generator",
+    "Portfolio Generator",
+    "Mock Interview",
+  ];
+
+  /*
+  ============================================================
+  WELCOME SCREEN
+  ============================================================
+  */
+
+
+if (!latestCode) {
+  return (
+    <div
+      ref={welcomeRef}
+      className="
+        relative
+        flex
+        h-full
+        min-h-[380px]
+        w-full
+        items-center
+        justify-center
+        overflow-hidden
+        bg-black
+      "
+    >
+      {/* Background GIF */}
+      <img
+        src="https://cdn.pixabay.com/animation/2025/08/15/07/22/07-22-21-420_512.gif"
+        alt=""
+        className="
+          absolute
+          inset-0
           h-full
-          min-h-[400px]
           w-full
+          object-cover
+          opacity-80
+        "
+      />
+
+      {/* Dark Overlay */}
+      <div
+        className="
+          absolute
+          inset-0
+          bg-black/60
+        "
+      />
+
+      {/* Center Glow */}
+      <div
+        ref={glowRef}
+        className="
+          pointer-events-none
+          absolute
+          left-1/2
+          top-1/2
+          h-48
+          w-48
+          -translate-x-1/2
+          -translate-y-1/2
+          rounded-full
+          bg-white/[0.06]
+          blur-3xl
+        "
+      />
+
+      {/* Content */}
+      <div
+        className="
+          relative
+          z-10
+          flex
+          w-full
+          max-w-2xl
+          flex-col
           items-center
-          justify-center
-          px-6
-          ${dark ? "bg-[#080808]" : "bg-gray-50"}
-        `}
+          px-4
+          text-center
+        "
       >
-        <div className="flex max-w-sm flex-col items-center text-center">
-          <div
-            className={`
-              mb-4
-              flex
-              h-12
-              w-12
-              items-center
-              justify-center
-              rounded-xl
-              border
-              ${
-                dark
-                  ? "border-white/[0.08] bg-white/[0.04]"
-                  : "border-gray-200 bg-white"
-              }
-            `}
-          >
-            <FiCode
-              size={20}
-              className={
-                dark
-                  ? "text-gray-500"
-                  : "text-gray-400"
-              }
-            />
-          </div>
+        {/* AI Icon */}
+        <div
+          className="
+            solvix-icon
+            mb-2.5
+            flex
+            h-8
+            w-8
+            items-center
+            justify-center
+            rounded-lg
+            border
+            border-white/10
+            bg-white/[0.07]
+            shadow-[0_0_25px_rgba(255,255,255,0.08)]
+            backdrop-blur-xl
+          "
+        >
+          <FiCpu
+            size={15}
+            className="text-white"
+          />
+        </div>
 
-          <h3
-            className={`
-              text-sm
-              font-semibold
-              tracking-tight
-              ${dark ? "text-gray-200" : "text-gray-800"}
-            `}
+        {/* Title */}
+        <h2
+          ref={titleRef}
+          className="
+            max-w-xl
+            text-base
+            font-semibold
+            leading-tight
+            tracking-[-0.02em]
+            text-white
+            sm:text-lg
+          "
+        >
+          All the AI Models and Agents You Need
+          <span className="mx-1 text-white/25">
+            —
+          </span>
+          <span
+            className="
+              bg-gradient-to-r
+              from-white
+              via-gray-300
+              to-gray-500
+              bg-clip-text
+              text-transparent
+            "
           >
-            No preview available
-          </h3>
+            In One Powerful Platform.
+          </span>
+        </h2>
 
-          <p
-            className={`
-              mt-1.5
-              max-w-xs
-              text-xs
-              leading-5
-              ${dark ? "text-gray-500" : "text-gray-400"}
-            `}
-          >
-            Generate HTML, CSS, or JavaScript code
-            with Solvix to see the live preview here.
-          </p>
+        {/* Subtitle */}
+        <p
+          ref={subtitleRef}
+          className="
+            mt-1
+            max-w-lg
+            text-[10px]
+            leading-4
+            text-white/45
+          "
+        >
+          One intelligent workspace for chat, research, coding,
+          creativity, documents, and career growth.
+        </p>
 
-          <div
-            className={`
-              mt-4
-              flex
-              items-center
-              gap-2
-              rounded-lg
-              border
-              px-3
-              py-2
-              ${
-                dark
-                  ? "border-white/[0.06] bg-white/[0.02] text-gray-600"
-                  : "border-gray-200 bg-white text-gray-400"
-              }
-            `}
-          >
+        {/* Agents */}
+        <div
+          className="
+            mt-3
+            flex
+            max-w-xl
+            flex-wrap
+            justify-center
+            gap-1.5
+          "
+        >
+          {agents.map((agent) => (
+            <div
+              key={agent}
+              className="
+                solvix-agent
+                group
+                cursor-default
+                rounded-full
+                border
+                border-white/[0.10]
+                bg-black/30
+                px-2.5
+                py-1
+                text-[9px]
+                font-medium
+                text-white/75
+                shadow-lg
+                backdrop-blur-xl
+                transition-all
+                duration-300
+                hover:border-white/25
+                hover:bg-white/[0.10]
+                hover:text-white
+                hover:shadow-[0_0_20px_rgba(255,255,255,0.08)]
+              "
+            >
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="
+                    h-1
+                    w-1
+                    rounded-full
+                    bg-white/35
+                    transition-all
+                    duration-300
+                    group-hover:bg-white
+                    group-hover:shadow-[0_0_8px_rgba(255,255,255,0.8)]
+                  "
+                />
+
+                {agent}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Status */}
+        <div
+          className="
+            solvix-status
+            mt-2.5
+            flex
+            items-center
+            gap-1.5
+            text-[8px]
+            tracking-wide
+            text-white/30
+          "
+        >
+          <span className="relative flex h-1.5 w-1.5">
             <span
-              className={`
+              className="
+                absolute
+                inline-flex
+                h-full
+                w-full
+                animate-ping
+                rounded-full
+                bg-white/40
+              "
+            />
+
+            <span
+              className="
+                relative
+                inline-flex
                 h-1.5
                 w-1.5
                 rounded-full
-                ${dark ? "bg-gray-600" : "bg-gray-300"}
-              `}
+                bg-white/60
+              "
             />
+          </span>
 
-            <span className="text-[10px]">
-              Your preview will appear here
-            </span>
-          </div>
+          Powered by Solvix AI Multi-Agent System
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  // =========================================================
-  // MAIN PREVIEW
-  // =========================================================
+
+
+  /*
+  ============================================================
+  MAIN CODE PREVIEW
+  ============================================================
+  */
 
   return (
     <div
@@ -168,6 +486,10 @@ export default function CodePreviewUI({
           }
         `}
       >
+        {/* ===================================================
+            LEFT SIDE
+        ==================================================== */}
+
         <div className="flex items-center gap-2">
           <div
             className={`
@@ -211,9 +533,9 @@ export default function CodePreviewUI({
           </div>
         </div>
 
-        {/* =================================================
+        {/* ===================================================
             ACTIONS
-        ================================================== */}
+        ==================================================== */}
 
         <div className="flex items-center gap-1">
           {/* COPY */}
@@ -229,7 +551,7 @@ export default function CodePreviewUI({
               items-center
               justify-center
               rounded-md
-              transition
+              transition-all
               ${
                 dark
                   ? "text-gray-500 hover:bg-white/[0.06] hover:text-white"
@@ -261,7 +583,8 @@ export default function CodePreviewUI({
               items-center
               justify-center
               rounded-md
-              transition
+              transition-all
+              disabled:cursor-not-allowed
               disabled:opacity-50
               ${
                 dark
@@ -272,11 +595,7 @@ export default function CodePreviewUI({
           >
             <FiRefreshCw
               size={13}
-              className={
-                isLoading
-                  ? "animate-spin"
-                  : ""
-              }
+              className={isLoading ? "animate-spin" : ""}
             />
           </button>
 
@@ -301,7 +620,7 @@ export default function CodePreviewUI({
               items-center
               justify-center
               rounded-md
-              transition
+              transition-all
               ${
                 dark
                   ? "text-gray-500 hover:bg-white/[0.06] hover:text-white"
@@ -398,10 +717,11 @@ export default function CodePreviewUI({
                     py-1.5
                     text-xs
                     font-medium
+                    transition
                     ${
                       dark
-                        ? "bg-white text-black"
-                        : "bg-black text-white"
+                        ? "bg-white text-black hover:bg-gray-200"
+                        : "bg-black text-white hover:bg-gray-800"
                     }
                   `}
                 >
@@ -427,7 +747,18 @@ export default function CodePreviewUI({
           ================================================== */}
 
           {isLoading && !error && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/20">
+            <div
+              className="
+                absolute
+                inset-0
+                z-20
+                flex
+                items-center
+                justify-center
+                bg-black/20
+                backdrop-blur-[2px]
+              "
+            >
               <div
                 className={`
                   flex
@@ -438,7 +769,7 @@ export default function CodePreviewUI({
                   px-3
                   py-2
                   text-xs
-                  shadow-lg
+                  shadow-xl
                   ${
                     dark
                       ? "border-white/[0.08] bg-[#111]/95 text-gray-300"
@@ -459,6 +790,10 @@ export default function CodePreviewUI({
           )}
         </div>
       </div>
+
+      {/* =====================================================
+          FOOTER
+      ====================================================== */}
 
       {!isFullscreen && (
         <div
@@ -512,3 +847,4 @@ export default function CodePreviewUI({
     </div>
   );
 }
+

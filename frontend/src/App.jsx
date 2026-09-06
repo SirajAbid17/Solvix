@@ -20,6 +20,8 @@ import LoginRequired from "./pages/LoginRequired";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./components/pricing/PaymentSuccess";
 import GetcurrentUser from "./Features/GetCurrentUser";
+import Privacy from "./pages/Privacy";
+import Contact from "./pages/Contact";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -108,6 +110,8 @@ export default function App() {
           path="/payment/success"
           element={<PaymentSuccess />}
         />
+        <Route path="/privacy" element={<Privacy />} />
+       <Route path="/contact" element={<Contact />} />
 
         <Route path="*" element={<Page_not_Found />} />
       </Routes>

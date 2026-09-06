@@ -9,6 +9,11 @@ export default function WebsiteInformation() {
     navigate("/pricing");
   };
 
+  const Privacybtn = () => {
+    navigate("/privacy");
+  }
+  
+
   const { dark } = useTheme();
 
   const buttonStyle = `
@@ -54,11 +59,11 @@ export default function WebsiteInformation() {
         Pricing
       </button>
 
-      <button type="button" className={buttonStyle}>
+      <button onClick={() => navigate("/contact")} type="button" className={buttonStyle}>
         Contact
       </button>
 
-      <button type="button" className={buttonStyle}>
+      <button onClick={Privacybtn} type="button" className={buttonStyle}>
         Privacy
       </button>
     </div>
