@@ -30,8 +30,9 @@ import PrivacySection, {
   DataTermCompact,
   RightItem,
 } from "./PrivacySection";
+import { Link } from "react-router-dom";
 
-const PrivacyContent = ({ onContact }) => {
+const PrivacyContent = () => {
   return (
     <main className="relative w-full overflow-hidden">
       {/* Background glow */}
@@ -572,11 +573,7 @@ const PrivacyContent = ({ onContact }) => {
                     title: "Analytics",
                     text: "Understand platform usage and improve performance.",
                   },
-                  {
-                    icon: FiShield,
-                    title: "Security",
-                    text: "Help detect suspicious activity and protect the platform.",
-                  },
+                 
                 ].map(({ icon: Icon, title, text }) => (
                   <div
                     key={title}
@@ -759,9 +756,8 @@ const PrivacyContent = ({ onContact }) => {
                   help.
                 </p>
 
-                <button
-                  type="button"
-                  onClick={onContact}
+                <Link to="/contact"
+                 
                   className="group mt-7 inline-flex items-center gap-2 rounded-full bg-[#e9e7e2] px-5 py-3 text-xs font-semibold text-[#0b0c0e] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-xl hover:shadow-black/20"
                 >
                   Contact privacy team
@@ -770,7 +766,7 @@ const PrivacyContent = ({ onContact }) => {
                     size={14}
                     className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                   />
-                </button>
+                </Link>
               </div>
             </div>
           </section>

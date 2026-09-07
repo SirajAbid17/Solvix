@@ -7,6 +7,7 @@ export const ProxyWithHeader = (serviceUrl) => {
         proxyReqOpts.headers["x-user-id"] = srcReq.user.userId || srcReq.user._id;
         proxyReqOpts.headers["x-user-email"] = srcReq.user.email || "";
         proxyReqOpts.headers["x-user-name"] = srcReq.user.name || "";
+        proxyReqOpts.headers["x-user-admin"] = srcReq.user.isAdmin ? "true" : "false"; // ✅ Admin flag in headers
       }
       
       if (srcReq.headers['authorization']) {

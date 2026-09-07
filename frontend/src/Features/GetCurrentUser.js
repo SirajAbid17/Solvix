@@ -15,7 +15,7 @@ const GetcurrentUser = async () => {
       return null;
     }
 
-    return {
+    const userData = {
       _id: data.userId || data._id || "",
       name: data.name || "",
       email: data.email || "",
@@ -23,7 +23,13 @@ const GetcurrentUser = async () => {
       plan: data.plan || "free",
       credits: Number(data.credits ?? 0),
       totalcredits: Number(data.totalcredits ?? 0),
+      isAdmin: data.isAdmin || false, // ✅ ADDED
     };
+
+    console.log("✅ User data with isAdmin:", userData);
+    console.log("✅ isAdmin value:", userData.isAdmin);
+
+    return userData;
   } catch (error) {
     console.error(
       "❌ Get Current User Error:",

@@ -1,7 +1,63 @@
 import redis from "../redis/redis.js";
 
 // ============================================================
-// ✅ ACTIVITY TRACKING MIDDLEWARE
+// ✅ PAID SERVICES LIST - SIRF YEH COUNT HONGI
+// ============================================================
+
+const PAID_SERVICES = [
+  'resume/upload',
+  'cv',
+  'portfolio',
+  'resume-upload',
+  'cv-generator',
+  'portfolio-generator',
+  'mock-interview',
+];
+
+// ============================================================
+// ✅ FREE SERVICES LIST - YEH COUNT NAHI HONGI
+// ============================================================
+
+const FREE_SERVICES = [
+  'chat',
+  'agent',
+  'billing',
+  'auth',
+  'activity',
+  'me',
+  'get-conversation',
+  'get-messages',
+  'create-conversation',
+  'search',
+  'image',
+  'coding',
+  'ppt',
+  'pdf',
+];
+
+// ============================================================
+// ✅ CHECK IF SERVICE IS PAID
+// ============================================================
+
+const isPaidService = (path) => {
+  return PAID_SERVICES.some(service => path.includes(service));
+};
+
+// ============================================================
+// ✅ GET SERVICE NAME
+// ============================================================
+
+const getServiceName = (path) => {
+  if (path.includes('resume/upload')) return 'Resume Upload';
+  if (path.includes('resume')) return 'Resume';
+  if (path.includes('cv')) return 'CV Generator';
+  if (path.includes('portfolio')) return 'Portfolio Generator';
+  if (path.includes('mock-interview')) return 'Mock Interview';
+  return path.split('/')[1] || 'Unknown';
+};
+
+// ============================================================
+// ✅ ACTIVITY TRACKING MIDDLEWARE - SIRF PAID SERVICES
 // ============================================================
 
 export const trackActivity = async (req, res, next) => {
@@ -13,57 +69,37 @@ export const trackActivity = async (req, res, next) => {
     }
 
     const userId = user.userId || user._id;
+    const path = req.path || req.originalUrl || '';
     
-    // ✅ SERVICE NAME EXTRACTION
-    let service = req.path.split('/')[1] || 'unknown';
-    
-    // ✅ MAP RAW PATHS TO FRIENDLY NAMES
-    const serviceMap = {
-      'chat': 'Chat',
-      'agent': 'Agent',
-      'resume': 'Resume',
-      'portfolio': 'Portfolio',
-      'cv': 'CV',
-      'billing': 'Billing',
-      'auth': 'Auth',
-      'activity': 'Activity'
-    };
-    
-    // ✅ FOR SPECIFIC ROUTES
-    if (req.path.includes('/resume/upload')) {
-      service = 'Resume Upload';
-    } else if (req.path.includes('/chat/get-conversation')) {
-      service = 'Chat';
-    } else if (req.path.includes('/chat/save-messages')) {
-      service = 'Chat';
-    } else if (req.path.includes('/chat/get-messages')) {
-      service = 'Chat';
-    } else if (req.path.includes('/agent/chat')) {
-      service = 'Agent';
-    } else {
-      service = serviceMap[service] || service.charAt(0).toUpperCase() + service.slice(1);
+    // ✅ CHECK: SIRF PAID SERVICES COUNT KAREIN
+    if (!isPaidService(path)) {
+      console.log(`⏭️ SKIPPING activity for FREE service: ${path}`);
+      return next();
     }
 
+    console.log(`💰 COUNTING activity for PAID service: ${path}`);
+
+    const service = getServiceName(path);
     const date = new Date();
     const today = date.toISOString().split('T')[0];
     const weekKey = getWeekKey(date);
 
-    // ✅ 1. TOTAL REQUESTS COUNT
+    // ✅ 1. TOTAL REQUESTS COUNT (SIRF PAID)
     const totalKey = `activity:${userId}:total`;
     await redis.incr(totalKey);
     await redis.expire(totalKey, 60 * 60 * 24 * 365);
 
-    // ✅ 2. DAILY REQUESTS
+    // ✅ 2. DAILY REQUESTS (SIRF PAID)
     const dailyKey = `activity:${userId}:daily:${today}`;
     await redis.incr(dailyKey);
     await redis.expire(dailyKey, 60 * 60 * 24 * 60);
 
-    // ✅ 3. WEEKLY REQUESTS
+    // ✅ 3. WEEKLY REQUESTS (SIRF PAID)
     const weeklyKey = `activity:${userId}:weekly:${weekKey}`;
     await redis.incr(weeklyKey);
     await redis.expire(weeklyKey, 60 * 60 * 24 * 90);
 
-    // ✅ 4. SERVICE SPECIFIC
+    // ✅ 4. SERVICE SPECIFIC (SIRF PAID)
     const serviceKey = `activity:${userId}:service:${service}`;
     await redis.incr(serviceKey);
 
@@ -72,11 +108,11 @@ export const trackActivity = async (req, res, next) => {
     const remainingCredits = req.remainingCredits || 0;
     
     if (creditsDeducted > 0) {
-      // ✅ Update total credits used
+      // Update total credits used
       const creditKey = `activity:${userId}:credits:used`;
       await redis.incrby(creditKey, creditsDeducted);
       
-      // ✅ Add to credit history
+      // Add to credit history
       const creditHistoryKey = `activity:${userId}:credit-history`;
       const historyItem = JSON.stringify({
         service: service,
@@ -87,6 +123,8 @@ export const trackActivity = async (req, res, next) => {
       await redis.lpush(creditHistoryKey, historyItem);
       await redis.ltrim(creditHistoryKey, 0, 99);
     }
+
+    console.log(`✅ Activity recorded for ${service}: +1 request`);
 
     next();
 
@@ -150,25 +188,23 @@ export const getUserActivity = async (userId) => {
       });
     }
 
-    // ✅ Service usage
+    // ✅ Service usage - SIRF PAID SERVICES
     const serviceUsage = {};
     const serviceNameMap = {
-      'Chat': 'Chat',
-      'Agent': 'Agent',
-      'Resume': 'Resume',
       'Resume Upload': 'Resume Upload',
-      'Portfolio': 'Portfolio',
-      'CV': 'CV',
-      'Billing': 'Billing',
-      'Auth': 'Auth',
-      'Activity': 'Activity'
+      'Resume': 'Resume Analyzer',
+      'CV Generator': 'CV Generator',
+      'Portfolio Generator': 'Portfolio Generator',
+      'Mock Interview': 'Mock Interview',
     };
     
     for (const key of serviceKeys) {
       const service = key.split(':').pop();
       const count = await redis.get(key) || 0;
       const displayName = serviceNameMap[service] || service;
-      serviceUsage[displayName] = parseInt(count);
+      if (parseInt(count) > 0) {
+        serviceUsage[displayName] = parseInt(count);
+      }
     }
 
     // ✅ Credit history

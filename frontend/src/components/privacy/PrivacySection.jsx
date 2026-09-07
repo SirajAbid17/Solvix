@@ -84,7 +84,7 @@ export const RightItem = ({
 
     <Icon
       size={15}
-      className="mt-0.5 shrink-0 text-[#c9a468]"
+     
     />
 
     <div>

@@ -32,6 +32,7 @@ export const CurrentUser = async (req, res) => {
       plan: user.plan || "free",
       credits: Number(user.credits ?? 0),
       totalcredits: Number(user.totalcredits ?? 0),
+      isAdmin: user.isAdmin || false, // ✅ Admin flag in response
     });
 
   } catch (error) {

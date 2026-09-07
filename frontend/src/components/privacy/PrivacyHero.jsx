@@ -122,26 +122,11 @@ const PrivacyHero = ({
     <section className="relative flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] pt-[68px]">
       {/* Grid */}
 
-      <div
-        ref={gridRef}
-        className="pointer-events-none absolute inset-0 opacity-[0.1]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
-          backgroundSize: "70px 70px",
-          maskImage:
-            "radial-gradient(circle at center, black, transparent 75%)",
-          WebkitMaskImage:
-            "radial-gradient(circle at center, black, transparent 75%)",
-        }}
-      />
+     
 
       {/* Orb */}
 
-      <div
-        ref={orbRef}
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#c9a468]/[0.055] blur-[130px]"
-      />
+   
 
       {/* Header */}
 
@@ -205,10 +190,7 @@ const PrivacyHero = ({
         <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
             <div className="privacy-badge inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] text-white/60">
-              <FiShield
-                size={12}
-                className="text-[#c9a468]"
-              />
+             
 
               Privacy by design
             </div>

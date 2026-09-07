@@ -402,10 +402,7 @@ export default function UserData() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
-          <p className="mt-4 text-sm text-gray-500">Loading your dashboard...</p>
-        </div>
+        
       </div>
     );
   }

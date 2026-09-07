@@ -1,55 +1,41 @@
 import React, { useEffect, useState } from "react";
-
 import { BsLayoutTextSidebarReverse } from "react-icons/bs";
 import { BiSolidEditAlt } from "react-icons/bi";
-
 import { useTheme } from "../../BgContext/ThemeContext";
-
 import Register from "../Register";
-
 import { useDispatch, useSelector } from "react-redux";
-
 import {
   addConversation,
   clearConversations,
   setConversations,
 } from "../../redux/conversationSlice";
-
 import GetConversation from "../../Features/GetConversation";
 import CreateConversation from "../../Features/CreateConversation";
-
 import AllConverSation from "./AllConverSation";
-
 import { useNavigate } from "react-router-dom";
-
 import api from "../../utlis/axios";
-
 import { setuserData } from "../../redux/userSlice";
-
 import UserCelebration from "./UserCelebration";
+import { FiArrowUpRight, FiGrid, FiLogOut, FiUser } from "react-icons/fi";
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  
+  const { userdata, isAdmin } = useSelector((state) => state.user);
+  
+  // ✅ Debug logs
+  console.log('🔍 Sidebar - isAdmin:', isAdmin);
+  console.log('🔍 Sidebar - userdata:', userdata);
+  
   const [open, setOpen] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
 
   const { dark } = useTheme();
 
-  const { userdata } = useSelector((state) => state.user);
-
-  // =========================================================
-  // PLAN NAME
-  // =========================================================
-
   const planName = userdata?.plan
     ? userdata.plan.charAt(0).toUpperCase() + userdata.plan.slice(1)
     : "Free";
-
-  // =========================================================
-  // LOAD CONVERSATIONS
-  // =========================================================
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -60,11 +46,9 @@ export default function Sidebar() {
 
       try {
         const data = await GetConversation();
-
         dispatch(setConversations(data || []));
       } catch (error) {
         console.error("Error loading conversations:", error);
-
         dispatch(clearConversations());
       }
     };
@@ -72,27 +56,17 @@ export default function Sidebar() {
     loadConversations();
   }, [userdata, dispatch]);
 
-  // =========================================================
-  // NEW CHAT
-  // =========================================================
-
   const handleNewChat = async () => {
     try {
       const data = await CreateConversation();
-
       if (data) {
         dispatch(addConversation(data));
       }
-
       console.log("New conversation created:", data);
     } catch (error) {
       console.error("Error creating new conversation:", error);
     }
   };
-
-  // =========================================================
-  // LOGOUT
-  // =========================================================
 
   const handleLogout = async () => {
     try {
@@ -106,18 +80,12 @@ export default function Sidebar() {
 
       dispatch(setuserData(null));
       dispatch(clearConversations());
-
       setShowUserModal(false);
-
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error.response?.data || error.message);
     }
   };
-
-  // =========================================================
-  // AVATAR FALLBACK
-  // =========================================================
 
   const avatar =
     userdata?.avatar && userdata.avatar.trim() !== "" ? userdata.avatar : null;
@@ -146,10 +114,7 @@ export default function Sidebar() {
         ${open ? "w-72" : "w-16"}
       `}
     >
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
-
+      {/* HEADER */}
       <div
         className={`
           flex
@@ -164,8 +129,6 @@ export default function Sidebar() {
           ${dark ? "border-white/[0.08]" : "border-gray-200"}
         `}
       >
-        {/* SIDEBAR TOGGLE */}
-
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
@@ -191,8 +154,6 @@ export default function Sidebar() {
         >
           <BsLayoutTextSidebarReverse />
         </button>
-
-        {/* LOGO */}
 
         {open && (
           <div
@@ -221,8 +182,6 @@ export default function Sidebar() {
               Solvix AI
             </h1>
 
-            {/* PLAN */}
-
             <span
               className={`
                 shrink-0
@@ -245,8 +204,6 @@ export default function Sidebar() {
             >
               {planName}
             </span>
-
-            {/* NEW CHAT ICON */}
 
             <button
               type="button"
@@ -278,10 +235,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* =====================================================
-          NEW CHAT BUTTON
-      ===================================================== */}
-
+      {/* NEW CHAT BUTTON */}
       <div className="shrink-0 px-2 pt-2">
         <button
           type="button"
@@ -315,7 +269,6 @@ export default function Sidebar() {
           {open ? (
             <>
               <BiSolidEditAlt className="shrink-0 text-base" />
-
               <span className="truncate">New Chat</span>
             </>
           ) : (
@@ -324,10 +277,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* =====================================================
-          CONVERSATIONS + CELEBRATION
-      ===================================================== */}
-
+      {/* CONVERSATIONS + CELEBRATION */}
       {open && (
         <div
           className="
@@ -338,12 +288,7 @@ export default function Sidebar() {
             overflow-hidden
           "
         >
-          {/* CELEBRATION */}
-
           {userdata && <UserCelebration />}
-
-          {/* CONVERSATION LIST */}
-
           <div
             className="
               relative
@@ -366,10 +311,7 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* =====================================================
-          USER SECTION
-      ===================================================== */}
-
+      {/* USER SECTION */}
       <div
         className={`
           relative
@@ -384,10 +326,6 @@ export default function Sidebar() {
       >
         {userdata ? (
           <>
-            {/* =================================================
-                OPEN USER
-            ================================================= */}
-
             {open ? (
               <button
                 type="button"
@@ -414,8 +352,6 @@ export default function Sidebar() {
                   }
                 `}
               >
-                {/* AVATAR */}
-
                 {avatar ? (
                   <img
                     src={avatar}
@@ -468,9 +404,6 @@ export default function Sidebar() {
                   >
                     {userdata.name || "User"}
                   </h1>
-
-                  {/* DYNAMIC PLAN */}
-
                   <p className="mt-0.5 truncate text-[10px] text-gray-500">
                     {planName} Plan
                   </p>
@@ -497,10 +430,6 @@ export default function Sidebar() {
                 </svg>
               </button>
             ) : (
-              /* =================================================
-                 CLOSED USER
-              ================================================= */
-
               <button
                 type="button"
                 onClick={() => setShowUserModal(true)}
@@ -567,10 +496,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* =====================================================
-          USER MODAL
-      ===================================================== */}
-
+      {/* USER MODAL */}
       {showUserModal && userdata && (
         <div
           className="
@@ -605,7 +531,6 @@ export default function Sidebar() {
             onClick={(event) => event.stopPropagation()}
           >
             {/* CLOSE */}
-
             <button
               type="button"
               onClick={() => setShowUserModal(false)}
@@ -644,10 +569,7 @@ export default function Sidebar() {
             </button>
 
             {/* PROFILE */}
-
             <div className="flex flex-col items-center text-center">
-              {/* PROFILE AVATAR */}
-
               {avatar ? (
                 <img
                   src={avatar}
@@ -703,8 +625,6 @@ export default function Sidebar() {
                 {userdata.email || "user@email.com"}
               </p>
 
-              {/* DYNAMIC PLAN */}
-
               <span
                 className={`
                   mt-4
@@ -725,11 +645,52 @@ export default function Sidebar() {
                 {planName} Plan
               </span>
 
-              {/* CREDITS */}
+              <div className="mt-4 w-full space-y-2">
+                {/* ✅ ADMIN DASHBOARD - SIRF ADMIN KO DIKHEGA */}
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserModal(false);
+                      navigate("/admin-dashboard");
+                    }}
+                    className={`
+                      group flex w-full items-center gap-3 rounded-xl border
+                      px-3.5 py-2 text-sm font-semibold
+                      transition-all duration-200
+                      active:scale-[0.98]
 
-              <div className="mt-5 w-full space-y-2">
-                {/* DASHBOARD */}
+                      ${
+                        dark
+                          ? "border-white/10 bg-white/[0.04] text-white hover:border-white/20 hover:bg-white/[0.09]"
+                          : "border-gray-200 bg-gray-50 text-gray-800 hover:border-gray-300 hover:bg-gray-100"
+                      }
+                    `}
+                  >
+                    <span
+                      className={`
+                        flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+                        transition-all duration-200
+                        ${
+                          dark
+                            ? "bg-white/[0.07] text-gray-300 group-hover:bg-white group-hover:text-black"
+                            : "bg-white text-gray-600 shadow-sm group-hover:bg-black group-hover:text-white"
+                        }
+                      `}
+                    >
+                      <FiGrid size={16} />
+                    </span>
 
+                    <span className="flex-1 text-left">Admin Dashboard</span>
+
+                    <FiArrowUpRight
+                      size={15}
+                      className="opacity-40 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100"
+                    />
+                  </button>
+                )}
+
+                {/* USER DASHBOARD */}
                 <button
                   type="button"
                   onClick={() => {
@@ -737,52 +698,84 @@ export default function Sidebar() {
                     navigate("/user-dashboard");
                   }}
                   className={`
-                    w-full
-                    rounded-lg
-                    border
-                    px-4
-                    py-2.5
-                    text-sm
-                    font-semibold
-                    transition-all
-                    duration-200
+                    group flex w-full items-center gap-3 rounded-xl border
+                    px-3.5 py-2 text-sm font-semibold
+                    transition-all duration-200
                     active:scale-[0.98]
 
                     ${
                       dark
-                        ? "border-white/10 bg-white/[0.05] hover:bg-white hover:text-black"
-                        : "border-gray-200 bg-gray-100 hover:bg-black hover:text-white"
+                        ? "border-white/10 bg-white/[0.04] text-white hover:border-white/20 hover:bg-white/[0.09]"
+                        : "border-gray-200 bg-gray-50 text-gray-800 hover:border-gray-300 hover:bg-gray-100"
                     }
                   `}
                 >
-                  User Dashboard
+                  <span
+                    className={`
+                      flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+                      transition-all duration-200
+                      ${
+                        dark
+                          ? "bg-white/[0.07] text-gray-300 group-hover:bg-white group-hover:text-black"
+                          : "bg-white text-gray-600 shadow-sm group-hover:bg-black group-hover:text-white"
+                      }
+                    `}
+                  >
+                    <FiUser size={16} />
+                  </span>
+
+                  <span className="flex-1 text-left">User Dashboard</span>
+
+                  <FiArrowUpRight
+                    size={15}
+                    className="opacity-40 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100"
+                  />
                 </button>
 
-                {/* LOGOUT */}
+                {/* DIVIDER */}
+                <div
+                  className={`my-1.5 h-px w-full ${
+                    dark ? "bg-white/[0.08]" : "bg-gray-200"
+                  }`}
+                />
 
+                {/* LOGOUT */}
                 <button
                   type="button"
                   onClick={handleLogout}
                   className={`
-                    w-full
-                    rounded-lg
-                    border
-                    px-4
-                    py-2.5
-                    text-sm
-                    font-semibold
-                    transition-all
-                    duration-200
+                    group flex w-full items-center gap-3 rounded-xl border
+                    px-3.5 py-2 text-sm font-semibold
+                    transition-all duration-200
                     active:scale-[0.98]
 
                     ${
                       dark
-                        ? "border-red-500/20 text-red-400 hover:bg-red-500/10"
-                        : "border-red-200 text-red-600 hover:bg-red-50"
+                        ? "border-red-500/15 bg-red-500/[0.04] text-red-400 hover:border-red-500/30 hover:bg-red-500/10"
+                        : "border-red-200 bg-red-50/50 text-red-600 hover:border-red-300 hover:bg-red-50"
                     }
                   `}
                 >
-                  Logout
+                  <span
+                    className={`
+                      flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+                      transition-all duration-200
+                      ${
+                        dark
+                          ? "bg-red-500/10 text-red-400 group-hover:bg-red-500 group-hover:text-white"
+                          : "bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white"
+                      }
+                    `}
+                  >
+                    <FiLogOut size={16} />
+                  </span>
+
+                  <span className="flex-1 text-left">Logout</span>
+
+                  <FiArrowUpRight
+                    size={15}
+                    className="opacity-40 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100"
+                  />
                 </button>
               </div>
             </div>

@@ -3,7 +3,18 @@ import app from "../config/firebase.js";
 import User from "../models/user.models.js";
 import jwt from "jsonwebtoken";
 import redis from "../../../shared/redis/redis.js";
+import dotenv from "dotenv";
+dotenv.config();
+// ✅ Admin emails list (Hardcoded - Simple way)
+// You can also use database approach
+const ADMIN_EMAILS = [
+  process.env.ADMIN_EMAILS,  
+];
 
+// ✅ Check if user is admin
+const checkIsAdmin = (email) => {
+  return ADMIN_EMAILS.includes(email);
+};
 
 /*
 ====================================================
@@ -35,6 +46,9 @@ export const Login = async (req, res) => {
     */
 
     if (!user) {
+      // ✅ Check if user is admin
+      const isAdmin = checkIsAdmin(decoded.email);
+
       user = await User.create({
         firebaseId: decoded.uid,
         name: decoded.name || "",
@@ -43,12 +57,14 @@ export const Login = async (req, res) => {
         plan: "free",
         credits: 10,
         totalcredits: 10,
+        isAdmin: isAdmin, // ✅ Admin flag stored
       });
 
       console.log("✅ New user created");
       console.log("👤 User:", user._id);
       console.log("💳 Credits:", user.credits);
       console.log("📊 Total Credits:", user.totalcredits);
+      console.log("👑 Is Admin:", user.isAdmin);
     }
 
     /*
@@ -85,6 +101,7 @@ export const Login = async (req, res) => {
         plan: user.plan,
         credits: user.credits,
         totalcredits: user.totalcredits,
+        isAdmin: user.isAdmin || false, // ✅ Admin flag in Redis
       }),
       "EX",
       7 * 24 * 60 * 60
@@ -123,6 +140,7 @@ export const Login = async (req, res) => {
         plan: user.plan,
         credits: user.credits,
         totalcredits: user.totalcredits,
+        isAdmin: user.isAdmin || false, // ✅ Admin flag in response
       },
     });
   } catch (error) {
@@ -304,6 +322,7 @@ export const UpdateUserPayment = async (req, res) => {
           sessionData.credits = user.credits;
           sessionData.totalcredits =
             user.totalcredits;
+          sessionData.isAdmin = user.isAdmin || false; // ✅ Keep admin flag
 
           const ttl = await redis.ttl(key);
 
@@ -350,6 +369,7 @@ export const UpdateUserPayment = async (req, res) => {
           credits: user.credits,
           totalcredits: user.totalcredits,
           creditsAdded: creditsToAdd,
+          isAdmin: user.isAdmin || false, // ✅ Admin flag in response
         },
       },
     });
@@ -402,6 +422,7 @@ export const GetUserCredits = async (
         plan: user.plan,
         credits: user.credits,
         totalcredits: user.totalcredits,
+        isAdmin: user.isAdmin || false, // ✅ Admin flag in response
       },
     });
   } catch (error) {
@@ -478,6 +499,7 @@ export const DeductCredits = async (req, res) => {
         const sessionData = JSON.parse(session);
         if (String(sessionData.userId) === String(userId)) {
           sessionData.credits = user.credits;
+          sessionData.isAdmin = user.isAdmin || false; // ✅ Keep admin flag
           const ttl = await redis.ttl(key);
           if (ttl > 0) {
             await redis.set(key, JSON.stringify(sessionData), "EX", ttl);

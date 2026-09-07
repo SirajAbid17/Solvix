@@ -22,7 +22,8 @@ import PaymentSuccess from "./components/pricing/PaymentSuccess";
 import GetcurrentUser from "./Features/GetCurrentUser";
 import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
-
+import Loading from "./components/Loading/Loading";
+import AdminDashboard from "./pages/AdminDashboard";
 export default function App() {
   const dispatch = useDispatch();
 
@@ -56,9 +57,7 @@ export default function App() {
   // Don't show LoginRequired while /me is still being checked.
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
+     <Loading/>
     );
   }
 
@@ -112,7 +111,7 @@ export default function App() {
         />
         <Route path="/privacy" element={<Privacy />} />
        <Route path="/contact" element={<Contact />} />
-
+<Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="*" element={<Page_not_Found />} />
       </Routes>
     </div>
