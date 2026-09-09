@@ -1,4 +1,4 @@
-// src/components/Dashboard/StatsGrid.jsx
+
 
 import React from "react";
 import { FiBarChart2, FiCreditCard, FiTag, FiZap } from "react-icons/fi";

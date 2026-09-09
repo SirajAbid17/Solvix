@@ -1,4 +1,4 @@
-// src/components/Dashboard/UserProfileCard.jsx
+
 import React from "react";
 import { FiMessageSquare, FiCreditCard, FiTag } from "react-icons/fi";
 import { Card } from "./Card";

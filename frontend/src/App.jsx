@@ -24,6 +24,7 @@ import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
 import Loading from "./components/Loading/Loading";
 import AdminDashboard from "./pages/AdminDashboard";
+import InterviewPractice from "./pages/InterviewPractice";
 export default function App() {
   const dispatch = useDispatch();
 
@@ -82,7 +83,7 @@ export default function App() {
         <Route path="/cv/:id" element={<ShowResume />} />
 
         <Route path="/all-resume" element={<AllResume />} />
-
+        <Route path="/interview-practice" element={<InterviewPractice />} />
         <Route
           path="/resume-analysis"
           element={<ResumeAnalysis />}

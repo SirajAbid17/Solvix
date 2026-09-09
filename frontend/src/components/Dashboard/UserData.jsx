@@ -53,9 +53,6 @@ import { getUserActivity } from "../../Features/activity";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ============================================================
-// HELPERS
-// ============================================================
 
 const formatPlan = (plan) => {
   if (!plan) return "Free";
@@ -407,16 +404,13 @@ export default function UserData() {
     );
   }
 
-  // ==========================================================
-  // RENDER
-  // ==========================================================
-
+ 
   return (
-    <div ref={dashboardRef} className="min-h-screen bg-black text-white">
+    <div ref={dashboardRef} className="min-h-screen mt-[2px] bg-black text-white">
       {/* Background glow */}
       <div className="pointer-events-none fixed left-1/2 top-0 z-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-indigo-600/[0.035] blur-[130px]" />
 
-      <BgContextBtn />
+     
 
       {/* HEADER */}
       <DashboardHeader

@@ -1,4 +1,4 @@
-// src/components/Dashboard/DashboardHeader.jsx
+
 import React from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiCreditCard, FiLogOut } from "react-icons/fi";
@@ -13,7 +13,7 @@ export default function DashboardHeader({
   const navigate = useNavigate();
 
   return (
-    <header className="dashboard-header fixed left-0 right-0 top-0 z-50 border-b border-white/[0.08] bg-black/90 backdrop-blur-xl">
+    <header className="dashboard-header  fixed left-0 right-0 top-0 z-50 border-b border-white/[0.08] bg-black/90 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between gap-3">
           {/* Left */}
