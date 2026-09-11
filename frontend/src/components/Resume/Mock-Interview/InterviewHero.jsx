@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
   FaUserTie,
   FaRobot,
@@ -14,109 +15,336 @@ import {
   FaCode,
   FaComments,
   FaPlus,
+  FaSpinner,
+  FaChevronDown,
+  FaChevronUp,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { useTheme } from "../../../BgContext/ThemeContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import {
+  deleteInterview,
+  getMyInterviews,
+} from "../../../Features/mockInterview";
 
 export default function InterviewHero() {
   const { dark } = useTheme();
-    
-  const [interviews, setInterviews] = useState([
-    {
-      id: 1,
-      title: "1st Interview Generated",
-      pdfName: "Siraj_Abid_Resume.pdf",
-      date: "Today",
-      questions: 20,
-      technical: 10,
-      behavioral: 5,
-      hr: 5,
-      status: "Ready",
-    },
-    {
-      id: 2,
-      title: "2nd Interview Generated",
-      pdfName: "MERN_Developer_Resume.pdf",
-      date: "Yesterday",
-      questions: 25,
-      technical: 12,
-      behavioral: 6,
-      hr: 7,
-      status: "Ready",
-    },
-  ]);
+  const navigate = useNavigate();
 
-  const deleteInterview = (id) => {
-    setInterviews((prev) =>
-      prev.filter((interview) => interview.id !== id)
-    );
+  // ============================================================
+  // STATE
+  // ============================================================
+
+  const [interviews, setInterviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(null);
+  const [error, setError] = useState(null);
+  const [showCount, setShowCount] = useState(2);
+
+  // ============================================================
+  // FETCH INTERVIEWS
+  // ============================================================
+
+  const fetchInterviews = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await getMyInterviews();
+
+      console.log("📥 Fetched interviews:", response);
+
+      if (response.success) {
+        setInterviews(response.data || []);
+      } else {
+        setError(
+          response.message || "Failed to load interviews"
+        );
+      }
+    } catch (err) {
+      console.error("❌ Fetch interviews error:", err);
+
+      setError(
+        err.message || "Failed to load interviews"
+      );
+
+      toast.error("Failed to load interviews");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchInterviews();
+  }, []);
+
+  // ============================================================
+  // DELETE INTERVIEW
+  // ============================================================
+
+  const handleDelete = async (id) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this interview?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setDeleting(id);
+
+      const response = await deleteInterview(id);
+
+      if (response.success) {
+        toast.success(
+          "Interview deleted successfully"
+        );
+
+        setInterviews((prev) =>
+          prev.filter((item) => item._id !== id)
+        );
+
+        if (interviews.length - 1 < showCount) {
+          setShowCount(
+            Math.max(2, interviews.length - 1)
+          );
+        }
+      } else {
+        toast.error(
+          response.message ||
+            "Failed to delete interview"
+        );
+      }
+    } catch (err) {
+      console.error("❌ Delete error:", err);
+
+      toast.error(
+        err.response?.data?.message ||
+          "Failed to delete interview"
+      );
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  // ============================================================
+  // VIEW INTERVIEW
+  // ============================================================
+
+  const handleViewInterview = (id) => {
+    navigate(`/interview-practice/${id}`);
+  };
+
+  // ============================================================
+  // CONTINUE INTERVIEW
+  // ============================================================
+
+  const handleContinueInterview = (id) => {
+    navigate(`/interview-practice/${id}`);
+  };
+
+  // ============================================================
+  // GENERATE NEW INTERVIEW
+  // ============================================================
+
+  const handleGenerateInterview = () => {
+    navigate("/mock-interview");
+  };
+
+  // ============================================================
+  // SHOW MORE
+  // ============================================================
+
+  const handleShowMore = () => {
+    setShowCount((prev) => prev + 4);
+  };
+
+  // ============================================================
+  // SHOW LESS
+  // ============================================================
+
+  const handleShowLess = () => {
+    setShowCount(2);
+
+    const element =
+      document.getElementById("interviews-section");
+
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  // ============================================================
+  // FORMAT DATE
+  // ============================================================
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Recently";
+
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+
+      const diff = now - date;
+
+      if (diff < 60 * 60 * 1000) {
+        return "Today";
+      }
+
+      if (diff < 24 * 60 * 60 * 1000) {
+        return "Yesterday";
+      }
+
+      if (diff < 7 * 24 * 60 * 60 * 1000) {
+        return date.toLocaleDateString("en-US", {
+          weekday: "long",
+        });
+      }
+
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return "Recently";
+    }
+  };
+
+  // ============================================================
+  // GET PDF NAME
+  // ============================================================
+
+  const getPdfName = (interview) => {
+    if (interview?.pdf?.originalName) {
+      return interview.pdf.originalName;
+    }
+
+    return "Resume.pdf";
+  };
+
+  // ============================================================
+  // DISPLAY DATA
+  // ============================================================
+
+  const displayedInterviews = interviews.slice(
+    0,
+    showCount
+  );
+
+  const hasMore = interviews.length > showCount;
+
+  // ============================================================
+  // THEME CLASSES
+  // ============================================================
+
+  const pageBackground = dark
+    ? "bg-[#080808] text-white"
+    : "bg-[#f7f7f7] text-black";
+
+  const cardBackground = dark
+    ? "border-white/[0.08] bg-[#101010]"
+    : "border-black/[0.08] bg-white";
+
+  const softBackground = dark
+    ? "bg-white/[0.035]"
+    : "bg-black/[0.025]";
+
+  const mutedText = dark
+    ? "text-white/50"
+    : "text-black/50";
+
+  // ============================================================
+  // RENDER
+  // ============================================================
 
   return (
     <div
-      className={`min-h-screen px-4 py-10 sm:px-6 lg:px-8 ${
-        dark
-          ? "bg-[#09090b] text-white"
-          : "bg-gray-50 text-black"
-      }`}
+      className={`min-h-screen px-4 py-8 transition-colors duration-300 sm:px-6 lg:px-8 ${pageBackground}`}
     >
       <div className="mx-auto max-w-7xl">
 
-        {/* =========================================================
-            HERO
-        ========================================================== */}
-        <div
-          className={`relative overflow-hidden rounded-3xl border px-6 py-12 sm:px-10 lg:px-14 ${
-            dark
-              ? "border-white/10 bg-white/[0.03]"
-              : "border-gray-200 bg-white"
-          }`}
+        {/* ======================================================
+            HERO SECTION
+        ======================================================= */}
+
+        <section
+          className={`relative overflow-hidden rounded-[28px] border px-6 py-12 shadow-sm sm:px-10 lg:px-14 lg:py-16 ${cardBackground}`}
         >
-          {/* Background Glow */}
+          {/* Subtle background */}
+
           <div
-            className={`pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl ${
+            className={`pointer-events-none absolute -left-32 -top-32 h-80 w-80 rounded-full blur-3xl ${
               dark
-                ? "bg-green-500/10"
-                : "bg-green-500/5"
+                ? "bg-white/[0.025]"
+                : "bg-black/[0.025]"
             }`}
           />
 
           <div
-            className={`pointer-events-none absolute -bottom-32 -right-20 h-80 w-80 rounded-full blur-3xl ${
+            className={`pointer-events-none absolute -bottom-40 -right-32 h-96 w-96 rounded-full blur-3xl ${
               dark
-                ? "bg-blue-500/10"
-                : "bg-blue-500/5"
+                ? "bg-white/[0.02]"
+                : "bg-black/[0.02]"
             }`}
           />
 
-          <div className="relative mx-auto flex max-w-5xl flex-col items-center text-center">
+          <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
 
-            {/* ICON */}
+            {/* HERO ICON */}
+
             <div
-              className={`mb-6 flex h-20 w-20 items-center justify-center rounded-3xl shadow-xl ${
+              className={`mb-7 flex h-20 w-20 items-center justify-center rounded-[24px] border shadow-xl ${
                 dark
-                  ? "bg-white text-black"
-                  : "bg-black text-white"
+                  ? "border-white/10 bg-white text-black"
+                  : "border-black/10 bg-black text-white"
               }`}
             >
-              <FaUserTie size={34} />
+              <FaUserTie size={32} />
             </div>
 
             {/* BADGE */}
-            <div className="mb-5 flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/10 px-5 py-2 text-sm font-semibold text-green-500">
+
+            <div
+              className={`mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider ${
+                dark
+                  ? "border-white/10 bg-white/[0.04] text-white/70"
+                  : "border-black/10 bg-black/[0.035] text-black/70"
+              }`}
+            >
               <FaRobot />
-              AI Mock Interview Generator
+
+              <span>
+                AI Mock Interview Generator
+              </span>
             </div>
 
-           
+            {/* TITLE */}
+
+            <h1 className="max-w-3xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+              Prepare Smarter.
+              <br />
+
+              <span
+                className={
+                  dark
+                    ? "text-white/40"
+                    : "text-black/40"
+                }
+              >
+                Interview Better.
+              </span>
+            </h1>
 
             {/* DESCRIPTION */}
+
             <p
-              className={`mt-6 max-w-3xl text-base leading-8 ${
-                dark
-                  ? "text-gray-400"
-                  : "text-gray-600"
-              }`}
+              className={`mt-6 max-w-3xl text-sm leading-7 sm:text-base sm:leading-8 ${mutedText}`}
             >
               Upload your resume and AI will analyze your
               experience, projects, skills, education, and
@@ -125,365 +353,680 @@ export default function InterviewHero() {
               questions tailored specifically to your profile.
             </p>
 
-            {/* FEATURES */}
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              {[
-                {
-                  label: "🤖 AI Questions",
-                  color: "green",
-                },
-                {
-                  label: "💻 Technical Round",
-                  color: "blue",
-                },
-                {
-                  label: "👨‍💼 HR Interview",
-                  color: "purple",
-                },
-                {
-                  label: "🧠 Personalized",
-                  color: "yellow",
-                },
-                {
-                  label: "⚡ Instant",
-                  color: "orange",
-                },
-              ].map((item) => (
-                <span
-                  key={item.label}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium ${
-                    dark
-                      ? "border-white/10 bg-black/40 text-gray-200"
-                      : "border-gray-200 bg-gray-50 text-gray-700"
-                  }`}
-                >
-                  {item.label}
-                </span>
-              ))}
+            {/* ==================================================
+                FEATURE PILLS
+            =================================================== */}
+
+            <div className="mt-8 flex flex-wrap justify-center gap-2.5">
+
+              {/* AI QUESTIONS */}
+
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                  dark
+                    ? "border-white/10 bg-white/[0.035] text-white/65 hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                    : "border-black/10 bg-black/[0.025] text-black/60 hover:border-black/20 hover:bg-black/[0.06] hover:text-black"
+                }`}
+              >
+                <FaRobot className="text-sm" />
+                AI Questions
+              </span>
+
+              {/* TECHNICAL */}
+
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                  dark
+                    ? "border-white/10 bg-white/[0.035] text-white/65 hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                    : "border-black/10 bg-black/[0.025] text-black/60 hover:border-black/20 hover:bg-black/[0.06] hover:text-black"
+                }`}
+              >
+                <FaCode className="text-sm" />
+                Technical
+              </span>
+
+              {/* BEHAVIORAL */}
+
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                  dark
+                    ? "border-white/10 bg-white/[0.035] text-white/65 hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                    : "border-black/10 bg-black/[0.025] text-black/60 hover:border-black/20 hover:bg-black/[0.06] hover:text-black"
+                }`}
+              >
+                <FaComments className="text-sm" />
+                Behavioral
+              </span>
+
+              {/* HR */}
+
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                  dark
+                    ? "border-white/10 bg-white/[0.035] text-white/65 hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                    : "border-black/10 bg-black/[0.025] text-black/60 hover:border-black/20 hover:bg-black/[0.06] hover:text-black"
+                }`}
+              >
+                <FaBriefcase className="text-sm" />
+                HR Round
+              </span>
+
+              {/* PERSONALIZED */}
+
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
+                  dark
+                    ? "border-white/10 bg-white/[0.035] text-white/65 hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                    : "border-black/10 bg-black/[0.025] text-black/60 hover:border-black/20 hover:bg-black/[0.06] hover:text-black"
+                }`}
+              >
+                <FaBrain className="text-sm" />
+                Personalized
+              </span>
             </div>
+
+           
           </div>
-        </div>
+        </section>
 
-        {/* =========================================================
-            GENERATED INTERVIEWS HEADER
-        ========================================================== */}
-        <div className="mt-12">
+        {/* ======================================================
+            INTERVIEW HISTORY
+        ======================================================= */}
 
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <section
+          id="interviews-section"
+          className="mt-14"
+        >
+          {/* HEADER */}
+
+          <div className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
 
             <div>
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/10 text-green-500">
-                  <FaBrain />
+              {/* LABEL */}
+
+              <div className="mb-3 flex items-center gap-3">
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
+                    dark
+                      ? "border-white/10 bg-white/[0.05]"
+                      : "border-black/10 bg-black/[0.035]"
+                  }`}
+                >
+                  <FaBrain className="text-sm" />
                 </div>
 
-                <span className="text-xs font-bold uppercase tracking-widest text-green-500">
+                <span
+                  className={`text-[11px] font-black uppercase tracking-[0.18em] ${mutedText}`}
+                >
                   Interview History
                 </span>
               </div>
 
-              <h2 className="text-2xl font-black sm:text-3xl">
+              {/* HEADING */}
+
+              <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
                 Your Generated Interviews
               </h2>
 
+              {/* DESCRIPTION */}
+
               <p
-                className={`mt-2 text-sm ${
-                  dark
-                    ? "text-gray-400"
-                    : "text-gray-500"
-                }`}
+                className={`mt-2 max-w-xl text-sm leading-6 ${mutedText}`}
               >
                 Your AI-generated interviews from uploaded
-                resume PDFs are saved here.
+                resume PDFs are saved here for future practice.
               </p>
-            </div>
 
-        
-          </div>
+              {/* COUNT */}
 
-          {/* =======================================================
-              INTERVIEW CARDS
-          ======================================================== */}
-          {interviews.length > 0 ? (
-            <div className="grid gap-5 lg:grid-cols-2">
-
-              {interviews.map((interview, index) => (
+              {interviews.length > 0 && !loading && (
                 <div
-                  key={interview.id}
-                  className={`group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
+                  className={`mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold ${
                     dark
-                      ? "border-white/10 bg-white/[0.035] hover:border-green-500/20"
-                      : "border-gray-200 bg-white hover:border-green-300"
+                      ? "border-white/10 bg-white/[0.03] text-white/45"
+                      : "border-black/10 bg-black/[0.025] text-black/45"
                   }`}
                 >
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
 
-                  {/* TOP ACCENT */}
-                  <div
-                    className={`absolute left-0 right-0 top-0 h-[2px] ${
-                      index === 0
-                        ? "bg-gradient-to-r from-green-400 to-emerald-600"
-                        : "bg-gradient-to-r from-blue-400 to-violet-600"
-                    }`}
-                  />
-
-                  {/* CARD HEADER */}
-                  <div className="flex items-start justify-between gap-4">
-
-                    <div className="flex items-center gap-4">
-
-                      {/* PDF ICON */}
-                      <div
-                        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${
-                          dark
-                            ? "bg-red-500/10 text-red-400"
-                            : "bg-red-50 text-red-500"
-                        }`}
-                      >
-                        <FaFilePdf size={24} />
-                      </div>
-
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-bold">
-                            {interview.title}
-                          </h3>
-
-                          <span className="rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-bold uppercase text-green-500">
-                            {interview.status}
-                          </span>
-                        </div>
-
-                        <p
-                          className={`mt-1 text-xs ${
-                            dark
-                              ? "text-gray-500"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          Generated from resume
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* DELETE */}
-                    <button
-                      onClick={() =>
-                        deleteInterview(interview.id)
-                      }
-                      title="Delete interview"
-                      className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${
-                        dark
-                          ? "text-gray-500 hover:bg-red-500/10 hover:text-red-400"
-                          : "text-gray-400 hover:bg-red-50 hover:text-red-500"
-                      }`}
-                    >
-                      <FaTrash size={13} />
-                    </button>
-                  </div>
-
-                  {/* PDF NAME */}
-                  <div
-                    className={`mt-5 flex items-center gap-3 rounded-xl border p-3 ${
-                      dark
-                        ? "border-white/10 bg-black/20"
-                        : "border-gray-100 bg-gray-50"
-                    }`}
-                  >
-                    <FaFilePdf className="shrink-0 text-red-500" />
-
-                    <span
-                      className={`truncate text-xs font-medium ${
-                        dark
-                          ? "text-gray-300"
-                          : "text-gray-600"
-                      }`}
-                    >
-                      {interview.pdfName}
-                    </span>
-
-                    <span className="ml-auto shrink-0 rounded-md bg-red-500/10 px-2 py-1 text-[10px] font-bold text-red-500">
-                      PDF
-                    </span>
-                  </div>
-
-                  {/* STATS */}
-                  <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-
-                    <div
-                      className={`rounded-xl border p-3 ${
-                        dark
-                          ? "border-white/10 bg-white/[0.025]"
-                          : "border-gray-100 bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 text-blue-400">
-                        <FaQuestionCircle size={12} />
-                        <span className="text-[10px] font-bold uppercase">
-                          Questions
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-lg font-black">
-                        {interview.questions}
-                      </p>
-                    </div>
-
-                    <div
-                      className={`rounded-xl border p-3 ${
-                        dark
-                          ? "border-white/10 bg-white/[0.025]"
-                          : "border-gray-100 bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 text-violet-400">
-                        <FaCode size={12} />
-                        <span className="text-[10px] font-bold uppercase">
-                          Technical
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-lg font-black">
-                        {interview.technical}
-                      </p>
-                    </div>
-
-                    <div
-                      className={`rounded-xl border p-3 ${
-                        dark
-                          ? "border-white/10 bg-white/[0.025]"
-                          : "border-gray-100 bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 text-orange-400">
-                        <FaComments size={12} />
-                        <span className="text-[10px] font-bold uppercase">
-                          Behavioral
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-lg font-black">
-                        {interview.behavioral}
-                      </p>
-                    </div>
-
-                    <div
-                      className={`rounded-xl border p-3 ${
-                        dark
-                          ? "border-white/10 bg-white/[0.025]"
-                          : "border-gray-100 bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 text-green-400">
-                        <FaBriefcase size={12} />
-                        <span className="text-[10px] font-bold uppercase">
-                          HR
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-lg font-black">
-                        {interview.hr}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* DATE */}
-                  <div
-                    className={`mt-5 flex items-center gap-2 text-xs ${
-                      dark
-                        ? "text-gray-500"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    <FaCalendarAlt />
-                    Generated {interview.date}
-                  </div>
-
-                  {/* ACTIONS */}
-                  <div
-                    className={`mt-5 flex gap-3 border-t pt-5 ${
-                      dark
-                        ? "border-white/10"
-                        : "border-gray-100"
-                    }`}
-                  >
-                    <button
-                      className={`flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-bold transition ${
-                        dark
-                          ? "border-white/10 bg-white/[0.03] hover:bg-white/[0.08]"
-                          : "border-gray-200 bg-white hover:bg-gray-50"
-                      }`}
-                    >
-                      <FaEye />
-                      View Interview
-                    </button>
-
-                    <button
-                    onClick={useNavigate('/user-interview')}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-green-600"
-                    >
-                      Continue
-                      <FaArrowRight />
-                    </button>
-                  </div>
+                  Showing{" "}
+                  {Math.min(
+                    showCount,
+                    interviews.length
+                  )}{" "}
+                  of {interviews.length} interviews
                 </div>
-              ))}
+              )}
             </div>
-          ) : (
-            /* =====================================================
-                EMPTY STATE
-            ====================================================== */
+
+          
+          </div>
+
+          {/* ====================================================
+              LOADING STATE
+          ===================================================== */}
+
+          {loading && (
             <div
-              className={`rounded-3xl border border-dashed p-10 text-center ${
-                dark
-                  ? "border-white/10 bg-white/[0.02]"
-                  : "border-gray-300 bg-white"
-              }`}
+              className={`flex flex-col items-center justify-center rounded-3xl border py-24 ${cardBackground}`}
             >
               <div
-                className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${
+                className={`flex h-14 w-14 items-center justify-center rounded-2xl border ${
                   dark
-                    ? "bg-white/5 text-gray-500"
-                    : "bg-gray-100 text-gray-400"
+                    ? "border-white/10 bg-white/[0.04]"
+                    : "border-black/10 bg-black/[0.035]"
+                }`}
+              >
+                <FaSpinner className="animate-spin text-xl" />
+              </div>
+
+              <p
+                className={`mt-5 text-sm font-medium ${mutedText}`}
+              >
+                Loading your interviews...
+              </p>
+            </div>
+          )}
+
+          {/* ====================================================
+              ERROR STATE
+          ===================================================== */}
+
+          {error && !loading && (
+            <div
+              className={`rounded-3xl border p-10 text-center ${cardBackground}`}
+            >
+              <div
+                className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border ${
+                  dark
+                    ? "border-white/10 bg-white/[0.04]"
+                    : "border-black/10 bg-black/[0.035]"
+                }`}
+              >
+                <FaRobot />
+              </div>
+
+              <p className="mt-4 text-sm font-semibold">
+                {error}
+              </p>
+
+              <button
+                onClick={fetchInterviews}
+                className={`mt-5 rounded-xl px-5 py-2.5 text-sm font-bold transition ${
+                  dark
+                    ? "bg-white text-black hover:bg-white/90"
+                    : "bg-black text-white hover:bg-black/85"
+                }`}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* ====================================================
+              INTERVIEW CARDS
+          ===================================================== */}
+
+          {!loading &&
+          !error &&
+          interviews.length > 0 ? (
+            <>
+              <div className="grid gap-5 lg:grid-cols-2">
+
+                {displayedInterviews.map(
+                  (interview, index) => (
+                    <article
+                      key={
+                        interview._id ||
+                        interview.id ||
+                        index
+                      }
+                      className={`group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                        dark
+                          ? "border-white/[0.08] bg-[#101010] hover:border-white/[0.16]"
+                          : "border-black/[0.08] bg-white hover:border-black/[0.15]"
+                      }`}
+                    >
+                      {/* TOP LINE */}
+
+                      <div
+                        className={`absolute left-0 right-0 top-0 h-px ${
+                          dark
+                            ? "bg-white/20"
+                            : "bg-black/20"
+                        }`}
+                      />
+
+                      {/* CARD HEADER */}
+
+                      <div className="flex items-start justify-between gap-4">
+
+                        <div className="flex min-w-0 items-center gap-4">
+
+                          {/* PDF ICON */}
+
+                          <div
+                            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${
+                              dark
+                                ? "border-white/10 bg-white/[0.04] text-white"
+                                : "border-black/10 bg-black/[0.035] text-black"
+                            }`}
+                          >
+                            <FaFilePdf size={23} />
+                          </div>
+
+                          {/* TITLE */}
+
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+
+                              <h3 className="truncate font-bold">
+                                {interview.title ||
+                                  "Mock Interview"}
+                              </h3>
+
+                              {/* STATUS */}
+
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-wider ${
+                                  dark
+                                    ? "border-white/10 bg-white/[0.05] text-white/60"
+                                    : "border-black/10 bg-black/[0.035] text-black/60"
+                                }`}
+                              >
+                                <FaCheckCircle />
+
+                                {interview.status ||
+                                  "Ready"}
+                              </span>
+                            </div>
+
+                            <p
+                              className={`mt-1 text-xs ${mutedText}`}
+                            >
+                              Generated from resume
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* DELETE */}
+
+                        <button
+                          onClick={() =>
+                            handleDelete(
+                              interview._id
+                            )
+                          }
+                          disabled={
+                            deleting === interview._id
+                          }
+                          title="Delete interview"
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition ${
+                            deleting === interview._id
+                              ? "cursor-not-allowed opacity-40"
+                              : dark
+                              ? "text-white/35 hover:bg-white/[0.07] hover:text-white"
+                              : "text-black/30 hover:bg-black/[0.05] hover:text-black"
+                          }`}
+                        >
+                          {deleting === interview._id ? (
+                            <FaSpinner
+                              className="animate-spin"
+                              size={13}
+                            />
+                          ) : (
+                            <FaTrash size={13} />
+                          )}
+                        </button>
+                      </div>
+
+                      {/* ==================================================
+                          PDF NAME
+                      =================================================== */}
+
+                      <div
+                        className={`mt-5 flex items-center gap-3 rounded-xl border p-3.5 ${
+                          dark
+                            ? "border-white/[0.08] bg-white/[0.025]"
+                            : "border-black/[0.07] bg-black/[0.02]"
+                        }`}
+                      >
+                        <FaFilePdf className="shrink-0" />
+
+                        <span
+                          className={`truncate text-xs font-semibold ${
+                            dark
+                              ? "text-white/65"
+                              : "text-black/60"
+                          }`}
+                        >
+                          {getPdfName(interview)}
+                        </span>
+
+                        <span
+                          className={`ml-auto shrink-0 rounded-md border px-2 py-1 text-[9px] font-black tracking-wider ${
+                            dark
+                              ? "border-white/10 text-white/45"
+                              : "border-black/10 text-black/45"
+                          }`}
+                        >
+                          PDF
+                        </span>
+                      </div>
+
+                      {/* ==================================================
+                          STATS
+                      =================================================== */}
+
+                      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+
+                        {/* QUESTIONS */}
+
+                        <div
+                          className={`rounded-xl border p-3 ${
+                            dark
+                              ? "border-white/[0.08] bg-white/[0.02]"
+                              : "border-black/[0.07] bg-black/[0.018]"
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide ${mutedText}`}
+                          >
+                            <FaQuestionCircle />
+
+                            <span>
+                              Questions
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-lg font-black">
+                            {interview.totalQuestions ||
+                              0}
+                          </p>
+                        </div>
+
+                        {/* TECHNICAL */}
+
+                        <div
+                          className={`rounded-xl border p-3 ${
+                            dark
+                              ? "border-white/[0.08] bg-white/[0.02]"
+                              : "border-black/[0.07] bg-black/[0.018]"
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide ${mutedText}`}
+                          >
+                            <FaCode />
+
+                            <span>
+                              Technical
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-lg font-black">
+                            {interview
+                              .technicalQuestions
+                              ?.length || 0}
+                          </p>
+                        </div>
+
+                        {/* BEHAVIORAL */}
+
+                        <div
+                          className={`rounded-xl border p-3 ${
+                            dark
+                              ? "border-white/[0.08] bg-white/[0.02]"
+                              : "border-black/[0.07] bg-black/[0.018]"
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide ${mutedText}`}
+                          >
+                            <FaComments />
+
+                            <span>
+                              Behavioral
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-lg font-black">
+                            {interview
+                              .behavioralQuestions
+                              ?.length || 0}
+                          </p>
+                        </div>
+
+                        {/* HR */}
+
+                        <div
+                          className={`rounded-xl border p-3 ${
+                            dark
+                              ? "border-white/[0.08] bg-white/[0.02]"
+                              : "border-black/[0.07] bg-black/[0.018]"
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide ${mutedText}`}
+                          >
+                            <FaBriefcase />
+
+                            <span>HR</span>
+                          </div>
+
+                          <p className="mt-2 text-lg font-black">
+                            {interview
+                              .hrQuestions
+                              ?.length || 0}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* ==================================================
+                          DATE
+                      =================================================== */}
+
+                      <div
+                        className={`mt-5 flex items-center gap-2 text-xs ${mutedText}`}
+                      >
+                        <FaCalendarAlt />
+
+                        <span>
+                          Generated{" "}
+                          {formatDate(
+                            interview.createdAt
+                          )}
+                        </span>
+                      </div>
+
+                      {/* ==================================================
+                          ACTIONS
+                      =================================================== */}
+
+                      <div
+                        className={`mt-5 flex gap-3 border-t pt-5 ${
+                          dark
+                            ? "border-white/[0.08]"
+                            : "border-black/[0.07]"
+                        }`}
+                      >
+
+                       
+
+                        {/* CONTINUE */}
+
+                        <button
+                          onClick={() =>
+                            handleContinueInterview(
+                              interview._id
+                            )
+                          }
+                          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 ${
+                            dark
+                              ? "bg-white text-black hover:bg-white/90"
+                              : "bg-black text-white hover:bg-black/85"
+                          }`}
+                        >
+                          Continue
+
+                          <FaArrowRight className="text-xs" />
+                        </button>
+                      </div>
+                    </article>
+                  )
+                )}
+              </div>
+
+              {/* ==================================================
+                  SHOW MORE / SHOW LESS
+              =================================================== */}
+
+              <div className="mt-9 flex justify-center">
+
+                {/* SHOW MORE */}
+
+                {hasMore ? (
+                  <button
+                    onClick={handleShowMore}
+                    className={`group inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
+                      dark
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-400/50 hover:bg-emerald-500/15 hover:text-emerald-300"
+                        : "border-emerald-600/20 bg-emerald-50 text-emerald-700 hover:border-emerald-600/40 hover:bg-emerald-100 hover:text-emerald-800"
+                    }`}
+                  >
+                    <FaChevronDown className="transition-transform duration-200 group-hover:translate-y-0.5" />
+
+                    <span>
+                      Show More
+                    </span>
+
+                    <span
+                      className={`rounded-md px-1.5 py-0.5 text-[10px] ${
+                        dark
+                          ? "bg-emerald-500/15 text-emerald-300"
+                          : "bg-emerald-600/10 text-emerald-700"
+                      }`}
+                    >
+                      {Math.min(
+                        4,
+                        interviews.length -
+                          showCount
+                      )}
+                    </span>
+                  </button>
+                ) : showCount > 2 ? (
+
+                  /* SHOW LESS */
+
+                  <button
+                    onClick={handleShowLess}
+                    className={`inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
+                      dark
+                        ? "border-white/10 bg-white/[0.03] text-white/65 hover:bg-white/[0.08] hover:text-white"
+                        : "border-black/10 bg-white text-black/65 hover:bg-black/[0.04] hover:text-black"
+                    }`}
+                  >
+                    <FaChevronUp />
+
+                    Show Less
+                  </button>
+                ) : null}
+              </div>
+
+              {/* BOTTOM COUNT */}
+
+              {interviews.length > 2 && (
+                <p
+                  className={`mt-4 text-center text-xs ${mutedText}`}
+                >
+                  Showing{" "}
+                  {Math.min(
+                    showCount,
+                    interviews.length
+                  )}{" "}
+                  of {interviews.length} interviews
+                </p>
+              )}
+            </>
+          ) : !loading &&
+            !error &&
+            interviews.length === 0 ? (
+
+            /* ==================================================
+               EMPTY STATE
+            =================================================== */
+
+            <div
+              className={`rounded-3xl border border-dashed p-12 text-center ${cardBackground}`}
+            >
+              {/* ICON */}
+
+              <div
+                className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border ${
+                  dark
+                    ? "border-white/10 bg-white/[0.04] text-white/50"
+                    : "border-black/10 bg-black/[0.035] text-black/40"
                 }`}
               >
                 <FaRobot size={25} />
               </div>
 
-              <h3 className="mt-5 text-xl font-bold">
+              {/* TITLE */}
+
+              <h3 className="mt-5 text-xl font-black">
                 No Interviews Generated Yet
               </h3>
 
+              {/* DESCRIPTION */}
+
               <p
-                className={`mx-auto mt-2 max-w-md text-sm leading-6 ${
-                  dark
-                    ? "text-gray-500"
-                    : "text-gray-500"
-                }`}
+                className={`mx-auto mt-2 max-w-md text-sm leading-6 ${mutedText}`}
               >
                 Upload your resume PDF and generate your
                 first personalized AI mock interview.
               </p>
 
-              <button className="mt-6 inline-flex items-center gap-2 rounded-xl bg-green-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-green-600">
+              {/* BUTTON */}
+
+              <button
+                onClick={handleGenerateInterview}
+                className={`mt-6 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 ${
+                  dark
+                    ? "bg-white text-black hover:bg-white/90"
+                    : "bg-black text-white hover:bg-black/85"
+                }`}
+              >
                 <FaPlus />
+
                 Generate Interview
               </button>
             </div>
-          )}
+          ) : null}
 
-          {/* =======================================================
+          {/* ====================================================
               INFO BOX
-          ======================================================== */}
+          ===================================================== */}
+
           <div
             className={`mt-8 flex gap-4 rounded-2xl border p-5 ${
               dark
-                ? "border-blue-500/20 bg-blue-500/[0.04]"
-                : "border-blue-100 bg-blue-50"
+                ? "border-white/[0.08] bg-white/[0.025]"
+                : "border-black/[0.08] bg-white"
             }`}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
+            {/* ICON */}
+
+            <div
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
+                dark
+                  ? "border-white/10 bg-white/[0.04]"
+                  : "border-black/10 bg-black/[0.035]"
+              }`}
+            >
               <FaBolt />
             </div>
+
+            {/* CONTENT */}
 
             <div>
               <h4 className="font-bold">
@@ -491,21 +1034,17 @@ export default function InterviewHero() {
               </h4>
 
               <p
-                className={`mt-1 text-sm leading-6 ${
-                  dark
-                    ? "text-gray-400"
-                    : "text-gray-600"
-                }`}
+                className={`mt-1 text-sm leading-6 ${mutedText}`}
               >
                 Whenever you generate an interview from a
-                resume PDF, it can appear here so you can
-                return to your previous interview practice
-                anytime.
+                resume PDF, it appears here so you can return
+                to your previous interview practice anytime.
               </p>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
 }
+

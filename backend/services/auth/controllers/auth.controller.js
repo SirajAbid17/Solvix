@@ -5,10 +5,10 @@ import jwt from "jsonwebtoken";
 import redis from "../../../shared/redis/redis.js";
 import dotenv from "dotenv";
 dotenv.config();
+
 // ✅ Admin emails list (Hardcoded - Simple way)
-// You can also use database approach
 const ADMIN_EMAILS = [
-  process.env.ADMIN_EMAILS,  
+  process.env.ADMIN_EMAILS,
 ];
 
 // ✅ Check if user is admin
@@ -46,7 +46,6 @@ export const Login = async (req, res) => {
     */
 
     if (!user) {
-      // ✅ Check if user is admin
       const isAdmin = checkIsAdmin(decoded.email);
 
       user = await User.create({
@@ -57,7 +56,8 @@ export const Login = async (req, res) => {
         plan: "free",
         credits: 10,
         totalcredits: 10,
-        isAdmin: isAdmin, // ✅ Admin flag stored
+        isAdmin: isAdmin,
+        status: "active",
       });
 
       console.log("✅ New user created");
@@ -101,7 +101,8 @@ export const Login = async (req, res) => {
         plan: user.plan,
         credits: user.credits,
         totalcredits: user.totalcredits,
-        isAdmin: user.isAdmin || false, // ✅ Admin flag in Redis
+        isAdmin: user.isAdmin || false,
+        status: user.status || "active",
       }),
       "EX",
       7 * 24 * 60 * 60
@@ -130,7 +131,6 @@ export const Login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Login successful",
-
       user: {
         _id: user._id,
         firebaseId: user.firebaseId,
@@ -140,12 +140,12 @@ export const Login = async (req, res) => {
         plan: user.plan,
         credits: user.credits,
         totalcredits: user.totalcredits,
-        isAdmin: user.isAdmin || false, // ✅ Admin flag in response
+        isAdmin: user.isAdmin || false,
+        status: user.status || "active",
       },
     });
   } catch (error) {
     console.error("❌ Login Error:", error);
-
     return res.status(401).json({
       success: false,
       message: "Authentication failed",
@@ -165,7 +165,6 @@ export const Logout = async (req, res) => {
 
     if (sessionid) {
       await redis.del(`session-${sessionid}`);
-
       res.clearCookie("sessionid", {
         httpOnly: true,
         secure: false,
@@ -180,7 +179,6 @@ export const Logout = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Logout Error:", error);
-
     return res.status(500).json({
       success: false,
       message: "Logout failed",
@@ -196,18 +194,7 @@ UPDATE USER AFTER PAYMENT
 
 export const UpdateUserPayment = async (req, res) => {
   try {
-    const {
-      userId,
-      firebaseId,
-      plan,
-      credits,
-    } = req.body;
-
-    /*
-    ================================================
-    VALIDATION
-    ================================================
-    */
+    const { userId, firebaseId, plan, credits } = req.body;
 
     if (!plan) {
       return res.status(400).json({
@@ -216,11 +203,7 @@ export const UpdateUserPayment = async (req, res) => {
       });
     }
 
-    if (
-      credits === undefined ||
-      credits === null ||
-      Number(credits) <= 0
-    ) {
+    if (credits === undefined || credits === null || Number(credits) <= 0) {
       return res.status(400).json({
         success: false,
         message: "Valid credits are required",
@@ -228,25 +211,14 @@ export const UpdateUserPayment = async (req, res) => {
     }
 
     const creditsToAdd = Number(credits);
-
-    /*
-    ================================================
-    FIND USER
-    ================================================
-    */
-
     let user = null;
 
-    // First try Mongo _id
     if (userId) {
       user = await User.findById(userId);
     }
 
-    // Then try Firebase ID
     if (!user && firebaseId) {
-      user = await User.findOne({
-        firebaseId,
-      });
+      user = await User.findOne({ firebaseId });
     }
 
     if (!user) {
@@ -256,31 +228,12 @@ export const UpdateUserPayment = async (req, res) => {
       });
     }
 
-    /*
-    ================================================
-    OLD VALUES
-    ================================================
-    */
-
     const oldCredits = Number(user.credits || 0);
-    const oldTotalCredits = Number(
-      user.totalcredits || 0
-    );
-
-    /*
-    ================================================
-    UPDATE
-    ================================================
-    */
+    const oldTotalCredits = Number(user.totalcredits || 0);
 
     user.plan = plan;
-
-    user.credits =
-      oldCredits + creditsToAdd;
-
-    user.totalcredits =
-      oldTotalCredits + creditsToAdd;
-
+    user.credits = oldCredits + creditsToAdd;
+    user.totalcredits = oldTotalCredits + creditsToAdd;
     await user.save();
 
     console.log("");
@@ -297,68 +250,31 @@ export const UpdateUserPayment = async (req, res) => {
     console.log("New Total:", user.totalcredits);
     console.log("====================================");
 
-    /*
-    ================================================
-    UPDATE ALL REDIS SESSIONS
-    ================================================
-    */
-
     try {
       const keys = await redis.keys("session-*");
-
       for (const key of keys) {
         const session = await redis.get(key);
-
         if (!session) continue;
-
-        const sessionData =
-          JSON.parse(session);
-
-        if (
-          String(sessionData.userId) ===
-          user._id.toString()
-        ) {
+        const sessionData = JSON.parse(session);
+        if (String(sessionData.userId) === user._id.toString()) {
           sessionData.plan = user.plan;
           sessionData.credits = user.credits;
-          sessionData.totalcredits =
-            user.totalcredits;
-          sessionData.isAdmin = user.isAdmin || false; // ✅ Keep admin flag
-
+          sessionData.totalcredits = user.totalcredits;
+          sessionData.isAdmin = user.isAdmin || false;
           const ttl = await redis.ttl(key);
-
           if (ttl > 0) {
-            await redis.set(
-              key,
-              JSON.stringify(sessionData),
-              "EX",
-              ttl
-            );
+            await redis.set(key, JSON.stringify(sessionData), "EX", ttl);
           }
         }
       }
-
-      console.log(
-        "✅ Redis sessions updated"
-      );
+      console.log("✅ Redis sessions updated");
     } catch (redisError) {
-      console.warn(
-        "⚠️ Redis update failed:",
-        redisError.message
-      );
+      console.warn("⚠️ Redis update failed:", redisError.message);
     }
-
-    /*
-    ================================================
-    RESPONSE
-    ================================================
-    */
 
     return res.status(200).json({
       success: true,
-
-      message:
-        "User payment updated successfully",
-
+      message: "User payment updated successfully",
       data: {
         user: {
           id: user._id,
@@ -369,20 +285,15 @@ export const UpdateUserPayment = async (req, res) => {
           credits: user.credits,
           totalcredits: user.totalcredits,
           creditsAdded: creditsToAdd,
-          isAdmin: user.isAdmin || false, // ✅ Admin flag in response
+          isAdmin: user.isAdmin || false,
         },
       },
     });
   } catch (error) {
-    console.error(
-      "❌ UpdateUserPayment Error:",
-      error
-    );
-
+    console.error("❌ UpdateUserPayment Error:", error);
     return res.status(500).json({
       success: false,
-      message:
-        "Failed to update user payment",
+      message: "Failed to update user payment",
     });
   }
 };
@@ -393,16 +304,10 @@ GET USER CREDITS
 ====================================================
 */
 
-export const GetUserCredits = async (
-  req,
-  res
-) => {
+export const GetUserCredits = async (req, res) => {
   try {
     const { firebaseId } = req.params;
-
-    const user = await User.findOne({
-      firebaseId,
-    });
+    const user = await User.findOne({ firebaseId });
 
     if (!user) {
       return res.status(404).json({
@@ -413,7 +318,6 @@ export const GetUserCredits = async (
 
     return res.status(200).json({
       success: true,
-
       user: {
         _id: user._id,
         firebaseId: user.firebaseId,
@@ -422,15 +326,11 @@ export const GetUserCredits = async (
         plan: user.plan,
         credits: user.credits,
         totalcredits: user.totalcredits,
-        isAdmin: user.isAdmin || false, // ✅ Admin flag in response
+        isAdmin: user.isAdmin || false,
       },
     });
   } catch (error) {
-    console.error(
-      "❌ Get User Credits Error:",
-      error
-    );
-
+    console.error("❌ Get User Credits Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -440,7 +340,7 @@ export const GetUserCredits = async (
 
 /*
 ====================================================
-✅ DEDUCT CREDITS - NEW ENDPOINT
+✅ DEDUCT CREDITS
 ====================================================
 */
 
@@ -451,28 +351,26 @@ export const DeductCredits = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required"
+        message: "User ID is required",
       });
     }
 
     if (credits === undefined || credits === null) {
       return res.status(400).json({
         success: false,
-        message: "Credits amount is required"
+        message: "Credits amount is required",
       });
     }
 
-    // Find user
     let user = await User.findById(userId);
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
-    // Update credits
     const oldCredits = Number(user.credits || 0);
     user.credits = Number(credits);
     await user.save();
@@ -488,18 +386,15 @@ export const DeductCredits = async (req, res) => {
     console.log("New Credits:", user.credits);
     console.log("====================================");
 
-    // Update ALL Redis sessions
     try {
       const keys = await redis.keys("session-*");
-      
       for (const key of keys) {
         const session = await redis.get(key);
         if (!session) continue;
-        
         const sessionData = JSON.parse(session);
         if (String(sessionData.userId) === String(userId)) {
           sessionData.credits = user.credits;
-          sessionData.isAdmin = user.isAdmin || false; // ✅ Keep admin flag
+          sessionData.isAdmin = user.isAdmin || false;
           const ttl = await redis.ttl(key);
           if (ttl > 0) {
             await redis.set(key, JSON.stringify(sessionData), "EX", ttl);
@@ -516,15 +411,528 @@ export const DeductCredits = async (req, res) => {
       data: {
         userId: user._id,
         credits: user.credits,
-        deducted: deducted || 2
-      }
+        deducted: deducted || 2,
+      },
     });
-
   } catch (error) {
     console.error("❌ Deduct Credits Error:", error);
     return res.status(500).json({
       success: false,
-      message: error.message || "Failed to deduct credits"
+      message: error.message || "Failed to deduct credits",
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: GET USERS STATS
+====================================================
+*/
+
+export const getAdminUsersStats = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments({});
+    const activeUsers = await User.countDocuments({ isAdmin: false, status: "active" });
+    const adminUsers = await User.countDocuments({ isAdmin: true });
+    const inactiveUsers = await User.countDocuments({ status: "inactive" });
+    const suspendedUsers = await User.countDocuments({ status: "suspended" });
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    const newUsersThisMonth = await User.countDocuments({
+      createdAt: { $gte: startOfMonth },
+    });
+
+    const users = await User.find({});
+    let totalCreditsUsed = 0;
+    let totalCredits = 0;
+
+    for (const user of users) {
+      const used = (user.totalcredits || 0) - (user.credits || 0);
+      totalCreditsUsed += used;
+      totalCredits += user.totalcredits || 0;
+    }
+
+    const avgCreditsPerUser = totalUsers > 0 ? Math.round(totalCredits / totalUsers) : 0;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalUsers,
+        activeUsers,
+        adminUsers,
+        inactiveUsers,
+        suspendedUsers,
+        newUsersThisMonth,
+        totalCreditsUsed,
+        avgCreditsPerUser,
+      },
+    });
+  } catch (error) {
+    console.error("Get Admin Users Stats Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: GET USERS LIST
+====================================================
+*/
+
+export const getAdminUsersList = async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search = "" } = req.query;
+
+    const query = {};
+    if (search && search.trim()) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const users = await User.find(query)
+      .select("-__v")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await User.countDocuments(query);
+
+    const formattedUsers = [];
+    for (const user of users) {
+      let requestCount = 0;
+      try {
+        const totalKey = `activity:${user._id}:total`;
+        const count = await redis.get(totalKey);
+        requestCount = parseInt(count) || 0;
+      } catch (e) {
+        // Ignore Redis errors
+      }
+
+      formattedUsers.push({
+        id: user._id,
+        name: user.name || "Unknown User",
+        email: user.email || "",
+        plan: user.plan || "free",
+        credits: user.credits || 0,
+        totalCredits: user.totalcredits || 0,
+        status: user.isAdmin ? "admin" : user.status || "active",
+        isAdmin: user.isAdmin || false,
+        requests: requestCount,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      users: formattedUsers,
+      total,
+      totalPages: Math.ceil(total / parseInt(limit)),
+      currentPage: parseInt(page),
+    });
+  } catch (error) {
+    console.error("Get Admin Users List Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: GET USER BY ID
+====================================================
+*/
+
+export const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    let requestCount = 0;
+    try {
+      const totalKey = `activity:${user._id}:total`;
+      const count = await redis.get(totalKey);
+      requestCount = parseInt(count) || 0;
+    } catch (e) {
+      // Ignore Redis errors
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name || "Unknown User",
+        email: user.email || "",
+        plan: user.plan || "free",
+        credits: user.credits || 0,
+        totalCredits: user.totalcredits || 0,
+        isAdmin: user.isAdmin || false,
+        status: user.status || "active",
+        requests: requestCount,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Get User By ID Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: UPDATE USER CREDITS
+====================================================
+*/
+
+export const updateUserCreditsAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { credits } = req.body;
+
+    if (credits === undefined || credits < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid credits amount is required",
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const oldCredits = user.credits || 0;
+    user.credits = credits;
+    await user.save();
+
+    try {
+      const keys = await redis.keys("session-*");
+      for (const key of keys) {
+        const session = await redis.get(key);
+        if (session) {
+          const sessionData = JSON.parse(session);
+          if (String(sessionData.userId) === String(user._id)) {
+            sessionData.credits = credits;
+            const ttl = await redis.ttl(key);
+            if (ttl > 0) {
+              await redis.set(key, JSON.stringify(sessionData), "EX", ttl);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn("Redis session update failed:", error.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User credits updated",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        credits: user.credits,
+        oldCredits,
+      },
+    });
+  } catch (error) {
+    console.error("Update User Credits Admin Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: UPDATE USER PLAN
+====================================================
+*/
+
+export const updateUserPlanAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { plan } = req.body;
+
+    const validPlans = ["free", "starter", "pro", "enterprise"];
+    if (!validPlans.includes(plan)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid plan type. Must be: free, starter, pro, enterprise",
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const oldPlan = user.plan;
+    user.plan = plan;
+    await user.save();
+
+    try {
+      const keys = await redis.keys("session-*");
+      for (const key of keys) {
+        const session = await redis.get(key);
+        if (session) {
+          const sessionData = JSON.parse(session);
+          if (String(sessionData.userId) === String(user._id)) {
+            sessionData.plan = plan;
+            const ttl = await redis.ttl(key);
+            if (ttl > 0) {
+              await redis.set(key, JSON.stringify(sessionData), "EX", ttl);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn("Redis session update failed:", error.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User plan updated",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        plan: user.plan,
+        oldPlan,
+      },
+    });
+  } catch (error) {
+    console.error("Update User Plan Admin Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: TOGGLE USER STATUS
+====================================================
+*/
+
+export const toggleUserStatusAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["active", "inactive", "suspended"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Must be: active, inactive, suspended",
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Don't change admin status
+    if (user.isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: "Cannot change status of admin users",
+      });
+    }
+
+    const oldStatus = user.status || "active";
+    user.status = status;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `User status updated from ${oldStatus} to ${status}`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        status,
+        oldStatus,
+      },
+    });
+  } catch (error) {
+    console.error("Toggle User Status Admin Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: DELETE USER
+====================================================
+*/
+
+export const deleteUserAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: "Cannot delete admin users",
+      });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    try {
+      const keys = await redis.keys("session-*");
+      for (const key of keys) {
+        const session = await redis.get(key);
+        if (session) {
+          const sessionData = JSON.parse(session);
+          if (String(sessionData.userId) === String(id)) {
+            await redis.del(key);
+          }
+        }
+      }
+      // Clear activity data
+      const activityKeys = await redis.keys(`activity:${id}:*`);
+      for (const key of activityKeys) {
+        await redis.del(key);
+      }
+    } catch (error) {
+      console.warn("Redis cleanup failed:", error.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete User Admin Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+export const getPlanDistribution = async (req, res) => {
+  try {
+    const users = await User.find({});
+    const planCount = {};
+
+    for (const user of users) {
+      const plan = user.plan || "free";
+      planCount[plan] = (planCount[plan] || 0) + 1;
+    }
+
+    const total = users.length || 1;
+    const plans = Object.keys(planCount).map((name) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      count: planCount[name],
+      percentage: Math.round((planCount[name] / total) * 100),
+    }));
+
+    // Sort by count descending
+    plans.sort((a, b) => b.count - a.count);
+
+    return res.status(200).json({
+      success: true,
+      plans,
+    });
+  } catch (error) {
+    console.error("Get Plan Distribution Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/*
+====================================================
+ADMIN: GET USER ACTIVITY
+====================================================
+*/
+
+export const getUserActivity = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const totalKey = `activity:${id}:total`;
+    const totalRequests = parseInt(await redis.get(totalKey) || 0);
+
+    // Get service usage
+    const serviceKeys = await redis.keys(`activity:${id}:service:*`);
+    const services = {};
+    for (const key of serviceKeys) {
+      const service = key.split(":").pop();
+      const count = parseInt(await redis.get(key) || 0);
+      services[service] = count;
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalRequests,
+        services,
+      },
+    });
+  } catch (error) {
+    console.error("Get User Activity Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -9,2661 +10,754 @@ import {
   FaTrophy,
   FaChevronDown,
   FaChevronUp,
-  FaTerminal,
   FaClock,
+  FaSpinner,
+  FaFilePdf,
+  FaRobot,
+  FaBrain,
+  FaComments,
+  FaBriefcase,
 } from "react-icons/fa";
 import { SiJavascript, SiPython } from "react-icons/si";
-import { useNavigate } from "react-router-dom";
 import { useTheme } from "../BgContext/ThemeContext";
+import { toast } from "react-hot-toast";
+import CodeBlock from "../components/Resume/Mock-Interview/CodeBlock";
+import { getInterviewById } from "../Features/mockInterview";
 
-const firstQuestions = [
-  {
-    id: 1,
-    title: "Two Sum",
-    difficulty: "Easy",
-    topic: "Array / HashMap",
-    time: "15 min",
-    description:
-      "Given an array of integers and a target value, return the indices of the two numbers whose sum equals the target.",
-    javascript: `function twoSum(nums, target) {
-  const map = new Map();
+// ============================================================
+// STYLES CONFIGURATION
+// ============================================================
 
-  for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
+const styles = {
+  container: (dark) => `
+    min-h-screen
+    transition-colors
+    duration-300
+    ${dark ? "bg-[#080808] text-white" : "bg-[#f7f7f7] text-[#111111]"}
+  `,
 
-    if (map.has(complement)) {
-      return [map.get(complement), i];
+  card: (dark) => `
+    overflow-hidden
+    rounded-2xl
+    border
+    shadow-sm
+    transition-all
+    duration-300
+    ${
+      dark
+        ? "border-white/[0.08] bg-[#101010]"
+        : "border-black/[0.08] bg-white"
     }
-
-    map.set(nums[i], i);
-  }
-
-  return [];
-}
-
-console.log(twoSum([2, 7, 11, 15], 9));
-// [0, 1]`,
-    python: `def two_sum(nums, target):
-    seen = {}
-
-    for i, num in enumerate(nums):
-        complement = target - num
-
-        if complement in seen:
-            return [seen[complement], i]
-
-        seen[num] = i
-
-    return []
-
-print(two_sum([2, 7, 11, 15], 9))
-# [0, 1]`,
-    testCases: [
-      ["[2, 7, 11, 15], 9", "[0, 1]"],
-      ["[3, 2, 4], 6", "[1, 2]"],
-    ],
-  },
-
-  {
-    id: 2,
-    title: "Reverse String",
-    difficulty: "Easy",
-    topic: "String",
-    time: "10 min",
-    description:
-      "Write a function that takes a string and returns the string reversed without using the built-in reverse() method.",
-    javascript: `function reverseString(str) {
-  let result = "";
-
-  for (let i = str.length - 1; i >= 0; i--) {
-    result += str[i];
-  }
-
-  return result;
-}
-
-console.log(reverseString("hello"));
-// "olleh"`,
-    python: `def reverse_string(string):
-    result = ""
-
-    for i in range(len(string) - 1, -1, -1):
-        result += string[i]
-
-    return result
-
-print(reverse_string("hello"))
-# "olleh"`,
-    testCases: [
-      ['"hello"', '"olleh"'],
-      ['"javascript"', '"tpircsavaj"'],
-    ],
-  },
-
-  {
-    id: 3,
-    title: "Valid Palindrome",
-    difficulty: "Easy",
-    topic: "String / Two Pointers",
-    time: "15 min",
-    description:
-      "Determine whether a string reads the same forward and backward.",
-    javascript: `function isPalindrome(str) {
-  let left = 0;
-  let right = str.length - 1;
-
-  while (left < right) {
-    if (str[left] !== str[right]) {
-      return false;
-    }
-
-    left++;
-    right--;
-  }
-
-  return true;
-}
-
-console.log(isPalindrome("madam"));
-// true`,
-    python: `def is_palindrome(string):
-    left = 0
-    right = len(string) - 1
-
-    while left < right:
-        if string[left] != string[right]:
-            return False
-
-        left += 1
-        right -= 1
-
-    return True
-
-print(is_palindrome("madam"))
-# True`,
-    testCases: [
-      ['"madam"', "true"],
-      ['"hello"', "false"],
-    ],
-  },
-
-  {
-    id: 4,
-    title: "Find Maximum Number",
-    difficulty: "Easy",
-    topic: "Array",
-    time: "10 min",
-    description:
-      "Write a function that finds the largest number in an array without using Math.max().",
-    javascript: `function findMaximum(nums) {
-  let max = nums[0];
-
-  for (let i = 1; i < nums.length; i++) {
-    if (nums[i] > max) {
-      max = nums[i];
-    }
-  }
-
-  return max;
-}
-
-console.log(findMaximum([4, 9, 2, 15, 6]));
-// 15`,
-    python: `def find_maximum(nums):
-    maximum = nums[0]
-
-    for i in range(1, len(nums)):
-        if nums[i] > maximum:
-            maximum = nums[i]
-
-    return maximum
-
-print(find_maximum([4, 9, 2, 15, 6]))
-# 15`,
-    testCases: [
-      ["[4, 9, 2, 15, 6]", "15"],
-      ["[-5, -2, -9]", "-2"],
-    ],
-  },
-
-  {
-    id: 5,
-    title: "Remove Duplicates",
-    difficulty: "Easy",
-    topic: "Array / Set",
-    time: "15 min",
-    description:
-      "Return a new array containing only unique values while preserving their original order.",
-    javascript: `function removeDuplicates(nums) {
-  const seen = new Set();
-  const result = [];
-
-  for (const num of nums) {
-    if (!seen.has(num)) {
-      seen.add(num);
-      result.push(num);
-    }
-  }
-
-  return result;
-}
-
-console.log(removeDuplicates([1, 2, 2, 3, 1, 4]));
-// [1, 2, 3, 4]`,
-    python: `def remove_duplicates(nums):
-    seen = set()
-    result = []
-
-    for num in nums:
-        if num not in seen:
-            seen.add(num)
-            result.append(num)
-
-    return result
-
-print(remove_duplicates([1, 2, 2, 3, 1, 4]))
-# [1, 2, 3, 4]`,
-    testCases: [
-      ["[1, 2, 2, 3, 1, 4]", "[1, 2, 3, 4]"],
-      ["[5, 5, 5]", "[5]"],
-    ],
-  },
-
-  {
-    id: 6,
-    title: "Count Character Frequency",
-    difficulty: "Easy",
-    topic: "String / HashMap",
-    time: "15 min",
-    description:
-      "Create a function that counts how many times every character appears in a string.",
-    javascript: `function charFrequency(str) {
-  const frequency = {};
-
-  for (const char of str) {
-    frequency[char] = (frequency[char] || 0) + 1;
-  }
-
-  return frequency;
-}
-
-console.log(charFrequency("banana"));
-// { b: 1, a: 3, n: 2 }`,
-    python: `def char_frequency(string):
-    frequency = {}
-
-    for char in string:
-        frequency[char] = frequency.get(char, 0) + 1
-
-    return frequency
-
-print(char_frequency("banana"))
-# {'b': 1, 'a': 3, 'n': 2}`,
-    testCases: [
-      ['"banana"', "{ b: 1, a: 3, n: 2 }"],
-      ['"hello"', "{ h: 1, e: 1, l: 2, o: 1 }"],
-    ],
-  },
-
-  {
-    id: 7,
-    title: "Valid Anagram",
-    difficulty: "Easy",
-    topic: "String / HashMap",
-    time: "15 min",
-    description:
-      "Determine whether two strings contain exactly the same characters with the same frequencies.",
-    javascript: `function isAnagram(str1, str2) {
-  if (str1.length !== str2.length) {
-    return false;
-  }
-
-  const map = new Map();
-
-  for (const char of str1) {
-    map.set(char, (map.get(char) || 0) + 1);
-  }
-
-  for (const char of str2) {
-    if (!map.has(char)) {
-      return false;
-    }
-
-    map.set(char, map.get(char) - 1);
-
-    if (map.get(char) === 0) {
-      map.delete(char);
-    }
-  }
-
-  return map.size === 0;
-}
-
-console.log(isAnagram("listen", "silent"));
-// true`,
-    python: `def is_anagram(str1, str2):
-    if len(str1) != len(str2):
-        return False
-
-    frequency = {}
-
-    for char in str1:
-        frequency[char] = frequency.get(char, 0) + 1
-
-    for char in str2:
-        if char not in frequency:
-            return False
-
-        frequency[char] -= 1
-
-        if frequency[char] == 0:
-            del frequency[char]
-
-    return len(frequency) == 0
-
-print(is_anagram("listen", "silent"))
-# True`,
-    testCases: [
-      ['"listen", "silent"', "true"],
-      ['"hello", "world"', "false"],
-    ],
-  },
-
-  {
-    id: 8,
-    title: "Move Zeroes",
-    difficulty: "Easy",
-    topic: "Array / Two Pointers",
-    time: "15 min",
-    description:
-      "Move all zeroes to the end of an array while keeping the relative order of non-zero elements.",
-    javascript: `function moveZeroes(nums) {
-  let insertPosition = 0;
-
-  for (const num of nums) {
-    if (num !== 0) {
-      nums[insertPosition] = num;
-      insertPosition++;
-    }
-  }
-
-  while (insertPosition < nums.length) {
-    nums[insertPosition] = 0;
-    insertPosition++;
-  }
-
-  return nums;
-}
-
-console.log(moveZeroes([0, 1, 0, 3, 12]));
-// [1, 3, 12, 0, 0]`,
-    python: `def move_zeroes(nums):
-    insert_position = 0
-
-    for num in nums:
-        if num != 0:
-            nums[insert_position] = num
-            insert_position += 1
-
-    while insert_position < len(nums):
-        nums[insert_position] = 0
-        insert_position += 1
-
-    return nums
-
-print(move_zeroes([0, 1, 0, 3, 12]))
-# [1, 3, 12, 0, 0]`,
-    testCases: [
-      ["[0, 1, 0, 3, 12]", "[1, 3, 12, 0, 0]"],
-      ["[0, 0, 1]", "[1, 0, 0]"],
-    ],
-  },
-
-  {
-    id: 9,
-    title: "Binary Search",
-    difficulty: "Medium",
-    topic: "Binary Search",
-    time: "20 min",
-    description:
-      "Given a sorted array, find the index of a target value using binary search.",
-    javascript: `function binarySearch(nums, target) {
-  let left = 0;
-  let right = nums.length - 1;
-
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-
-    if (nums[mid] === target) {
-      return mid;
-    }
-
-    if (nums[mid] < target) {
-      left = mid + 1;
-    } else {
-      right = mid - 1;
-    }
-  }
-
-  return -1;
-}
-
-console.log(binarySearch([1, 3, 5, 7, 9], 7));
-// 3`,
-    python: `def binary_search(nums, target):
-    left = 0
-    right = len(nums) - 1
-
-    while left <= right:
-        mid = (left + right) // 2
-
-        if nums[mid] == target:
-            return mid
-
-        if nums[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-
-    return -1
-
-print(binary_search([1, 3, 5, 7, 9], 7))
-# 3`,
-    testCases: [
-      ["[1, 3, 5, 7, 9], 7", "3"],
-      ["[1, 3, 5, 7, 9], 4", "-1"],
-    ],
-  },
-
-  {
-    id: 10,
-    title: "Maximum Subarray Sum",
-    difficulty: "Medium",
-    topic: "Array / Kadane's Algorithm",
-    time: "20 min",
-    description:
-      "Find the contiguous subarray with the largest sum and return its sum.",
-    javascript: `function maxSubArray(nums) {
-  let current = nums[0];
-  let maximum = nums[0];
-
-  for (let i = 1; i < nums.length; i++) {
-    current = Math.max(nums[i], current + nums[i]);
-    maximum = Math.max(maximum, current);
-  }
-
-  return maximum;
-}
-
-console.log(maxSubArray([-2, 1, -3, 4, -1, 2, 1]));
-// 6`,
-    python: `def max_sub_array(nums):
-    current = nums[0]
-    maximum = nums[0]
-
-    for i in range(1, len(nums)):
-        current = max(nums[i], current + nums[i])
-        maximum = max(maximum, current)
-
-    return maximum
-
-print(max_sub_array([-2, 1, -3, 4, -1, 2, 1]))
-# 6`,
-    testCases: [
-      ["[-2, 1, -3, 4, -1, 2, 1]", "6"],
-      ["[-5, -2, -8]", "-2"],
-    ],
-  },
-
-  {
-    id: 11,
-    title: "Valid Parentheses",
-    difficulty: "Medium",
-    topic: "Stack",
-    time: "20 min",
-    description:
-      "Check whether a string containing (), {}, and [] has valid and correctly nested brackets.",
-    javascript: `function isValidParentheses(str) {
-  const stack = [];
-  const pairs = {
-    ")": "(",
-    "}": "{",
-    "]": "[",
-  };
-
-  for (const char of str) {
-    if (char === "(" || char === "{" || char === "[") {
-      stack.push(char);
-    } else {
-      if (stack.pop() !== pairs[char]) {
-        return false;
+  `,
+
+  muted: (dark) =>
+    dark ? "text-white/50" : "text-black/50",
+
+  secondaryText: (dark) =>
+    dark ? "text-white/65" : "text-black/65",
+
+  button: {
+    primary: (dark) => `
+      inline-flex
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      px-6
+      py-3
+      text-sm
+      font-bold
+      transition-all
+      duration-200
+      focus:outline-none
+      ${
+        dark
+          ? "bg-white text-black hover:bg-white/90"
+          : "bg-black text-white hover:bg-black/85"
       }
-    }
-  }
-
-  return stack.length === 0;
-}
-
-console.log(isValidParentheses("({[]})"));
-// true`,
-    python: `def is_valid_parentheses(string):
-    stack = []
-    pairs = {
-        ")": "(",
-        "}": "{",
-        "]": "["
-    }
-
-    for char in string:
-        if char in "({[":
-            stack.append(char)
-        else:
-            if not stack or stack.pop() != pairs[char]:
-                return False
-
-    return len(stack) == 0
-
-print(is_valid_parentheses("({[]})"))
-# True`,
-    testCases: [
-      ['"({[]})"', "true"],
-      ['"([)]"', "false"],
-    ],
-  },
-
-  {
-    id: 12,
-    title: "Longest Substring Without Repeating Characters",
-    difficulty: "Medium",
-    topic: "Sliding Window",
-    time: "25 min",
-    description:
-      "Find the length of the longest substring that contains no repeated characters.",
-    javascript: `function longestUniqueSubstring(str) {
-  const set = new Set();
-  let left = 0;
-  let maximum = 0;
-
-  for (let right = 0; right < str.length; right++) {
-    while (set.has(str[right])) {
-      set.delete(str[left]);
-      left++;
-    }
-
-    set.add(str[right]);
-
-    maximum = Math.max(
-      maximum,
-      right - left + 1
-    );
-  }
-
-  return maximum;
-}
-
-console.log(longestUniqueSubstring("abcabcbb"));
-// 3`,
-    python: `def longest_unique_substring(string):
-    seen = set()
-    left = 0
-    maximum = 0
-
-    for right in range(len(string)):
-        while string[right] in seen:
-            seen.remove(string[left])
-            left += 1
-
-        seen.add(string[right])
-
-        maximum = max(
-            maximum,
-            right - left + 1
-        )
-
-    return maximum
-
-print(longest_unique_substring("abcabcbb"))
-# 3`,
-    testCases: [
-      ['"abcabcbb"', "3"],
-      ['"bbbbb"', "1"],
-    ],
-  },
-
-  {
-    id: 13,
-    title: "Merge Two Sorted Arrays",
-    difficulty: "Medium",
-    topic: "Array / Two Pointers",
-    time: "20 min",
-    description:
-      "Merge two sorted arrays into one sorted array without using a built-in sorting function.",
-    javascript: `function mergeSortedArrays(arr1, arr2) {
-  const result = [];
-  let i = 0;
-  let j = 0;
-
-  while (i < arr1.length && j < arr2.length) {
-    if (arr1[i] <= arr2[j]) {
-      result.push(arr1[i]);
-      i++;
-    } else {
-      result.push(arr2[j]);
-      j++;
-    }
-  }
-
-  while (i < arr1.length) {
-    result.push(arr1[i]);
-    i++;
-  }
-
-  while (j < arr2.length) {
-    result.push(arr2[j]);
-    j++;
-  }
-
-  return result;
-}
-
-console.log(
-  mergeSortedArrays([1, 3, 5], [2, 4, 6])
-);
-// [1, 2, 3, 4, 5, 6]`,
-    python: `def merge_sorted_arrays(arr1, arr2):
-    result = []
-    i = 0
-    j = 0
-
-    while i < len(arr1) and j < len(arr2):
-        if arr1[i] <= arr2[j]:
-            result.append(arr1[i])
-            i += 1
-        else:
-            result.append(arr2[j])
-            j += 1
-
-    while i < len(arr1):
-        result.append(arr1[i])
-        i += 1
-
-    while j < len(arr2):
-        result.append(arr2[j])
-        j += 1
-
-    return result
-
-print(
-    merge_sorted_arrays([1, 3, 5], [2, 4, 6])
-)
-# [1, 2, 3, 4, 5, 6]`,
-    testCases: [
-      ["[1, 3, 5], [2, 4, 6]", "[1, 2, 3, 4, 5, 6]"],
-      ["[1, 2], [3, 4]", "[1, 2, 3, 4]"],
-    ],
-  },
-
-  {
-    id: 14,
-    title: "First Non-Repeating Character",
-    difficulty: "Medium",
-    topic: "String / HashMap",
-    time: "20 min",
-    description:
-      "Return the first character in a string that does not repeat. Return -1 if every character repeats.",
-    javascript: `function firstUniqueCharacter(str) {
-  const frequency = {};
-
-  for (const char of str) {
-    frequency[char] = (frequency[char] || 0) + 1;
-  }
-
-  for (let i = 0; i < str.length; i++) {
-    if (frequency[str[i]] === 1) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-console.log(firstUniqueCharacter("leetcode"));
-// 0`,
-    python: `def first_unique_character(string):
-    frequency = {}
-
-    for char in string:
-        frequency[char] = frequency.get(char, 0) + 1
-
-    for i in range(len(string)):
-        if frequency[string[i]] == 1:
-            return i
-
-    return -1
-
-print(first_unique_character("leetcode"))
-# 0`,
-    testCases: [
-      ['"leetcode"', "0"],
-      ['"aabb"', "-1"],
-    ],
-  },
-
-  {
-    id: 15,
-    title: "Product of Array Except Self",
-    difficulty: "Medium",
-    topic: "Array / Prefix Product",
-    time: "25 min",
-    description:
-      "Return an array where each element is the product of all elements except the element at that index.",
-    javascript: `function productExceptSelf(nums) {
-  const result = new Array(nums.length).fill(1);
-
-  let prefix = 1;
-
-  for (let i = 0; i < nums.length; i++) {
-    result[i] = prefix;
-    prefix *= nums[i];
-  }
-
-  let suffix = 1;
-
-  for (let i = nums.length - 1; i >= 0; i--) {
-    result[i] *= suffix;
-    suffix *= nums[i];
-  }
-
-  return result;
-}
-
-console.log(productExceptSelf([1, 2, 3, 4]));
-// [24, 12, 8, 6]`,
-    python: `def product_except_self(nums):
-    result = [1] * len(nums)
-
-    prefix = 1
-
-    for i in range(len(nums)):
-        result[i] = prefix
-        prefix *= nums[i]
-
-    suffix = 1
-
-    for i in range(len(nums) - 1, -1, -1):
-        result[i] *= suffix
-        suffix *= nums[i]
-
-    return result
-
-print(product_except_self([1, 2, 3, 4]))
-# [24, 12, 8, 6]`,
-    testCases: [
-      ["[1, 2, 3, 4]", "[24, 12, 8, 6]"],
-      ["[-1, 1, 0, -3, 3]", "[0, 0, -9, 0, 0]"],
-    ],
-  },
-
-  {
-    id: 16,
-    title: "Best Time to Buy and Sell Stock",
-    difficulty: "Medium",
-    topic: "Array / Greedy",
-    time: "20 min",
-    description:
-      "Given daily stock prices, find the maximum profit you can make by buying once and selling once.",
-    javascript: `function maxProfit(prices) {
-  let minimumPrice = prices[0];
-  let maximumProfit = 0;
-
-  for (let i = 1; i < prices.length; i++) {
-    minimumPrice = Math.min(
-      minimumPrice,
-      prices[i]
-    );
-
-    maximumProfit = Math.max(
-      maximumProfit,
-      prices[i] - minimumPrice
-    );
-  }
-
-  return maximumProfit;
-}
-
-console.log(maxProfit([7, 1, 5, 3, 6, 4]));
-// 5`,
-    python: `def max_profit(prices):
-    minimum_price = prices[0]
-    maximum_profit = 0
-
-    for i in range(1, len(prices)):
-        minimum_price = min(
-            minimum_price,
-            prices[i]
-        )
-
-        maximum_profit = max(
-            maximum_profit,
-            prices[i] - minimum_price
-        )
-
-    return maximum_profit
-
-print(max_profit([7, 1, 5, 3, 6, 4]))
-# 5`,
-    testCases: [
-      ["[7, 1, 5, 3, 6, 4]", "5"],
-      ["[7, 6, 4, 3, 1]", "0"],
-    ],
-  },
-
-  {
-    id: 17,
-    title: "Climbing Stairs",
-    difficulty: "Medium",
-    topic: "Dynamic Programming",
-    time: "20 min",
-    description:
-      "You can climb either one or two steps at a time. Return the number of distinct ways to reach the top.",
-    javascript: `function climbStairs(n) {
-  if (n <= 2) {
-    return n;
-  }
-
-  let one = 1;
-  let two = 2;
-
-  for (let i = 3; i <= n; i++) {
-    const current = one + two;
-    one = two;
-    two = current;
-  }
-
-  return two;
-}
-
-console.log(climbStairs(5));
-// 8`,
-    python: `def climb_stairs(n):
-    if n <= 2:
-        return n
-
-    one = 1
-    two = 2
-
-    for i in range(3, n + 1):
-        current = one + two
-        one = two
-        two = current
-
-    return two
-
-print(climb_stairs(5))
-# 8`,
-    testCases: [
-      ["5", "8"],
-      ["3", "3"],
-    ],
-  },
-
-  {
-    id: 18,
-    title: "Maximum Depth of Binary Tree",
-    difficulty: "Medium",
-    topic: "Binary Tree / Recursion",
-    time: "25 min",
-    description:
-      "Given the root of a binary tree, return its maximum depth.",
-    javascript: `function maxDepth(root) {
-  if (root === null) {
-    return 0;
-  }
-
-  const leftDepth = maxDepth(root.left);
-  const rightDepth = maxDepth(root.right);
-
-  return 1 + Math.max(
-    leftDepth,
-    rightDepth
-  );
-}
-
-// Example tree:
-//       3
-//      / \\
-//     9  20
-//        / \\
-//       15  7
-
-console.log(maxDepth(root));
-// 3`,
-    python: `def max_depth(root):
-    if root is None:
-        return 0
-
-    left_depth = max_depth(root.left)
-    right_depth = max_depth(root.right)
-
-    return 1 + max(
-        left_depth,
-        right_depth
-    )
-
-# Example tree:
-#       3
-#      / \\
-#     9  20
-#        / \\
-#       15  7
-
-print(max_depth(root))
-# 3`,
-    testCases: [
-      ["[3, 9, 20, null, null, 15, 7]", "3"],
-      ["[1, null, 2]", "2"],
-    ],
-  },
-
-  {
-    id: 19,
-    title: "Number of Islands",
-    difficulty: "Hard",
-    topic: "Graph / DFS",
-    time: "30 min",
-    description:
-      "Given a 2D grid containing land and water, count the number of connected islands.",
-    javascript: `function numIslands(grid) {
-  if (!grid.length) return 0;
-
-  let count = 0;
-
-  function dfs(row, col) {
-    if (
-      row < 0 ||
-      col < 0 ||
-      row >= grid.length ||
-      col >= grid[0].length ||
-      grid[row][col] !== "1"
-    ) {
-      return;
-    }
-
-    grid[row][col] = "0";
-
-    dfs(row + 1, col);
-    dfs(row - 1, col);
-    dfs(row, col + 1);
-    dfs(row, col - 1);
-  }
-
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[0].length; col++) {
-      if (grid[row][col] === "1") {
-        count++;
-        dfs(row, col);
+    `,
+
+    secondary: (dark) => `
+      inline-flex
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      border
+      px-5
+      py-3
+      text-sm
+      font-bold
+      transition-all
+      duration-200
+      ${
+        dark
+          ? "border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.08]"
+          : "border-black/10 bg-white text-black hover:bg-black/[0.04]"
       }
-    }
-  }
+    `,
 
-  return count;
-}
-
-const grid = [
-  ["1", "1", "0", "0"],
-  ["1", "0", "0", "1"],
-  ["0", "0", "1", "1"],
-];
-
-console.log(numIslands(grid));
-// 2`,
-    python: `def num_islands(grid):
-    if not grid:
-        return 0
-
-    rows = len(grid)
-    cols = len(grid[0])
-    count = 0
-
-    def dfs(row, col):
-        if (
-            row < 0 or
-            col < 0 or
-            row >= rows or
-            col >= cols or
-            grid[row][col] != "1"
-        ):
-            return
-
-        grid[row][col] = "0"
-
-        dfs(row + 1, col)
-        dfs(row - 1, col)
-        dfs(row, col + 1)
-        dfs(row, col - 1)
-
-    for row in range(rows):
-        for col in range(cols):
-            if grid[row][col] == "1":
-                count += 1
-                dfs(row, col)
-
-    return count
-
-grid = [
-    ["1", "1", "0", "0"],
-    ["1", "0", "0", "1"],
-    ["0", "0", "1", "1"],
-]
-
-print(num_islands(grid))
-# 2`,
-    testCases: [
-      ['[["1","1","0"],["1","0","0"],["0","0","1"]]', "2"],
-      ['[["1","1"],["1","1"]]', "1"],
-    ],
-  },
-
-  {
-    id: 20,
-    title: "LRU Cache",
-    difficulty: "Hard",
-    topic: "HashMap / Linked List",
-    time: "35 min",
-    description:
-      "Design an LRU Cache supporting get and put operations in O(1) time.",
-    javascript: `class LRUCache {
-  constructor(capacity) {
-    this.capacity = capacity;
-    this.cache = new Map();
-  }
-
-  get(key) {
-    if (!this.cache.has(key)) {
-      return -1;
-    }
-
-    const value = this.cache.get(key);
-
-    this.cache.delete(key);
-    this.cache.set(key, value);
-
-    return value;
-  }
-
-  put(key, value) {
-    if (this.cache.has(key)) {
-      this.cache.delete(key);
-    }
-
-    this.cache.set(key, value);
-
-    if (this.cache.size > this.capacity) {
-      const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
-    }
-  }
-}
-
-const cache = new LRUCache(2);
-
-cache.put(1, 10);
-cache.put(2, 20);
-
-console.log(cache.get(1));
-// 10
-
-cache.put(3, 30);
-
-console.log(cache.get(2));
-// -1`,
-    python: `from collections import OrderedDict
-
-class LRUCache:
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.cache = OrderedDict()
-
-    def get(self, key):
-        if key not in self.cache:
-            return -1
-
-        value = self.cache.pop(key)
-        self.cache[key] = value
-
-        return value
-
-    def put(self, key, value):
-        if key in self.cache:
-            self.cache.pop(key)
-
-        self.cache[key] = value
-
-        if len(self.cache) > self.capacity:
-            self.cache.popitem(last=False)
-
-cache = LRUCache(2)
-
-cache.put(1, 10)
-cache.put(2, 20)
-
-print(cache.get(1))
-# 10
-
-cache.put(3, 30)
-
-print(cache.get(2))
-# -1`,
-    testCases: [
-      ["capacity=2, put(1,10), put(2,20), get(1)", "10"],
-      ["after put(3,30), get(2)", "-1"],
-    ],
-  },
-];
-
-const moreQuestions = [
-  {
-    id: 21,
-    title: "3Sum",
-    difficulty: "Medium",
-    topic: "Array / Two Pointers",
-    time: "25 min",
-    description:
-      "Find all unique triplets in an array whose sum is equal to zero.",
-    javascript: `function threeSum(nums) {
-  nums.sort((a, b) => a - b);
-
-  const result = [];
-
-  for (let i = 0; i < nums.length - 2; i++) {
-    if (i > 0 && nums[i] === nums[i - 1]) continue;
-
-    let left = i + 1;
-    let right = nums.length - 1;
-
-    while (left < right) {
-      const sum = nums[i] + nums[left] + nums[right];
-
-      if (sum === 0) {
-        result.push([nums[i], nums[left], nums[right]]);
-
-        while (
-          left < right &&
-          nums[left] === nums[left + 1]
-        ) {
-          left++;
-        }
-
-        while (
-          left < right &&
-          nums[right] === nums[right - 1]
-        ) {
-          right--;
-        }
-
-        left++;
-        right--;
-      } else if (sum < 0) {
-        left++;
-      } else {
-        right--;
+    success: (dark) => `
+      inline-flex
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      border
+      px-5
+      py-3
+      text-sm
+      font-bold
+      transition-all
+      duration-200
+      ${
+        dark
+          ? "border-white/10 bg-white text-black hover:bg-white/90"
+          : "border-black/10 bg-black text-white hover:bg-black/85"
       }
-    }
-  }
-
-  return result;
-}
-
-console.log(threeSum([-1, 0, 1, 2, -1, -4]));
-// [[-1, -1, 2], [-1, 0, 1]]`,
-    python: `def three_sum(nums):
-    nums.sort()
-    result = []
-
-    for i in range(len(nums) - 2):
-        if i > 0 and nums[i] == nums[i - 1]:
-            continue
-
-        left = i + 1
-        right = len(nums) - 1
-
-        while left < right:
-            total = nums[i] + nums[left] + nums[right]
-
-            if total == 0:
-                result.append([
-                    nums[i],
-                    nums[left],
-                    nums[right]
-                ])
-
-                while (
-                    left < right and
-                    nums[left] == nums[left + 1]
-                ):
-                    left += 1
-
-                while (
-                    left < right and
-                    nums[right] == nums[right - 1]
-                ):
-                    right -= 1
-
-                left += 1
-                right -= 1
-
-            elif total < 0:
-                left += 1
-            else:
-                right -= 1
-
-    return result
-
-print(three_sum([-1, 0, 1, 2, -1, -4]))
-# [[-1, -1, 2], [-1, 0, 1]]`,
-    testCases: [
-      ["[-1,0,1,2,-1,-4]", "[[-1,-1,2],[-1,0,1]]"],
-    ],
+    `,
   },
-
-  {
-    id: 22,
-    title: "Merge Intervals",
-    difficulty: "Medium",
-    topic: "Array / Sorting",
-    time: "25 min",
-    description:
-      "Merge all overlapping intervals and return the non-overlapping intervals.",
-    javascript: `function mergeIntervals(intervals) {
-  intervals.sort((a, b) => a[0] - b[0]);
-
-  const result = [];
-
-  for (const interval of intervals) {
-    if (
-      result.length === 0 ||
-      result[result.length - 1][1] < interval[0]
-    ) {
-      result.push(interval);
-    } else {
-      result[result.length - 1][1] =
-        Math.max(
-          result[result.length - 1][1],
-          interval[1]
-        );
-    }
-  }
-
-  return result;
-}
-
-console.log(
-  mergeIntervals([[1,3], [2,6], [8,10], [15,18]])
-);
-// [[1,6], [8,10], [15,18]]`,
-    python: `def merge_intervals(intervals):
-    intervals.sort()
-    result = []
-
-    for start, end in intervals:
-        if not result or result[-1][1] < start:
-            result.append([start, end])
-        else:
-            result[-1][1] = max(
-                result[-1][1],
-                end
-            )
-
-    return result
-
-print(
-    merge_intervals([[1,3], [2,6], [8,10], [15,18]])
-)
-# [[1,6], [8,10], [15,18]]`,
-    testCases: [
-      ["[[1,3],[2,6],[8,10],[15,18]]", "[[1,6],[8,10],[15,18]]"],
-    ],
-  },
-
-  {
-    id: 23,
-    title: "Rotate Array",
-    difficulty: "Medium",
-    topic: "Array",
-    time: "20 min",
-    description:
-      "Rotate an array to the right by k positions using an efficient in-place approach.",
-    javascript: `function rotateArray(nums, k) {
-  k = k % nums.length;
-
-  nums.reverse();
-
-  reversePart(nums, 0, k - 1);
-  reversePart(nums, k, nums.length - 1);
-
-  return nums;
-}
-
-function reversePart(nums, left, right) {
-  while (left < right) {
-    [nums[left], nums[right]] =
-      [nums[right], nums[left]];
-
-    left++;
-    right--;
-  }
-}
-
-console.log(rotateArray([1,2,3,4,5,6,7], 3));
-// [5,6,7,1,2,3,4]`,
-    python: `def rotate_array(nums, k):
-    k %= len(nums)
-
-    nums.reverse()
-
-    nums[:k] = reversed(nums[:k])
-    nums[k:] = reversed(nums[k:])
-
-    return nums
-
-print(rotate_array([1,2,3,4,5,6,7], 3))
-# [5,6,7,1,2,3,4]`,
-    testCases: [
-      ["[1,2,3,4,5,6,7], 3", "[5,6,7,1,2,3,4]"],
-      ["[1,2,3], 1", "[3,1,2]"],
-    ],
-  },
-
-  {
-    id: 24,
-    title: "Longest Common Prefix",
-    difficulty: "Easy",
-    topic: "String",
-    time: "15 min",
-    description:
-      "Find the longest common prefix shared by all strings in an array.",
-    javascript: `function longestCommonPrefix(words) {
-  if (!words.length) return "";
-
-  let prefix = words[0];
-
-  for (let i = 1; i < words.length; i++) {
-    while (!words[i].startsWith(prefix)) {
-      prefix = prefix.slice(0, -1);
-
-      if (!prefix) return "";
-    }
-  }
-
-  return prefix;
-}
-
-console.log(
-  longestCommonPrefix(["flower", "flow", "flight"])
-);
-// "fl"`,
-    python: `def longest_common_prefix(words):
-    if not words:
-        return ""
-
-    prefix = words[0]
-
-    for word in words[1:]:
-        while not word.startswith(prefix):
-            prefix = prefix[:-1]
-
-            if not prefix:
-                return ""
-
-    return prefix
-
-print(
-    longest_common_prefix(
-        ["flower", "flow", "flight"]
-    )
-)
-# "fl"`,
-    testCases: [
-      ['["flower","flow","flight"]', '"fl"'],
-      ['["dog","racecar","car"]', '""'],
-    ],
-  },
-
-  {
-    id: 25,
-    title: "Group Anagrams",
-    difficulty: "Medium",
-    topic: "String / HashMap",
-    time: "25 min",
-    description:
-      "Group strings that are anagrams of each other.",
-    javascript: `function groupAnagrams(words) {
-  const groups = new Map();
-
-  for (const word of words) {
-    const key = word
-      .split("")
-      .sort()
-      .join("");
-
-    if (!groups.has(key)) {
-      groups.set(key, []);
-    }
-
-    groups.get(key).push(word);
-  }
-
-  return Array.from(groups.values());
-}
-
-console.log(
-  groupAnagrams([
-    "eat",
-    "tea",
-    "tan",
-    "ate",
-    "nat",
-    "bat"
-  ])
-);`,
-    python: `from collections import defaultdict
-
-def group_anagrams(words):
-    groups = defaultdict(list)
-
-    for word in words:
-        key = "".join(sorted(word))
-        groups[key].append(word)
-
-    return list(groups.values())
-
-print(
-    group_anagrams([
-        "eat",
-        "tea",
-        "tan",
-        "ate",
-        "nat",
-        "bat"
-    ])
-)`,
-    testCases: [
-      ['["eat","tea","tan","ate","nat","bat"]', "Grouped anagrams"],
-    ],
-  },
-
-  {
-    id: 26,
-    title: "Min Stack",
-    difficulty: "Medium",
-    topic: "Stack",
-    time: "25 min",
-    description:
-      "Design a stack that supports push, pop, top, and retrieving the minimum element in O(1).",
-    javascript: `class MinStack {
-  constructor() {
-    this.stack = [];
-    this.minStack = [];
-  }
-
-  push(value) {
-    this.stack.push(value);
-
-    const minimum =
-      this.minStack.length === 0
-        ? value
-        : Math.min(
-            value,
-            this.minStack[this.minStack.length - 1]
-          );
-
-    this.minStack.push(minimum);
-  }
-
-  pop() {
-    this.stack.pop();
-    this.minStack.pop();
-  }
-
-  top() {
-    return this.stack[this.stack.length - 1];
-  }
-
-  getMin() {
-    return this.minStack[this.minStack.length - 1];
-  }
-}
-
-const stack = new MinStack();
-
-stack.push(-2);
-stack.push(0);
-stack.push(-3);
-
-console.log(stack.getMin());
-// -3`,
-    python: `class MinStack:
-    def __init__(self):
-        self.stack = []
-        self.min_stack = []
-
-    def push(self, value):
-        self.stack.append(value)
-
-        if not self.min_stack:
-            self.min_stack.append(value)
-        else:
-            self.min_stack.append(
-                min(value, self.min_stack[-1])
-            )
-
-    def pop(self):
-        self.stack.pop()
-        self.min_stack.pop()
-
-    def top(self):
-        return self.stack[-1]
-
-    def get_min(self):
-        return self.min_stack[-1]
-
-stack = MinStack()
-
-stack.push(-2)
-stack.push(0)
-stack.push(-3)
-
-print(stack.get_min())
-# -3`,
-    testCases: [
-      ["push(-2), push(0), push(-3)", "-3"],
-    ],
-  },
-
-  {
-    id: 27,
-    title: "Binary Tree Level Order Traversal",
-    difficulty: "Medium",
-    topic: "Binary Tree / BFS",
-    time: "25 min",
-    description:
-      "Return the values of a binary tree level by level from left to right.",
-    javascript: `function levelOrder(root) {
-  if (!root) return [];
-
-  const queue = [root];
-  const result = [];
-
-  while (queue.length) {
-    const level = [];
-    const size = queue.length;
-
-    for (let i = 0; i < size; i++) {
-      const node = queue.shift();
-
-      level.push(node.value);
-
-      if (node.left) {
-        queue.push(node.left);
-      }
-
-      if (node.right) {
-        queue.push(node.right);
-      }
-    }
-
-    result.push(level);
-  }
-
-  return result;
-}
-
-// Example:
-//       3
-//      / \\
-//     9  20
-//        / \\
-//       15  7
-
-console.log(levelOrder(root));
-// [[3], [9,20], [15,7]]`,
-    python: `from collections import deque
-
-def level_order(root):
-    if not root:
-        return []
-
-    queue = deque([root])
-    result = []
-
-    while queue:
-        level = []
-
-        for _ in range(len(queue)):
-            node = queue.popleft()
-            level.append(node.value)
-
-            if node.left:
-                queue.append(node.left)
-
-            if node.right:
-                queue.append(node.right)
-
-        result.append(level)
-
-    return result
-
-# [[3], [9,20], [15,7]]`,
-    testCases: [
-      ["[3,9,20,null,null,15,7]", "[[3],[9,20],[15,7]]"],
-    ],
-  },
-
-  {
-    id: 28,
-    title: "Climbing Stairs Optimized",
-    difficulty: "Medium",
-    topic: "Dynamic Programming",
-    time: "20 min",
-    description:
-      "Solve the climbing stairs problem using O(1) extra space.",
-    javascript: `function climbStairsOptimized(n) {
-  let previous = 1;
-  let current = 1;
-
-  for (let i = 2; i <= n; i++) {
-    const next = previous + current;
-
-    previous = current;
-    current = next;
-  }
-
-  return current;
-}
-
-console.log(climbStairsOptimized(6));
-// 13`,
-    python: `def climb_stairs_optimized(n):
-    previous = 1
-    current = 1
-
-    for i in range(2, n + 1):
-        next_value = previous + current
-
-        previous = current
-        current = next_value
-
-    return current
-
-print(climb_stairs_optimized(6))
-# 13`,
-    testCases: [
-      ["6", "13"],
-      ["4", "5"],
-    ],
-  },
-
-  {
-    id: 29,
-    title: "House Robber",
-    difficulty: "Medium",
-    topic: "Dynamic Programming",
-    time: "25 min",
-    description:
-      "Given houses with money, determine the maximum amount you can rob without robbing two adjacent houses.",
-    javascript: `function rob(nums) {
-  let previousTwo = 0;
-  let previousOne = 0;
-
-  for (const money of nums) {
-    const current = Math.max(
-      previousOne,
-      previousTwo + money
-    );
-
-    previousTwo = previousOne;
-    previousOne = current;
-  }
-
-  return previousOne;
-}
-
-console.log(rob([2, 7, 9, 3, 1]));
-// 12`,
-    python: `def rob(nums):
-    previous_two = 0
-    previous_one = 0
-
-    for money in nums:
-        current = max(
-            previous_one,
-            previous_two + money
-        )
-
-        previous_two = previous_one
-        previous_one = current
-
-    return previous_one
-
-print(rob([2, 7, 9, 3, 1]))
-# 12`,
-    testCases: [
-      ["[2,7,9,3,1]", "12"],
-      ["[1,2,3,1]", "4"],
-    ],
-  },
-
-  {
-    id: 30,
-    title: "Coin Change",
-    difficulty: "Hard",
-    topic: "Dynamic Programming",
-    time: "30 min",
-    description:
-      "Given coin denominations and an amount, return the minimum number of coins required to make that amount.",
-    javascript: `function coinChange(coins, amount) {
-  const dp = new Array(amount + 1)
-    .fill(Infinity);
-
-  dp[0] = 0;
-
-  for (let current = 1; current <= amount; current++) {
-    for (const coin of coins) {
-      if (coin <= current) {
-        dp[current] = Math.min(
-          dp[current],
-          dp[current - coin] + 1
-        );
-      }
-    }
-  }
-
-  return dp[amount] === Infinity
-    ? -1
-    : dp[amount];
-}
-
-console.log(coinChange([1, 2, 5], 11));
-// 3`,
-    python: `def coin_change(coins, amount):
-    dp = [float("inf")] * (amount + 1)
-    dp[0] = 0
-
-    for current in range(1, amount + 1):
-        for coin in coins:
-            if coin <= current:
-                dp[current] = min(
-                    dp[current],
-                    dp[current - coin] + 1
-                )
-
-    return (
-        -1
-        if dp[amount] == float("inf")
-        else dp[amount]
-    )
-
-print(coin_change([1, 2, 5], 11))
-# 3`,
-    testCases: [
-      ["[1,2,5], 11", "3"],
-      ["[2], 3", "-1"],
-    ],
-  },
-
-  {
-    id: 31,
-    title: "Longest Palindromic Substring",
-    difficulty: "Hard",
-    topic: "String / Dynamic Programming",
-    time: "30 min",
-    description:
-      "Find the longest substring that reads the same forward and backward.",
-    javascript: `function longestPalindrome(str) {
-  let start = 0;
-  let end = 0;
-
-  function expand(left, right) {
-    while (
-      left >= 0 &&
-      right < str.length &&
-      str[left] === str[right]
-    ) {
-      left--;
-      right++;
-    }
-
-    return right - left - 1;
-  }
-
-  for (let i = 0; i < str.length; i++) {
-    const odd = expand(i, i);
-    const even = expand(i, i + 1);
-
-    const length = Math.max(odd, even);
-
-    if (length > end - start) {
-      start = i - Math.floor((length - 1) / 2);
-      end = i + Math.floor(length / 2);
-    }
-  }
-
-  return str.slice(start, end + 1);
-}
-
-console.log(longestPalindrome("babad"));
-// "bab" or "aba"`,
-    python: `def longest_palindrome(string):
-    start = 0
-    end = 0
-
-    def expand(left, right):
-        while (
-            left >= 0 and
-            right < len(string) and
-            string[left] == string[right]
-        ):
-            left -= 1
-            right += 1
-
-        return right - left - 1
-
-    for i in range(len(string)):
-        odd = expand(i, i)
-        even = expand(i, i + 1)
-
-        length = max(odd, even)
-
-        if length > end - start:
-            start = i - (length - 1) // 2
-            end = i + length // 2
-
-    return string[start:end + 1]
-
-print(longest_palindrome("babad"))
-# "bab" or "aba"`,
-    testCases: [
-      ['"babad"', '"bab" or "aba"'],
-      ['"cbbd"', '"bb"'],
-    ],
-  },
-
-  {
-    id: 32,
-    title: "Subarray Sum Equals K",
-    difficulty: "Hard",
-    topic: "Array / Prefix Sum",
-    time: "30 min",
-    description:
-      "Count the number of continuous subarrays whose sum equals k.",
-    javascript: `function subarraySum(nums, k) {
-  const frequency = new Map();
-  frequency.set(0, 1);
-
-  let prefixSum = 0;
-  let count = 0;
-
-  for (const num of nums) {
-    prefixSum += num;
-
-    if (frequency.has(prefixSum - k)) {
-      count += frequency.get(prefixSum - k);
-    }
-
-    frequency.set(
-      prefixSum,
-      (frequency.get(prefixSum) || 0) + 1
-    );
-  }
-
-  return count;
-}
-
-console.log(subarraySum([1, 1, 1], 2));
-// 2`,
-    python: `def subarray_sum(nums, k):
-    frequency = {0: 1}
-
-    prefix_sum = 0
-    count = 0
-
-    for num in nums:
-        prefix_sum += num
-
-        count += frequency.get(
-            prefix_sum - k,
-            0
-        )
-
-        frequency[prefix_sum] = (
-            frequency.get(prefix_sum, 0) + 1
-        )
-
-    return count
-
-print(subarray_sum([1, 1, 1], 2))
-# 2`,
-    testCases: [
-      ["[1,1,1], 2", "2"],
-      ["[1,2,3], 3", "2"],
-    ],
-  },
-
-  {
-    id: 33,
-    title: "Word Break",
-    difficulty: "Hard",
-    topic: "Dynamic Programming",
-    time: "30 min",
-    description:
-      "Determine whether a string can be segmented into a sequence of one or more dictionary words.",
-    javascript: `function wordBreak(str, wordDict) {
-  const words = new Set(wordDict);
-  const dp = new Array(str.length + 1)
-    .fill(false);
-
-  dp[0] = true;
-
-  for (let i = 1; i <= str.length; i++) {
-    for (let j = 0; j < i; j++) {
-      if (
-        dp[j] &&
-        words.has(str.slice(j, i))
-      ) {
-        dp[i] = true;
-        break;
-      }
-    }
-  }
-
-  return dp[str.length];
-}
-
-console.log(
-  wordBreak(
-    "leetcode",
-    ["leet", "code"]
-  )
-);
-// true`,
-    python: `def word_break(string, word_dict):
-    words = set(word_dict)
-
-    dp = [False] * (len(string) + 1)
-    dp[0] = True
-
-    for i in range(1, len(string) + 1):
-        for j in range(i):
-            if (
-                dp[j] and
-                string[j:i] in words
-            ):
-                dp[i] = True
-                break
-
-    return dp[len(string)]
-
-print(
-    word_break(
-        "leetcode",
-        ["leet", "code"]
-    )
-)
-# True`,
-    testCases: [
-      ['"leetcode", ["leet","code"]', "true"],
-      ['"applepenapple", ["apple","pen"]', "true"],
-    ],
-  },
-
-  {
-    id: 34,
-    title: "Kth Largest Element",
-    difficulty: "Medium",
-    topic: "Array / Heap",
-    time: "25 min",
-    description:
-      "Find the kth largest element in an unsorted array.",
-    javascript: `function kthLargest(nums, k) {
-  nums.sort((a, b) => b - a);
-
-  return nums[k - 1];
-}
-
-console.log(
-  kthLargest([3, 2, 1, 5, 6, 4], 2)
-);
-// 5`,
-    python: `def kth_largest(nums, k):
-    nums.sort(reverse=True)
-
-    return nums[k - 1]
-
-print(
-    kth_largest([3, 2, 1, 5, 6, 4], 2)
-)
-# 5`,
-    testCases: [
-      ["[3,2,1,5,6,4], 2", "5"],
-      ["[3,2,3,1,2,4,5,5,6], 4", "4"],
-    ],
-  },
-
-  {
-    id: 35,
-    title: "Reverse Linked List",
-    difficulty: "Medium",
-    topic: "Linked List",
-    time: "20 min",
-    description:
-      "Reverse a singly linked list and return the new head.",
-    javascript: `function reverseLinkedList(head) {
-  let previous = null;
-  let current = head;
-
-  while (current !== null) {
-    const next = current.next;
-
-    current.next = previous;
-    previous = current;
-    current = next;
-  }
-
-  return previous;
-}
-
-// 1 -> 2 -> 3 -> null
-// becomes
-// 3 -> 2 -> 1 -> null
-
-console.log(reverseLinkedList(head));`,
-    python: `def reverse_linked_list(head):
-    previous = None
-    current = head
-
-    while current is not None:
-        next_node = current.next
-
-        current.next = previous
-        previous = current
-        current = next_node
-
-    return previous
-
-# 1 -> 2 -> 3 -> None
-# becomes
-# 3 -> 2 -> 1 -> None`,
-    testCases: [
-      ["[1,2,3,4,5]", "[5,4,3,2,1]"],
-      ["[1,2]", "[2,1]"],
-    ],
-  },
-
-  {
-    id: 36,
-    title: "Detect Cycle in Linked List",
-    difficulty: "Medium",
-    topic: "Linked List / Two Pointers",
-    time: "20 min",
-    description:
-      "Determine whether a linked list contains a cycle using O(1) extra space.",
-    javascript: `function hasCycle(head) {
-  let slow = head;
-  let fast = head;
-
-  while (fast && fast.next) {
-    slow = slow.next;
-    fast = fast.next.next;
-
-    if (slow === fast) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-console.log(hasCycle(head));
-// true or false`,
-    python: `def has_cycle(head):
-    slow = head
-    fast = head
-
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-
-        if slow == fast:
-            return True
-
-    return False
-
-print(has_cycle(head))
-# True or False`,
-    testCases: [
-      ["[3,2,0,-4], cycle at index 1", "true"],
-      ["[1,2], no cycle", "false"],
-    ],
-  },
-
-  {
-    id: 37,
-    title: "Number of 1 Bits",
-    difficulty: "Easy",
-    topic: "Bit Manipulation",
-    time: "15 min",
-    description:
-      "Count the number of 1 bits in the binary representation of an integer.",
-    javascript: `function countBits(n) {
-  let count = 0;
-
-  while (n !== 0) {
-    n = n & (n - 1);
-    count++;
-  }
-
-  return count;
-}
-
-console.log(countBits(11));
-// 3
-// Binary: 1011`,
-    python: `def count_bits(n):
-    count = 0
-
-    while n != 0:
-        n = n & (n - 1)
-        count += 1
-
-    return count
-
-print(count_bits(11))
-# 3
-# Binary: 1011`,
-    testCases: [
-      ["11", "3"],
-      ["7", "3"],
-    ],
-  },
-
-  {
-    id: 38,
-    title: "Power of Number",
-    difficulty: "Medium",
-    topic: "Recursion / Math",
-    time: "20 min",
-    description:
-      "Implement a power function that calculates x raised to the power n efficiently.",
-    javascript: `function power(x, n) {
-  if (n === 0) {
-    return 1;
-  }
-
-  if (n < 0) {
-    return 1 / power(x, -n);
-  }
-
-  const half = power(x, Math.floor(n / 2));
-
-  if (n % 2 === 0) {
-    return half * half;
-  }
-
-  return x * half * half;
-}
-
-console.log(power(2, 10));
-// 1024`,
-    python: `def power(x, n):
-    if n == 0:
-        return 1
-
-    if n < 0:
-        return 1 / power(x, -n)
-
-    half = power(x, n // 2)
-
-    if n % 2 == 0:
-        return half * half
-
-    return x * half * half
-
-print(power(2, 10))
-# 1024`,
-    testCases: [
-      ["2, 10", "1024"],
-      ["3, 3", "27"],
-    ],
-  },
-
-  {
-    id: 39,
-    title: "Permutations",
-    difficulty: "Hard",
-    topic: "Backtracking",
-    time: "30 min",
-    description:
-      "Generate all possible permutations of an array containing unique numbers.",
-    javascript: `function permutations(nums) {
-  const result = [];
-
-  function backtrack(path, used) {
-    if (path.length === nums.length) {
-      result.push([...path]);
-      return;
-    }
-
-    for (let i = 0; i < nums.length; i++) {
-      if (used[i]) continue;
-
-      used[i] = true;
-      path.push(nums[i]);
-
-      backtrack(path, used);
-
-      path.pop();
-      used[i] = false;
-    }
-  }
-
-  backtrack([], []);
-
-  return result;
-}
-
-console.log(permutations([1, 2, 3]));
-// 6 permutations`,
-    python: `def permutations(nums):
-    result = []
-
-    def backtrack(path, used):
-        if len(path) == len(nums):
-            result.append(path[:])
-            return
-
-        for i in range(len(nums)):
-            if used[i]:
-                continue
-
-            used[i] = True
-            path.append(nums[i])
-
-            backtrack(path, used)
-
-            path.pop()
-            used[i] = False
-
-    backtrack([], [False] * len(nums))
-
-    return result
-
-print(permutations([1, 2, 3]))
-# 6 permutations`,
-    testCases: [
-      ["[1,2,3]", "6 permutations"],
-      ["[1,2]", "[[1,2],[2,1]]"],
-    ],
-  },
-
-  {
-    id: 40,
-    title: "Word Ladder",
-    difficulty: "Hard",
-    topic: "Graph / BFS",
-    time: "35 min",
-    description:
-      "Transform one word into another by changing one character at a time. Every intermediate word must exist in the dictionary.",
-    javascript: `function wordLadder(beginWord, endWord, wordList) {
-  const words = new Set(wordList);
-
-  if (!words.has(endWord)) {
-    return 0;
-  }
-
-  const queue = [[beginWord, 1]];
-
-  while (queue.length) {
-    const [word, steps] = queue.shift();
-
-    if (word === endWord) {
-      return steps;
-    }
-
-    for (let i = 0; i < word.length; i++) {
-      for (let charCode = 97; charCode <= 122; charCode++) {
-        const char = String.fromCharCode(charCode);
-
-        const nextWord =
-          word.slice(0, i) +
-          char +
-          word.slice(i + 1);
-
-        if (words.has(nextWord)) {
-          words.delete(nextWord);
-          queue.push([
-            nextWord,
-            steps + 1
-          ]);
-        }
-      }
-    }
-  }
-
-  return 0;
-}
-
-console.log(
-  wordLadder(
-    "hit",
-    "cog",
-    ["hot","dot","dog","lot","log","cog"]
-  )
-);
-// 5`,
-    python: `from collections import deque
-
-def word_ladder(begin_word, end_word, word_list):
-    words = set(word_list)
-
-    if end_word not in words:
-        return 0
-
-    queue = deque([(begin_word, 1)])
-
-    while queue:
-        word, steps = queue.popleft()
-
-        if word == end_word:
-            return steps
-
-        for i in range(len(word)):
-            for code in range(ord("a"), ord("z") + 1):
-                char = chr(code)
-
-                next_word = (
-                    word[:i] +
-                    char +
-                    word[i + 1:]
-                )
-
-                if next_word in words:
-                    words.remove(next_word)
-
-                    queue.append(
-                        (next_word, steps + 1)
-                    )
-
-    return 0
-
-print(
-    word_ladder(
-        "hit",
-        "cog",
-        ["hot","dot","dog","lot","log","cog"]
-    )
-)
-# 5`,
-    testCases: [
-      [
-        '"hit", "cog", ["hot","dot","dog","lot","log","cog"]',
-        "5",
-      ],
-      [
-        '"hit", "cog", ["hot","dot","dog","lot","log"]',
-        "0",
-      ],
-    ],
-  },
-];
-
-const skills = [
-  "Arrays",
-  "Strings",
-  "HashMap",
-  "Sets",
-  "Two Pointers",
-  "Sliding Window",
-  "Binary Search",
-  "Stack",
-  "Queue",
-  "Linked List",
-  "Binary Trees",
-  "Graphs",
-  "BFS",
-  "DFS",
-  "Dynamic Programming",
-  "Backtracking",
-  "Greedy",
-  "Bit Manipulation",
-];
+};
+
+// ============================================================
+// MAIN COMPONENT
+// ============================================================
 
 export default function InterviewPractice() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const location = useLocation();
+  const { dark } = useTheme();
 
-  const isDark =
-    theme === "dark" ||
-    (typeof document !== "undefined" &&
-      document.documentElement.classList.contains("dark"));
+  // ============================================================
+  // STATE MANAGEMENT
+  // ============================================================
 
-  const [allQuestions, setAllQuestions] = useState(firstQuestions);
-  const [current, setCurrent] = useState(0);
+  const [interview, setInterview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] =
+    useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [completed, setCompleted] = useState([]);
-  const [batchNumber, setBatchNumber] = useState(1);
   const [language, setLanguage] = useState("javascript");
 
-  const question = allQuestions[current];
+  // ============================================================
+  // LOAD INTERVIEW DATA
+  // ============================================================
 
-  const progress = useMemo(() => {
-    if (!allQuestions.length) return 0;
+  useEffect(() => {
+    const loadInterview = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    return Math.round(
-      ((current + 1) / allQuestions.length) * 100
-    );
-  }, [current, allQuestions.length]);
+        // Check navigation state first
+        if (location.state?.interview) {
+          setInterview(location.state.interview);
+          setLoading(false);
+          return;
+        }
 
-  const isCurrentCompleted = completed.includes(question.id);
+        // Otherwise fetch from API
+        if (id) {
+          const response = await getInterviewById(id);
+
+          if (response.success) {
+            setInterview(response.data);
+          } else {
+            setError("Interview not found");
+          }
+        } else {
+          setError("No interview ID provided");
+        }
+      } catch (err) {
+        console.error("Load interview error:", err);
+
+        setError(
+          err.message || "Failed to load interview"
+        );
+
+        toast.error("Failed to load interview");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInterview();
+  }, [id, location.state]);
+
+  // ============================================================
+  // HELPER FUNCTIONS
+  // ============================================================
+
+  const getAllQuestions = () => {
+    if (!interview) return [];
+
+    const questions = [];
+
+    const types = [
+      {
+        key: "dsaQuestions",
+        label: "DSA",
+      },
+      {
+        key: "technicalQuestions",
+        label: "Technical",
+      },
+      {
+        key: "projectQuestions",
+        label: "Project",
+      },
+      {
+        key: "behavioralQuestions",
+        label: "Behavioral",
+      },
+      {
+        key: "hrQuestions",
+        label: "HR",
+      },
+    ];
+
+    types.forEach(({ key, label }) => {
+      if (interview[key]) {
+        interview[key].forEach((q) => {
+          questions.push({
+            ...q,
+            type: key
+              .replace("Questions", "")
+              .toLowerCase(),
+            typeLabel: label,
+          });
+        });
+      }
+    });
+
+    return questions;
+  };
+
+  const allQuestions = getAllQuestions();
+
+  const currentQuestion =
+    allQuestions[currentQuestionIndex];
+
+  const progress = allQuestions.length
+    ? Math.round(
+        ((currentQuestionIndex + 1) /
+          allQuestions.length) *
+          100
+      )
+    : 0;
+
+  const isCurrentCompleted = completed.includes(
+    currentQuestionIndex
+  );
 
   const isBatchComplete =
-    current === allQuestions.length - 1 &&
+    currentQuestionIndex ===
+      allQuestions.length - 1 &&
     isCurrentCompleted;
 
+  // ============================================================
+  // EVENT HANDLERS
+  // ============================================================
+
   const markCompleted = () => {
-    setCompleted((prev) =>
-      prev.includes(question.id)
-        ? prev
-        : [...prev, question.id]
-    );
+    if (!completed.includes(currentQuestionIndex)) {
+      setCompleted((prev) => [
+        ...prev,
+        currentQuestionIndex,
+      ]);
+
+      toast.success("Question marked as completed!");
+    }
   };
 
   const nextQuestion = () => {
     markCompleted();
 
-    if (current < allQuestions.length - 1) {
-      setCurrent((prev) => prev + 1);
+    if (
+      currentQuestionIndex <
+      allQuestions.length - 1
+    ) {
+      setCurrentQuestionIndex(
+        (prev) => prev + 1
+      );
+
       setShowAnswer(false);
+      setLanguage("javascript");
     }
   };
 
   const previousQuestion = () => {
-    if (current > 0) {
-      setCurrent((prev) => prev - 1);
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(
+        (prev) => prev - 1
+      );
+
       setShowAnswer(false);
+      setLanguage("javascript");
     }
   };
 
   const jumpToQuestion = (index) => {
-    setCurrent(index);
-    setShowAnswer(false);
-  };
-
-  const loadMoreQuestions = () => {
-    if (allQuestions.length >= 40) return;
-
-    setAllQuestions((prev) => [
-      ...prev,
-      ...moreQuestions,
-    ]);
-
-    setBatchNumber((prev) => prev + 1);
-
-    setCurrent(20);
+    setCurrentQuestionIndex(index);
     setShowAnswer(false);
     setLanguage("javascript");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
   };
 
-  const resetPractice = () => {
-    setCurrent(0);
-    setShowAnswer(false);
-    setCompleted([]);
-    setAllQuestions(firstQuestions);
-    setBatchNumber(1);
-    setLanguage("javascript");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  const downloadPDF = () => {
+    toast.success("PDF download coming soon!");
   };
 
-  const bg = isDark
-    ? "bg-[#09090b] text-white"
-    : "bg-slate-50 text-slate-900";
+  // ============================================================
+  // LOADING STATE
+  // ============================================================
 
-  const card = isDark
-    ? "border-white/10 bg-white/[0.035]"
-    : "border-slate-200 bg-white";
-
-  const muted = isDark
-    ? "text-zinc-400"
-    : "text-slate-500";
-
-  const border = isDark
-    ? "border-white/10"
-    : "border-slate-200";
-
-  return (
-    <div className={`min-h-screen ${bg}`}>
-      {/* HEADER */}
-      <header
-        className={`sticky top-0 z-50 border-b ${border} ${
-          isDark
-            ? "bg-[#09090b]/90"
-            : "bg-white/90"
-        } backdrop-blur-xl`}
+  if (loading) {
+    return (
+      <div
+        className={`flex min-h-screen items-center justify-center ${
+          dark ? "bg-[#080808]" : "bg-[#f7f7f7]"
+        }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <button
-            onClick={() => navigate("/")}
-            className={`group flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
-              isDark
-                ? "border-white/10 bg-white/5 hover:bg-white/10"
-                : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+        <div className="text-center">
+          <div
+            className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border ${
+              dark
+                ? "border-white/10 bg-white/[0.04]"
+                : "border-black/10 bg-white"
             }`}
           >
-            <FaArrowLeft className="transition group-hover:-translate-x-1" />
-            Back to Home
+            <FaSpinner
+              className={`animate-spin ${
+                dark
+                  ? "text-white"
+                  : "text-black"
+              }`}
+            />
+          </div>
+
+          <p
+            className={`mt-4 text-sm ${
+              dark
+                ? "text-white/50"
+                : "text-black/50"
+            }`}
+          >
+            Loading interview...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // ERROR STATE
+  // ============================================================
+
+  if (error || !interview) {
+    return (
+      <div
+        className={`flex min-h-screen items-center justify-center px-4 ${
+          dark ? "bg-[#080808]" : "bg-[#f7f7f7]"
+        }`}
+      >
+        <div
+          className={`w-full max-w-md rounded-3xl border p-8 text-center ${
+            dark
+              ? "border-white/[0.08] bg-[#101010]"
+              : "border-black/[0.08] bg-white"
+          }`}
+        >
+          <div
+            className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border ${
+              dark
+                ? "border-red-500/20 bg-red-500/10 text-red-400"
+                : "border-red-200 bg-red-50 text-red-600"
+            }`}
+          >
+            <FaRobot />
+          </div>
+
+          <p className="mt-5 text-xl font-bold">
+            {error || "Interview not found"}
+          </p>
+
+          <p
+            className={`mt-2 text-sm ${
+              dark
+                ? "text-white/45"
+                : "text-black/45"
+            }`}
+          >
+            We couldn't load this interview.
+          </p>
+
+          <button
+            onClick={() =>
+              navigate("/mock-interview")
+            }
+            className={`mt-6 ${styles.button.primary(
+              dark
+            )}`}
+          >
+            <FaHome />
+            Go to Interviews
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // NO QUESTIONS
+  // ============================================================
+
+  if (allQuestions.length === 0) {
+    return (
+      <div
+        className={`flex min-h-screen items-center justify-center px-4 ${
+          dark ? "bg-[#080808]" : "bg-[#f7f7f7]"
+        }`}
+      >
+        <div
+          className={`w-full max-w-md rounded-3xl border p-8 text-center ${
+            dark
+              ? "border-white/[0.08] bg-[#101010]"
+              : "border-black/[0.08] bg-white"
+          }`}
+        >
+          <div
+            className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border ${
+              dark
+                ? "border-white/10 bg-white/[0.04]"
+                : "border-black/10 bg-black/[0.03]"
+            }`}
+          >
+            <FaCode />
+          </div>
+
+          <p className="mt-5 text-xl font-bold">
+            No questions found
+          </p>
+
+          <p
+            className={`mt-2 text-sm ${
+              dark
+                ? "text-white/45"
+                : "text-black/45"
+            }`}
+          >
+            There are no questions available in
+            this interview.
+          </p>
+
+          <button
+            onClick={() =>
+              navigate("/mock-interview")
+            }
+            className={`mt-6 ${styles.button.primary(
+              dark
+            )}`}
+          >
+            <FaHome />
+            Go to Interviews
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+
+  return (
+    <div className={styles.container(dark)}>
+      {/* ======================================================
+          HEADER
+      ======================================================= */}
+
+      <header
+        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
+          dark
+            ? "border-white/[0.08] bg-[#080808]/90"
+            : "border-black/[0.08] bg-white/90"
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          {/* BACK */}
+
+          <button
+            onClick={() =>
+              navigate("/mock-interview")
+            }
+            className={`group ${styles.button.secondary(
+              dark
+            )}`}
+          >
+            <FaArrowLeft className="transition-transform group-hover:-translate-x-1" />
+
+            <span className="hidden sm:inline">
+              Back to Interviews
+            </span>
+
+            <span className="sm:hidden">
+              Back
+            </span>
           </button>
 
+          {/* CENTER TITLE */}
+
           <div className="hidden items-center gap-3 sm:flex">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/20">
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                dark
+                  ? "border-white/10 bg-white text-black"
+                  : "border-black/10 bg-black text-white"
+              }`}
+            >
               <FaCode />
             </div>
 
             <div>
               <p className="text-sm font-bold">
-                Interview Practice
+                {interview.title ||
+                  "Interview Practice"}
               </p>
-              <p className={`text-xs ${muted}`}>
-                Coding Challenge
+
+              <p
+                className={`text-xs ${styles.muted(
+                  dark
+                )}`}
+              >
+                Mock Interview
               </p>
             </div>
           </div>
 
+          {/* QUESTION COUNT */}
+
           <div
             className={`rounded-full border px-3 py-1.5 text-xs font-bold ${
-              isDark
-                ? "border-red-500/20 bg-red-500/10 text-red-400"
-                : "border-red-200 bg-red-50 text-red-600"
+              dark
+                ? "border-white/10 bg-white/[0.04] text-white/60"
+                : "border-black/10 bg-black/[0.03] text-black/60"
             }`}
           >
-            BATCH {batchNumber}
+            {allQuestions.length} Questions
           </div>
         </div>
       </header>
 
+      {/* ======================================================
+          MAIN
+      ======================================================= */}
+
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* HERO */}
-        <section className="relative overflow-hidden rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-600/15 via-indigo-600/10 to-transparent p-6 sm:p-8 lg:p-10">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-violet-600/10 blur-3xl" />
-          <div className="absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-indigo-600/10 blur-3xl" />
+        {/* ====================================================
+            HERO
+        ===================================================== */}
+
+        <section
+          className={`relative overflow-hidden rounded-3xl border p-6 sm:p-8 lg:p-10 ${
+            dark
+              ? "border-white/[0.08] bg-[#101010]"
+              : "border-black/[0.08] bg-white"
+          }`}
+        >
+          {/* Subtle accent */}
+
+          <div
+            className={`pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl ${
+              dark
+                ? "bg-indigo-500/[0.06]"
+                : "bg-indigo-500/[0.04]"
+            }`}
+          />
+
+          <div
+            className={`pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full blur-3xl ${
+              dark
+                ? "bg-emerald-500/[0.035]"
+                : "bg-emerald-500/[0.025]"
+            }`}
+          />
 
           <div className="relative grid gap-8 lg:grid-cols-[1fr_340px] lg:items-center">
+            {/* LEFT */}
+
             <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-bold tracking-wider text-red-400">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-                REAL CODING INTERVIEW PRACTICE
+              <div
+                className={`mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold tracking-wider ${
+                  dark
+                    ? "border-white/10 bg-white/[0.04] text-white/60"
+                    : "border-black/10 bg-black/[0.03] text-black/60"
+                }`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+
+                REAL INTERVIEW PRACTICE
               </div>
 
               <h1 className="max-w-3xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
                 Master Coding Problems
-                <span className="block bg-gradient-to-r from-violet-400 via-indigo-400 to-blue-400 bg-clip-text text-transparent">
+
+                <span
+                  className={`block ${
+                    dark
+                      ? "text-white/45"
+                      : "text-black/45"
+                  }`}
+                >
                   Asked in Interviews
                 </span>
               </h1>
 
               <p
-                className={`mt-4 max-w-2xl text-sm leading-7 sm:text-base ${muted}`}
+                className={`mt-5 max-w-2xl text-sm leading-7 sm:text-base ${styles.muted(
+                  dark
+                )}`}
               >
-                Practice real coding interview problems.
-                Every challenge includes a function-based
-                problem, test cases, JavaScript solution,
-                and Python solution.
+                Practice real coding interview
+                problems. Every challenge includes
+                a function-based problem, test cases,
+                JavaScript solution, and Python
+                solution.
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <div className="flex items-center gap-2 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-2 text-sm font-semibold text-yellow-400">
+              {/* FEATURE PILLS */}
+
+              <div className="mt-6 flex flex-wrap gap-2.5">
+                <div
+                  className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
+                    dark
+                      ? "border-white/10 bg-white/[0.03] text-white/65"
+                      : "border-black/10 bg-black/[0.025] text-black/60"
+                  }`}
+                >
                   <FaCode />
-                  Coding Problems
+                  {allQuestions.length} Problems
                 </div>
 
-                <div className="flex items-center gap-2 rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-sm font-semibold text-blue-400">
+                <div
+                  className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
+                    dark
+                      ? "border-white/10 bg-white/[0.03] text-white/65"
+                      : "border-black/10 bg-black/[0.025] text-black/60"
+                  }`}
+                >
                   <SiJavascript />
                   JavaScript
                 </div>
 
-                <div className="flex items-center gap-2 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-2 text-sm font-semibold text-green-400">
+                <div
+                  className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
+                    dark
+                      ? "border-white/10 bg-white/[0.03] text-white/65"
+                      : "border-black/10 bg-black/[0.025] text-black/60"
+                  }`}
+                >
                   <SiPython />
                   Python
                 </div>
               </div>
             </div>
 
-            {/* PROGRESS */}
+            {/* PROGRESS CARD */}
+
             <div
-              className={`rounded-2xl border ${border} ${
-                isDark
-                  ? "bg-black/20"
-                  : "bg-white/70"
-              } p-5`}
+              className={`rounded-2xl border p-5 shadow-sm ${
+                dark
+                  ? "border-white/[0.08] bg-[#0b0b0b]"
+                  : "border-black/[0.08] bg-[#fafafa]"
+              }`}
             >
               <div className="mb-4 flex items-center justify-between">
-                <span className={`text-sm ${muted}`}>
+                <span
+                  className={`text-sm ${styles.muted(
+                    dark
+                  )}`}
+                >
                   Your Progress
                 </span>
 
-                <span className="text-sm font-bold text-violet-400">
+                <span
+                  className={`text-sm font-black ${
+                    dark
+                      ? "text-emerald-400"
+                      : "text-emerald-600"
+                  }`}
+                >
                   {progress}%
                 </span>
               </div>
 
+              {/* PROGRESS BAR */}
+
               <div
-                className={`h-3 overflow-hidden rounded-full ${
-                  isDark
-                    ? "bg-white/10"
-                    : "bg-slate-200"
+                className={`h-2.5 overflow-hidden rounded-full ${
+                  dark
+                    ? "bg-white/[0.08]"
+                    : "bg-black/[0.07]"
                 }`}
               >
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
-                  style={{ width: `${progress}%` }}
+                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                  style={{
+                    width: `${progress}%`,
+                  }}
                 />
               </div>
 
               <div className="mt-4 flex items-center justify-between text-xs">
-                <span className={muted}>
-                  Question {current + 1}
+                <span className={styles.muted(dark)}>
+                  Question{" "}
+                  {currentQuestionIndex + 1}
                 </span>
 
-                <span className={muted}>
+                <span className={styles.muted(dark)}>
                   {allQuestions.length} Total
                 </span>
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <div
-                  className={`rounded-xl border ${border} p-3`}
+                  className={`rounded-xl border p-3 ${
+                    dark
+                      ? "border-white/[0.08] bg-white/[0.02]"
+                      : "border-black/[0.07] bg-white"
+                  }`}
                 >
-                  <p className={`text-xs ${muted}`}>
+                  <p
+                    className={`text-xs ${styles.muted(
+                      dark
+                    )}`}
+                  >
                     Completed
                   </p>
+
                   <p className="mt-1 text-xl font-black">
                     {completed.length}
                   </p>
                 </div>
 
                 <div
-                  className={`rounded-xl border ${border} p-3`}
+                  className={`rounded-xl border p-3 ${
+                    dark
+                      ? "border-white/[0.08] bg-white/[0.02]"
+                      : "border-black/[0.07] bg-white"
+                  }`}
                 >
-                  <p className={`text-xs ${muted}`}>
+                  <p
+                    className={`text-xs ${styles.muted(
+                      dark
+                    )}`}
+                  >
                     Remaining
                   </p>
+
                   <p className="mt-1 text-xl font-black">
                     {Math.max(
                       allQuestions.length -
@@ -2677,83 +771,76 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {/* SKILLS */}
+        {/* ====================================================
+            QUESTION NAVIGATOR
+        ===================================================== */}
+
         <section className="mt-8">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400">
-              <FaTerminal />
-            </div>
-
-            <div>
-              <h2 className="font-bold">
-                Skills You&apos;ll Practice
-              </h2>
-              <p className={`text-xs ${muted}`}>
-                Interview-focused coding patterns
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill) => (
-              <span
-                key={skill}
-                className={`rounded-lg border ${border} px-3 py-2 text-xs font-medium ${
-                  isDark
-                    ? "bg-white/[0.025] text-zinc-300"
-                    : "bg-white text-slate-600"
-                }`}
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        </section>
-
-        {/* QUESTION NAVIGATOR */}
-        <section className="mt-8">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between gap-4">
             <div>
               <h2 className="font-bold">
                 Question Navigator
               </h2>
-              <p className={`text-xs ${muted}`}>
+
+              <p
+                className={`text-xs ${styles.muted(
+                  dark
+                )}`}
+              >
                 Jump directly to any question
               </p>
             </div>
 
             <span
-              className={`text-xs font-semibold ${muted}`}
+              className={`text-xs font-semibold ${styles.muted(
+                dark
+              )}`}
             >
-              {completed.length}/{allQuestions.length} completed
+              {completed.length}/
+              {allQuestions.length} completed
             </span>
           </div>
 
           <div className="flex flex-wrap gap-2">
             {allQuestions.map((item, index) => {
-              const isActive = index === current;
-              const isDone = completed.includes(item.id);
+              const isActive =
+                index === currentQuestionIndex;
+
+              const isDone =
+                completed.includes(index);
 
               return (
                 <button
-                  key={item.id}
-                  onClick={() => jumpToQuestion(index)}
-                  className={`relative flex h-10 w-10 items-center justify-center rounded-xl border text-xs font-bold transition ${
-                    isActive
-                      ? "border-violet-500 bg-violet-500 text-white shadow-lg shadow-violet-500/20"
-                      : isDone
-                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                      : `${border} ${
-                          isDark
-                            ? "bg-white/[0.03] text-zinc-400 hover:bg-white/[0.07]"
-                            : "bg-white text-slate-500 hover:bg-slate-100"
-                        }`
-                  }`}
+                  key={index}
+                  onClick={() =>
+                    jumpToQuestion(index)
+                  }
+                  title={`Question ${index + 1}`}
+                  className={`
+                    relative flex h-10 w-10
+                    items-center justify-center
+                    rounded-xl border
+                    text-xs font-bold
+                    transition-all duration-200
+                    ${
+                      isActive
+                        ? dark
+                          ? "border-white bg-white text-black shadow-lg"
+                          : "border-black bg-black text-white shadow-lg"
+                        : isDone
+                        ? dark
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                          : "border-emerald-600/20 bg-emerald-50 text-emerald-700"
+                        : dark
+                        ? "border-white/[0.08] bg-[#101010] text-white/45 hover:border-white/15 hover:bg-white/[0.05] hover:text-white"
+                        : "border-black/[0.08] bg-white text-black/45 hover:border-black/15 hover:bg-black/[0.025] hover:text-black"
+                    }
+                  `}
                 >
                   {isDone && !isActive ? (
-                    <FaCheckCircle className="text-xs" />
+                    <FaCheckCircle />
                   ) : (
-                    item.id
+                    index + 1
                   )}
                 </button>
               );
@@ -2761,233 +848,481 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {/* MAIN QUESTION */}
+        {/* ====================================================
+            QUESTION CARD
+        ===================================================== */}
+
         <section className="mt-8">
-          <div
-            className={`overflow-hidden rounded-3xl border ${border} ${card} shadow-2xl shadow-black/5`}
-          >
+          <div className={styles.card(dark)}>
             {/* QUESTION HEADER */}
+
             <div
-              className={`border-b ${border} p-5 sm:p-7`}
+              className={`border-b p-5 sm:p-7 ${
+                dark
+                  ? "border-white/[0.08]"
+                  : "border-black/[0.07]"
+              }`}
             >
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-sm font-black shadow-lg shadow-violet-500/20">
-                    {question.id}
+              <div className="flex flex-wrap items-center justify-between gap-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  {/* NUMBER */}
+
+                  <div
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-black ${
+                      dark
+                        ? "bg-white text-black"
+                        : "bg-black text-white"
+                    }`}
+                  >
+                    {currentQuestionIndex + 1}
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <p
-                      className={`text-xs font-bold uppercase tracking-widest ${muted}`}
+                      className={`text-xs font-bold uppercase tracking-widest ${styles.muted(
+                        dark
+                      )}`}
                     >
-                      Coding Challenge
+                      {currentQuestion?.typeLabel ||
+                        "Coding"}{" "}
+                      Challenge
                     </p>
 
-                    <h2 className="mt-1 text-lg font-black sm:text-xl">
-                      {question.title}
+                    <h2 className="mt-1 truncate text-lg font-black sm:text-xl">
+                      {currentQuestion?.question ||
+                        currentQuestion?.title ||
+                        "Question"}
                     </h2>
                   </div>
                 </div>
 
+                {/* BADGES */}
+
                 <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-                      question.difficulty === "Hard"
-                        ? "bg-red-500/10 text-red-400"
-                        : question.difficulty === "Medium"
-                        ? "bg-yellow-500/10 text-yellow-400"
-                        : "bg-emerald-500/10 text-emerald-400"
-                    }`}
-                  >
-                    {question.difficulty}
-                  </span>
+                  {currentQuestion?.difficulty && (
+                    <span
+                      className={`
+                        rounded-full border px-3 py-1.5
+                        text-xs font-bold
+                        ${
+                          currentQuestion.difficulty ===
+                          "Hard"
+                            ? dark
+                              ? "border-red-500/20 bg-red-500/10 text-red-400"
+                              : "border-red-200 bg-red-50 text-red-600"
+                            : currentQuestion.difficulty ===
+                              "Medium"
+                            ? dark
+                              ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
+                              : "border-amber-200 bg-amber-50 text-amber-700"
+                            : dark
+                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                            : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        }
+                      `}
+                    >
+                      {currentQuestion.difficulty}
+                    </span>
+                  )}
 
-                  <span
-                    className={`rounded-full border ${border} px-3 py-1.5 text-xs font-semibold ${muted}`}
-                  >
-                    {question.topic}
-                  </span>
+                  {currentQuestion?.topic && (
+                    <span
+                      className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                        dark
+                          ? "border-white/10 text-white/50"
+                          : "border-black/10 text-black/50"
+                      }`}
+                    >
+                      {currentQuestion.topic}
+                    </span>
+                  )}
 
-                  <span
-                    className={`flex items-center gap-1.5 rounded-full border ${border} px-3 py-1.5 text-xs font-semibold ${muted}`}
-                  >
-                    <FaClock />
-                    {question.time}
-                  </span>
+                  {currentQuestion?.timeComplexity && (
+                    <span
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                        dark
+                          ? "border-white/10 text-white/50"
+                          : "border-black/10 text-black/50"
+                      }`}
+                    >
+                      <FaClock />
+
+                      {currentQuestion.timeComplexity}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* QUESTION BODY */}
+
             <div className="p-5 sm:p-7 lg:p-9">
+              {/* PROBLEM */}
+
               <div className="max-w-4xl">
                 <p
-                  className={`text-xs font-bold uppercase tracking-widest text-violet-400`}
+                  className={`text-xs font-black uppercase tracking-widest ${
+                    dark
+                      ? "text-white/40"
+                      : "text-black/40"
+                  }`}
                 >
                   Problem Statement
                 </p>
 
                 <h3 className="mt-3 text-2xl font-black leading-tight sm:text-3xl">
-                  {question.title}
+                  {currentQuestion?.question ||
+                    currentQuestion?.title ||
+                    "Question"}
                 </h3>
 
-                <p
-                  className={`mt-4 text-sm leading-7 sm:text-base ${muted}`}
-                >
-                  {question.description}
-                </p>
+                {currentQuestion?.description && (
+                  <p
+                    className={`mt-4 text-sm leading-7 sm:text-base ${styles.muted(
+                      dark
+                    )}`}
+                  >
+                    {currentQuestion.description}
+                  </p>
+                )}
+
+                {currentQuestion?.whatInterviewerTests && (
+                  <div className="mt-5">
+                    <p className="text-sm font-bold">
+                      What Interviewer Tests
+                    </p>
+
+                    <p
+                      className={`mt-1 text-sm leading-7 ${styles.muted(
+                        dark
+                      )}`}
+                    >
+                      {
+                        currentQuestion.whatInterviewerTests
+                      }
+                    </p>
+                  </div>
+                )}
+
+                {currentQuestion?.expectedAnswerPoints &&
+                  currentQuestion.expectedAnswerPoints
+                    .length > 0 && (
+                    <div className="mt-5">
+                      <p className="text-sm font-bold">
+                        Expected Answer Points
+                      </p>
+
+                      <ul
+                        className={`mt-2 list-disc pl-5 text-sm leading-7 ${styles.muted(
+                          dark
+                        )}`}
+                      >
+                        {currentQuestion.expectedAnswerPoints.map(
+                          (point, i) => (
+                            <li key={i}>
+                              {point}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
               </div>
 
-              {/* LANGUAGE TABS */}
-              <div className="mt-8">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                  <div
-                    className={`inline-flex rounded-xl border ${border} ${
-                      isDark
-                        ? "bg-black/20"
-                        : "bg-slate-100"
-                    } p-1`}
-                  >
-                    <button
-                      onClick={() =>
-                        setLanguage("javascript")
-                      }
-                      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition ${
-                        language === "javascript"
-                          ? "bg-yellow-500 text-black shadow"
-                          : muted
+              {/* ==================================================
+                  DSA CODE
+              =================================================== */}
+
+              {currentQuestion?.type === "dsa" && (
+                <div className="mt-8">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    {/* LANGUAGE SWITCHER */}
+
+                    <div
+                      className={`inline-flex rounded-xl border p-1 ${
+                        dark
+                          ? "border-white/[0.08] bg-white/[0.03]"
+                          : "border-black/[0.08] bg-black/[0.025]"
                       }`}
                     >
-                      <SiJavascript />
-                      JavaScript
-                    </button>
+                      {/* JAVASCRIPT */}
 
-                    <button
-                      onClick={() => setLanguage("python")}
-                      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition ${
-                        language === "python"
-                          ? "bg-blue-500 text-white shadow"
-                          : muted
-                      }`}
-                    >
-                      <SiPython />
-                      Python
-                    </button>
-                  </div>
+                      <button
+                        onClick={() =>
+                          setLanguage("javascript")
+                        }
+                        className={`
+                          flex items-center gap-2
+                          rounded-lg px-4 py-2
+                          text-sm font-bold
+                          transition
+                          ${
+                            language ===
+                            "javascript"
+                              ? dark
+                                ? "bg-white text-black"
+                                : "bg-black text-white"
+                              : styles.muted(dark)
+                          }
+                        `}
+                      >
+                        <SiJavascript />
+                        JavaScript
+                      </button>
 
-                  <span
-                    className={`text-xs font-semibold ${muted}`}
-                  >
-                    Starter / Solution Code
-                  </span>
-                </div>
+                      {/* PYTHON */}
 
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] shadow-xl">
-                  <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+                      <button
+                        onClick={() =>
+                          setLanguage("python")
+                        }
+                        className={`
+                          flex items-center gap-2
+                          rounded-lg px-4 py-2
+                          text-sm font-bold
+                          transition
+                          ${
+                            language === "python"
+                              ? dark
+                                ? "bg-white text-black"
+                                : "bg-black text-white"
+                              : styles.muted(dark)
+                          }
+                        `}
+                      >
+                        <SiPython />
+                        Python
+                      </button>
                     </div>
 
-                    <span className="text-xs font-medium text-zinc-500">
-                      {language === "javascript"
-                        ? "solution.js"
-                        : "solution.py"}
+                    <span
+                      className={`text-xs font-semibold ${styles.muted(
+                        dark
+                      )}`}
+                    >
+                      Solution Code
                     </span>
-
-                    <FaCode className="text-zinc-500" />
                   </div>
 
-                  <pre className="max-h-[520px] overflow-auto p-5 text-xs leading-6 text-zinc-300 sm:text-sm">
-                    <code>
-                      {language === "javascript"
-                        ? question.javascript
-                        : question.python}
-                    </code>
-                  </pre>
-                </div>
-              </div>
+                  {language === "javascript" &&
+                    currentQuestion?.javascript && (
+                      <CodeBlock
+                        language="javascript"
+                        code={
+                          currentQuestion.javascript
+                        }
+                        darkMode={dark}
+                      />
+                    )}
 
-              {/* THINKING BOX */}
+                  {language === "python" &&
+                    currentQuestion?.python && (
+                      <CodeBlock
+                        language="python"
+                        code={currentQuestion.python}
+                        darkMode={dark}
+                      />
+                    )}
+                </div>
+              )}
+
+              {/* ==================================================
+                  FOLLOW UP
+              =================================================== */}
+
+              {currentQuestion?.followUps &&
+                currentQuestion.followUps.length >
+                  0 && (
+                  <div className="mt-7">
+                    <p
+                      className={`text-xs font-black uppercase tracking-widest ${
+                        dark
+                          ? "text-white/40"
+                          : "text-black/40"
+                      }`}
+                    >
+                      Follow-up Questions
+                    </p>
+
+                    <ul
+                      className={`mt-2 list-disc pl-5 text-sm leading-7 ${styles.muted(
+                        dark
+                      )}`}
+                    >
+                      {currentQuestion.followUps.map(
+                        (followUp, i) => (
+                          <li key={i}>
+                            {followUp}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+              {/* ==================================================
+                  INTERVIEW TIP
+              =================================================== */}
+
               <div
-                className={`mt-6 rounded-2xl border border-amber-500/20 ${
-                  isDark
-                    ? "bg-amber-500/[0.04]"
-                    : "bg-amber-50"
-                } p-5`}
+                className={`mt-7 rounded-2xl border p-5 ${
+                  dark
+                    ? "border-amber-500/15 bg-amber-500/[0.04]"
+                    : "border-amber-200 bg-amber-50/70"
+                }`}
               >
                 <div className="flex gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
+                  <div
+                    className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                      dark
+                        ? "bg-amber-500/10 text-amber-400"
+                        : "bg-amber-100 text-amber-600"
+                    }`}
+                  >
                     <FaLightbulb />
                   </div>
 
                   <div>
-                    <p className="font-bold text-amber-400">
+                    <p
+                      className={`font-bold ${
+                        dark
+                          ? "text-amber-400"
+                          : "text-amber-700"
+                      }`}
+                    >
                       Interview Tip
                     </p>
 
                     <p
-                      className={`mt-1 text-sm leading-6 ${muted}`}
+                      className={`mt-1 text-sm leading-6 ${styles.muted(
+                        dark
+                      )}`}
                     >
-                      First try solving the problem yourself.
-                      Explain your approach, time complexity,
-                      and space complexity before checking the
-                      solution.
+                      {currentQuestion?.type ===
+                      "dsa"
+                        ? "First try solving the problem yourself. Explain your approach, time complexity, and space complexity before checking the solution."
+                        : currentQuestion?.type ===
+                          "behavioral"
+                        ? "Use the STAR method (Situation, Task, Action, Result) to structure your answer."
+                        : currentQuestion?.type ===
+                          "hr"
+                        ? "Be honest and align your answer with the company's values and culture."
+                        : "Take your time to understand the question and think through your answer before responding."}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* TEST CASES */}
-              <div className="mt-8">
-                <div className="mb-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-violet-400">
-                    Test Cases
-                  </p>
+              {/* ==================================================
+                  TEST CASES
+              =================================================== */}
 
-                  <h3 className="mt-1 text-lg font-black">
-                    Verify your solution
-                  </h3>
-                </div>
-
-                <div className="overflow-hidden rounded-2xl border border-white/10">
-                  <div className="grid grid-cols-[1fr_1fr] border-b border-white/10 bg-white/[0.03] px-4 py-3 text-xs font-bold uppercase tracking-wider text-zinc-500">
-                    <span>Input</span>
-                    <span>Expected Output</span>
-                  </div>
-
-                  {question.testCases.map(
-                    ([input, output], index) => (
-                      <div
-                        key={index}
-                        className="grid grid-cols-[1fr_1fr] border-b border-white/10 px-4 py-4 last:border-b-0"
+              {currentQuestion?.type === "dsa" &&
+                currentQuestion?.testCases && (
+                  <div className="mt-8">
+                    <div className="mb-4">
+                      <p
+                        className={`text-xs font-black uppercase tracking-widest ${
+                          dark
+                            ? "text-white/40"
+                            : "text-black/40"
+                        }`}
                       >
-                        <code className="pr-3 text-xs text-zinc-300 sm:text-sm">
-                          {input}
-                        </code>
+                        Test Cases
+                      </p>
 
-                        <code className="text-xs font-semibold text-emerald-400 sm:text-sm">
-                          {output}
-                        </code>
+                      <h3 className="mt-1 text-lg font-black">
+                        Verify your solution
+                      </h3>
+                    </div>
+
+                    <div
+                      className={`overflow-hidden rounded-2xl border ${
+                        dark
+                          ? "border-white/[0.08]"
+                          : "border-black/[0.08]"
+                      }`}
+                    >
+                      {/* TABLE HEADER */}
+
+                      <div
+                        className={`grid grid-cols-[1fr_1fr] border-b px-4 py-3 text-xs font-bold uppercase tracking-wider ${
+                          dark
+                            ? "border-white/[0.08] bg-white/[0.03] text-white/40"
+                            : "border-black/[0.07] bg-black/[0.025] text-black/40"
+                        }`}
+                      >
+                        <span>Input</span>
+                        <span>
+                          Expected Output
+                        </span>
                       </div>
-                    )
-                  )}
-                </div>
-              </div>
 
-              {/* REVEAL */}
+                      {currentQuestion.testCases.map(
+                        (test, index) => (
+                          <div
+                            key={index}
+                            className={`grid grid-cols-[1fr_1fr] border-b px-4 py-4 last:border-b-0 ${
+                              dark
+                                ? "border-white/[0.08]"
+                                : "border-black/[0.07]"
+                            }`}
+                          >
+                            <code
+                              className={`pr-3 text-xs sm:text-sm ${styles.muted(
+                                dark
+                              )}`}
+                            >
+                              {typeof test ===
+                              "object"
+                                ? test.input ||
+                                  test[0] ||
+                                  ""
+                                : test}
+                            </code>
+
+                            <code
+                              className={`text-xs font-semibold sm:text-sm ${
+                                dark
+                                  ? "text-emerald-400"
+                                  : "text-emerald-700"
+                              }`}
+                            >
+                              {typeof test ===
+                              "object"
+                                ? test.output ||
+                                  test[1] ||
+                                  ""
+                                : test}
+                            </code>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {/* ==================================================
+                  REVEAL SOLUTION
+              =================================================== */}
+
               <div className="mt-8">
                 <button
                   onClick={() =>
-                    setShowAnswer((prev) => !prev)
+                    setShowAnswer(
+                      (prev) => !prev
+                    )
                   }
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition hover:scale-[1.01]"
+                  className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-5 py-4 text-sm font-bold transition-all duration-200 ${
+                    dark
+                      ? "border-white/10 bg-white text-black hover:bg-white/90"
+                      : "border-black/10 bg-black text-white hover:bg-black/85"
+                  }`}
                 >
                   <FaLightbulb />
 
                   {showAnswer
-                    ? "Hide Solution"
+                    ? "Hide Solution Approach"
                     : "Reveal Solution Approach"}
 
                   {showAnswer ? (
@@ -2997,114 +1332,193 @@ export default function InterviewPractice() {
                   )}
                 </button>
 
+                {/* SOLUTION */}
+
                 {showAnswer && (
                   <div
-                    className={`mt-4 rounded-2xl border border-violet-500/20 ${
-                      isDark
-                        ? "bg-violet-500/[0.05]"
-                        : "bg-violet-50"
-                    } p-5`}
+                    className={`mt-4 rounded-2xl border p-5 ${
+                      dark
+                        ? "border-white/[0.08] bg-white/[0.025]"
+                        : "border-black/[0.08] bg-black/[0.018]"
+                    }`}
                   >
                     <div className="flex gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400">
+                      <div
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                          dark
+                            ? "bg-emerald-500/10 text-emerald-400"
+                            : "bg-emerald-50 text-emerald-700"
+                        }`}
+                      >
                         <FaCheckCircle />
                       </div>
 
-                      <div>
+                      <div className="min-w-0">
                         <h4 className="font-bold">
                           Solution Approach
                         </h4>
 
                         <p
-                          className={`mt-2 text-sm leading-7 ${muted}`}
+                          className={`mt-2 text-sm leading-7 ${styles.muted(
+                            dark
+                          )}`}
                         >
-                          Try to understand the pattern used in
-                          the solution rather than memorizing the
-                          code. In a real interview, explain your
-                          brute-force approach first, then optimize
-                          it using the appropriate data structure
-                          or algorithm.
+                          {currentQuestion?.type ===
+                          "dsa"
+                            ? currentQuestion?.expectedApproach ||
+                              "Try to understand the pattern used in the solution rather than memorizing the code."
+                            : "Think about the key points that the interviewer is looking for and structure your answer accordingly."}
                         </p>
 
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          <div
-                            className={`rounded-xl border ${border} p-4`}
-                          >
-                            <p className="text-xs font-bold uppercase text-violet-400">
-                              Interview Focus
-                            </p>
+                        {/* COMPLEXITY */}
 
-                            <p
-                              className={`mt-2 text-sm ${muted}`}
+                        {currentQuestion?.type ===
+                          "dsa" && (
+                          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            <div
+                              className={`rounded-xl border p-4 ${
+                                dark
+                                  ? "border-white/[0.08]"
+                                  : "border-black/[0.07]"
+                              }`}
                             >
-                              Explain why this approach is
-                              efficient and what trade-offs it
-                              makes.
-                            </p>
-                          </div>
+                              <p
+                                className={`text-xs font-black uppercase ${
+                                  dark
+                                    ? "text-white/40"
+                                    : "text-black/40"
+                                }`}
+                              >
+                                Time Complexity
+                              </p>
 
-                          <div
-                            className={`rounded-xl border ${border} p-4`}
-                          >
-                            <p className="text-xs font-bold uppercase text-emerald-400">
-                              Complexity
-                            </p>
+                              <p
+                                className={`mt-2 text-sm ${styles.muted(
+                                  dark
+                                )}`}
+                              >
+                                {currentQuestion?.timeComplexity ||
+                                  "O(n)"}
+                              </p>
+                            </div>
 
-                            <p
-                              className={`mt-2 text-sm ${muted}`}
+                            <div
+                              className={`rounded-xl border p-4 ${
+                                dark
+                                  ? "border-white/[0.08]"
+                                  : "border-black/[0.07]"
+                              }`}
                             >
-                              Be ready to explain both time and
-                              space complexity to the interviewer.
-                            </p>
+                              <p
+                                className={`text-xs font-black uppercase ${
+                                  dark
+                                    ? "text-white/40"
+                                    : "text-black/40"
+                                }`}
+                              >
+                                Space Complexity
+                              </p>
+
+                              <p
+                                className={`mt-2 text-sm ${styles.muted(
+                                  dark
+                                )}`}
+                              >
+                                {currentQuestion?.spaceComplexity ||
+                                  "O(1)"}
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* NAVIGATION */}
+              {/* ==================================================
+                  NAVIGATION BUTTONS
+              =================================================== */}
+
               <div
-                className={`mt-8 flex flex-col gap-3 border-t ${border} pt-7 sm:flex-row sm:items-center sm:justify-between`}
+                className={`mt-8 flex flex-col gap-3 border-t pt-7 sm:flex-row sm:items-center sm:justify-between ${
+                  dark
+                    ? "border-white/[0.08]"
+                    : "border-black/[0.07]"
+                }`}
               >
+                {/* PREVIOUS */}
+
                 <button
                   onClick={previousQuestion}
-                  disabled={current === 0}
-                  className={`flex items-center justify-center gap-2 rounded-xl border ${border} px-5 py-3 text-sm font-bold transition ${
-                    current === 0
-                      ? "cursor-not-allowed opacity-40"
-                      : isDark
-                      ? "hover:bg-white/10"
-                      : "hover:bg-slate-100"
+                  disabled={
+                    currentQuestionIndex === 0
+                  }
+                  className={`flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold transition-all ${
+                    currentQuestionIndex === 0
+                      ? "cursor-not-allowed opacity-30"
+                      : dark
+                      ? "border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.08]"
+                      : "border-black/10 bg-white text-black hover:bg-black/[0.04]"
                   }`}
                 >
                   <FaArrowLeft />
                   Previous
                 </button>
 
+                {/* COMPLETE */}
+
                 <button
                   onClick={markCompleted}
-                  className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition ${
-                    isCurrentCompleted
-                      ? "bg-emerald-500/10 text-emerald-400"
-                      : "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600"
-                  }`}
+                  className={`
+                    flex items-center
+                    justify-center gap-2
+                    rounded-xl border
+                    px-5 py-3
+                    text-sm font-bold
+                    transition-all
+                    ${
+                      isCurrentCompleted
+                        ? dark
+                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : dark
+                        ? "border-white/10 bg-white text-black hover:bg-white/90"
+                        : "border-black/10 bg-black text-white hover:bg-black/85"
+                    }
+                  `}
                 >
                   <FaCheckCircle />
+
                   {isCurrentCompleted
                     ? "Completed"
                     : "Mark as Completed"}
                 </button>
 
+                {/* NEXT */}
+
                 <button
                   onClick={nextQuestion}
-                  disabled={current === allQuestions.length - 1}
-                  className={`flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition ${
-                    current === allQuestions.length - 1
-                      ? "cursor-not-allowed opacity-40"
-                      : "hover:scale-[1.02]"
-                  }`}
+                  disabled={
+                    currentQuestionIndex ===
+                    allQuestions.length - 1
+                  }
+                  className={`
+                    flex items-center
+                    justify-center gap-2
+                    rounded-xl border
+                    px-6 py-3
+                    text-sm font-bold
+                    transition-all
+                    ${
+                      currentQuestionIndex ===
+                      allQuestions.length - 1
+                        ? "cursor-not-allowed opacity-30"
+                        : dark
+                        ? "border-white bg-white text-black hover:bg-white/90"
+                        : "border-black bg-black text-white hover:bg-black/85"
+                    }
+                  `}
                 >
                   Next Question
                   <FaArrowRight />
@@ -3114,78 +1528,89 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {/* COMPLETE BATCH */}
+        {/* ====================================================
+            COMPLETION
+        ===================================================== */}
+
         {isBatchComplete && (
           <section className="mt-8">
             <div
-              className={`relative overflow-hidden rounded-3xl border border-emerald-500/20 ${
-                isDark
-                  ? "bg-emerald-500/[0.04]"
-                  : "bg-emerald-50"
-              } p-6 text-center sm:p-10`}
+              className={`relative overflow-hidden rounded-3xl border p-6 text-center sm:p-10 ${
+                dark
+                  ? "border-emerald-500/15 bg-emerald-500/[0.04]"
+                  : "border-emerald-200 bg-emerald-50/70"
+              }`}
             >
-              <div className="absolute -left-20 -top-20 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl" />
+              <div
+                className={`pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full blur-3xl ${
+                  dark
+                    ? "bg-emerald-500/[0.06]"
+                    : "bg-emerald-500/[0.05]"
+                }`}
+              />
 
               <div className="relative">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 shadow-lg">
+                <div
+                  className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${
+                    dark
+                      ? "bg-emerald-500/10 text-emerald-400"
+                      : "bg-emerald-100 text-emerald-700"
+                  }`}
+                >
                   <FaTrophy className="text-2xl" />
                 </div>
 
-                <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-emerald-400">
-                  SET COMPLETED
+                <p
+                  className={`mt-5 text-xs font-black uppercase tracking-[0.2em] ${
+                    dark
+                      ? "text-emerald-400"
+                      : "text-emerald-700"
+                  }`}
+                >
+                  INTERVIEW COMPLETED
                 </p>
 
                 <h2 className="mt-2 text-2xl font-black sm:text-3xl">
-                  🎉 Amazing! You completed this set
+                  🎉 Amazing! You completed this
+                  interview
                 </h2>
 
                 <p
-                  className={`mx-auto mt-3 max-w-2xl text-sm leading-6 ${muted}`}
+                  className={`mx-auto mt-3 max-w-2xl text-sm leading-6 ${styles.muted(
+                    dark
+                  )}`}
                 >
                   You successfully completed all{" "}
-                  {allQuestions.length} coding interview
-                  challenges. Keep going and improve your
-                  problem-solving speed.
+                  {allQuestions.length} interview
+                  questions. Keep going and improve
+                  your problem-solving speed.
                 </p>
 
                 <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                  {allQuestions.length < 40 ? (
-                    <button
-                      onClick={loadMoreQuestions}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition hover:scale-[1.02]"
-                    >
-                      More 20 Interview Questions
-                      <FaArrowRight />
-                    </button>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-3.5 text-sm font-bold text-emerald-400">
-                        ✓ You unlocked all 40 questions
-                      </div>
-
-                      <button
-                        onClick={resetPractice}
-                        className={`flex items-center justify-center gap-2 rounded-xl border ${border} px-5 py-3.5 text-sm font-bold transition ${
-                          isDark
-                            ? "hover:bg-white/10"
-                            : "hover:bg-white"
-                        }`}
-                      >
-                        Practice Again
-                      </button>
-                    </>
-                  )}
+                  {/* HOME */}
 
                   <button
-                    onClick={() => navigate("/")}
-                    className={`flex items-center justify-center gap-2 rounded-xl border ${border} px-5 py-3.5 text-sm font-bold transition ${
-                      isDark
-                        ? "hover:bg-white/10"
-                        : "hover:bg-white"
-                    }`}
+                    onClick={() =>
+                      navigate("/mock-interview")
+                    }
+                    className={styles.button.secondary(
+                      dark
+                    )}
                   >
                     <FaHome />
-                    Back to Home
+                    Back to Interviews
+                  </button>
+
+                  {/* PDF */}
+
+                  <button
+                    onClick={downloadPDF}
+                    className={styles.button.primary(
+                      dark
+                    )}
+                  >
+                    <FaFilePdf />
+                    Download PDF
                   </button>
                 </div>
               </div>
@@ -3193,43 +1618,59 @@ export default function InterviewPractice() {
           </section>
         )}
 
-        {/* BOTTOM CTA */}
+        {/* ====================================================
+            BOTTOM CTA
+        ===================================================== */}
+
         {!isBatchComplete && (
           <section className="mt-8">
             <div
-              className={`rounded-2xl border ${border} ${card} p-5`}
+              className={`rounded-2xl border p-5 ${
+                dark
+                  ? "border-white/[0.08] bg-[#101010]"
+                  : "border-black/[0.08] bg-white"
+              }`}
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-bold">
-                    Keep practicing 💪
+                    Keep practicing 
                   </p>
 
                   <p
-                    className={`mt-1 text-sm ${muted}`}
+                    className={`mt-1 text-sm ${styles.muted(
+                      dark
+                    )}`}
                   >
-                    Don&apos;t reveal the solution until you have
-                    tried the problem yourself.
+                    Don't reveal the solution until
+                    you have tried the problem yourself.
                   </p>
                 </div>
 
                 <div className="flex gap-2">
+                  {/* HOME */}
+
                   <button
-                    onClick={() => navigate("/")}
-                    className={`flex items-center gap-2 rounded-xl border ${border} px-4 py-2.5 text-sm font-semibold transition ${
-                      isDark
-                        ? "hover:bg-white/10"
-                        : "hover:bg-slate-100"
-                    }`}
+                    onClick={() =>
+                      navigate("/mock-interview")
+                    }
+                    className={styles.button.secondary(
+                      dark
+                    )}
                   >
                     <FaHome />
                     Home
                   </button>
 
-                  {current < allQuestions.length - 1 && (
+                  {/* NEXT */}
+
+                  {currentQuestionIndex <
+                    allQuestions.length - 1 && (
                     <button
                       onClick={nextQuestion}
-                      className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-violet-700"
+                      className={styles.button.primary(
+                        dark
+                      )}
                     >
                       Next
                       <FaArrowRight />

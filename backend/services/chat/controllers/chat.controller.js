@@ -47,22 +47,46 @@ export const GetConversions = async (req, res) => {
   }
 };
 
+// chat/controllers/chat.controller.js
 export const SaveMessage = async (req, res) => {
   try {
-    const { conversationId, role, content, images } = req.body;
+    const { 
+      conversationId, 
+      role, 
+      content, 
+      images,
+      pdf,
+      pdfUrl,
+      pdfGenerated,
+      ppt,
+      pptUrl,
+      pptGenerated,
+      pptFileName,
+      pptData
+    } = req.body;
     
     console.log("📝 Saving message:", {
       conversationId,
       role,
       contentLength: content?.length || 0,
-      imagesCount: images?.length || 0
+      imagesCount: images?.length || 0,
+      pptGenerated,
+      pdfGenerated
     });
     
     const message = await Message.create({
       conversationId,
       role,
       content,
-      images: images || []
+      images: images || [],
+      pdf: pdf || null,
+      pdfUrl: pdfUrl || null,
+      pdfGenerated: pdfGenerated || false,
+      ppt: ppt || null,
+      pptUrl: pptUrl || null,
+      pptGenerated: pptGenerated || false,
+      pptFileName: pptFileName || null,
+      pptData: pptData || null,
     });
     
     return res.status(200).json(message);
@@ -81,12 +105,21 @@ export const GetMessages = async (req, res) => {
       conversationId: req.params.conversationId
     }).sort({ updatedAt: 1 });
     
-    const messagesWithImages = messages.map(msg => ({
+    // ✅ Ensure all fields are returned
+    const messagesWithFields = messages.map(msg => ({
       ...msg.toObject(),
-      images: msg.images || []
+      images: msg.images || [],
+      pdf: msg.pdf || null,
+      pdfUrl: msg.pdfUrl || null,
+      pdfGenerated: msg.pdfGenerated || false,
+      ppt: msg.ppt || null,
+      pptUrl: msg.pptUrl || null,
+      pptGenerated: msg.pptGenerated || false,
+      pptFileName: msg.pptFileName || null,
+      pptData: msg.pptData || null,
     }));
     
-    return res.status(200).json(messagesWithImages);
+    return res.status(200).json(messagesWithFields);
   } catch (error) {
     console.error("GetMessages error:", error);
     return res.status(500).json({
@@ -94,3 +127,4 @@ export const GetMessages = async (req, res) => {
     });
   }
 };
+

@@ -334,3 +334,78 @@ export const getPaymentHistory = async (req, res) => {
     });
   }
 };
+
+// ============================================================
+// ADMIN: GET BILLING STATS
+// ============================================================
+
+export const getAdminBillingStats = async (req, res) => {
+  try {
+    const payments = await Payment.find({ status: "Paid" });
+    
+    let totalRevenue = 0;
+    let totalTransactions = payments.length;
+    let totalCreditsSold = 0;
+
+    for (const payment of payments) {
+      totalRevenue += payment.amount || 0;
+      totalCreditsSold += payment.credits || 0;
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalRevenue,
+        totalTransactions,
+        totalCreditsSold,
+      },
+    });
+  } catch (error) {
+    console.error("Get Admin Billing Stats Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ============================================================
+// ADMIN: GET TRANSACTIONS
+// ============================================================
+
+export const getAdminTransactions = async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const transactions = await Payment.find({})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Payment.countDocuments({});
+
+    const formattedTransactions = transactions.map((t) => ({
+      id: t._id,
+      user: t.userId || "Unknown",
+      plan: t.plan || "Unknown",
+      amount: t.amount || 0,
+      credits: t.credits || 0,
+      status: t.status || "Pending",
+      createdAt: t.createdAt,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      transactions: formattedTransactions,
+      total,
+      totalPages: Math.ceil(total / parseInt(limit)),
+    });
+  } catch (error) {
+    console.error("Get Admin Transactions Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

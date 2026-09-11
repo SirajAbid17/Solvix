@@ -1,6 +1,7 @@
 // src/pages/AdminData.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   FiArrowLeft,
   FiUsers,
@@ -30,11 +31,15 @@ import {
   FiChevronRight,
   FiRefreshCw,
   FiAlertCircle,
+  FiUser,
+  FiMail,
+  FiTag,
+  FiCheckCircle,
+  FiXCircle,
 } from "react-icons/fi";
 
 import api from "../../utlis/axios";
 import { useTheme } from "../../BgContext/ThemeContext";
-
 
 // ============================================================
 // COMPONENTS
@@ -60,7 +65,7 @@ const StatCard = ({ icon: Icon, label, value, subtext, color, dark }) => {
         <Icon size={14} />
       </div>
       <p className={`mt-2 text-lg font-bold ${dark ? "text-white" : "text-gray-900"}`}>
-        {value}
+        {value !== undefined && value !== null ? value : 0}
       </p>
       <p className={`text-[10px] ${dark ? "text-gray-500" : "text-gray-400"}`}>{label}</p>
       {subtext && <p className={`text-[9px] ${dark ? "text-gray-600" : "text-gray-300"}`}>{subtext}</p>}
@@ -86,7 +91,7 @@ export default function AdminData() {
   const { dark } = useTheme();
 
   // ============================================================
-  // STATE
+  // STATE - All initialized with proper defaults
   // ============================================================
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -96,17 +101,21 @@ export default function AdminData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
 
-  // Data States
+  // All data states initialized with proper defaults
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeUsers: 0,
+    adminUsers: 0,
+    inactiveUsers: 0,
+    suspendedUsers: 0,
     newUsersThisMonth: 0,
     totalCreditsUsed: 0,
+    avgCreditsPerUser: 0,
     totalRevenue: 0,
     totalAgents: 7,
     totalRequests: 0,
-    avgCreditsPerUser: 0,
   });
 
   const [users, setUsers] = useState([]);
@@ -114,16 +123,37 @@ export default function AdminData() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [agentUsage, setAgentUsage] = useState([]);
   const [planDistribution, setPlanDistribution] = useState([]);
+  const [settings, setSettings] = useState({
+    maintenanceMode: false,
+    newUserRegistration: true,
+    freePlanCredits: 10,
+    defaultLanguage: "en",
+    emailNotifications: true,
+    creditAlertThreshold: 5,
+    maxFileSize: 10,
+  });
 
   // ============================================================
-  // FETCH FUNCTIONS
+  // FETCH FUNCTIONS with error handling
   // ============================================================
 
   const fetchStats = async () => {
     try {
       const { data } = await api.get("/admin/stats");
-      if (data.success) {
-        setStats(data.data);
+      if (data?.success) {
+        setStats({
+          totalUsers: data.data?.totalUsers || 0,
+          activeUsers: data.data?.activeUsers || 0,
+          adminUsers: data.data?.adminUsers || 0,
+          inactiveUsers: data.data?.inactiveUsers || 0,
+          suspendedUsers: data.data?.suspendedUsers || 0,
+          newUsersThisMonth: data.data?.newUsersThisMonth || 0,
+          totalCreditsUsed: data.data?.totalCreditsUsed || 0,
+          avgCreditsPerUser: data.data?.avgCreditsPerUser || 0,
+          totalRevenue: data.data?.totalRevenue || 0,
+          totalAgents: 7,
+          totalRequests: data.data?.totalRequests || 0,
+        });
       }
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -133,55 +163,89 @@ export default function AdminData() {
   const fetchUsers = async () => {
     try {
       const { data } = await api.get("/admin/users");
-      if (data.success) {
-        setUsers(data.data);
+      if (data?.success) {
+        setUsers(data.users || []);
+      } else {
+        setUsers([]);
       }
     } catch (error) {
       console.error("Error fetching users:", error);
+      setUsers([]);
     }
   };
 
   const fetchTransactions = async () => {
     try {
       const { data } = await api.get("/admin/transactions");
-      if (data.success) {
-        setTransactions(data.data);
+      if (data?.success) {
+        setTransactions(data.data || []);
+      } else {
+        setTransactions([]);
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      setTransactions([]);
     }
   };
 
   const fetchActivities = async () => {
     try {
       const { data } = await api.get("/admin/activities");
-      if (data.success) {
-        setRecentActivities(data.data);
+      if (data?.success) {
+        setRecentActivities(data.data || []);
+      } else {
+        setRecentActivities([]);
       }
     } catch (error) {
       console.error("Error fetching activities:", error);
+      setRecentActivities([]);
     }
   };
 
   const fetchAgentUsage = async () => {
     try {
       const { data } = await api.get("/admin/agent-usage");
-      if (data.success) {
-        setAgentUsage(data.data);
+      if (data?.success) {
+        setAgentUsage(data.data || []);
+      } else {
+        setAgentUsage([]);
       }
     } catch (error) {
       console.error("Error fetching agent usage:", error);
+      setAgentUsage([]);
     }
   };
 
   const fetchPlanDistribution = async () => {
     try {
       const { data } = await api.get("/admin/plan-distribution");
-      if (data.success) {
-        setPlanDistribution(data.data);
+      if (data?.success) {
+        setPlanDistribution(data.data || []);
+      } else {
+        setPlanDistribution([]);
       }
     } catch (error) {
       console.error("Error fetching plan distribution:", error);
+      setPlanDistribution([]);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const { data } = await api.get("/admin/settings");
+      if (data?.success) {
+        setSettings({
+          maintenanceMode: data.data?.maintenanceMode || false,
+          newUserRegistration: data.data?.newUserRegistration !== undefined ? data.data.newUserRegistration : true,
+          freePlanCredits: data.data?.freePlanCredits || 10,
+          defaultLanguage: data.data?.defaultLanguage || "en",
+          emailNotifications: data.data?.emailNotifications !== undefined ? data.data.emailNotifications : true,
+          creditAlertThreshold: data.data?.creditAlertThreshold || 5,
+          maxFileSize: data.data?.maxFileSize || 10,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
     }
   };
 
@@ -197,6 +261,7 @@ export default function AdminData() {
         fetchActivities(),
         fetchAgentUsage(),
         fetchPlanDistribution(),
+        fetchSettings(),
       ]);
 
     } catch (error) {
@@ -211,6 +276,28 @@ export default function AdminData() {
     setRefreshing(true);
     await fetchAllData();
     setRefreshing(false);
+  };
+
+  // ============================================================
+  // SAVE SETTINGS
+  // ============================================================
+
+  const saveSettings = async () => {
+    try {
+      setSavingSettings(true);
+      const { data } = await api.put("/admin/settings", settings);
+      
+      if (data.success) {
+        toast.success("Settings saved successfully!");
+      } else {
+        toast.error(data.message || "Failed to save settings");
+      }
+    } catch (error) {
+      console.error("Save settings error:", error);
+      toast.error(error.response?.data?.message || "Failed to save settings");
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
   // ============================================================
@@ -240,33 +327,43 @@ export default function AdminData() {
     if (s === "active") return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
     if (s === "inactive") return "bg-red-500/10 text-red-400 border-red-500/20";
     if (s === "pending") return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+    if (s === "suspended") return "bg-orange-500/10 text-orange-400 border-orange-500/20";
+    if (s === "admin") return "bg-purple-500/10 text-purple-400 border-purple-500/20";
     return "bg-gray-500/10 text-gray-400 border-gray-500/20";
   };
 
   const formatDate = (date) => {
     if (!date) return "N/A";
-    const d = new Date(date);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    try {
+      const d = new Date(date);
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    } catch {
+      return "N/A";
+    }
   };
 
   const formatTime = (date) => {
     if (!date) return "N/A";
-    const d = new Date(date);
-    return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    try {
+      const d = new Date(date);
+      return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return "N/A";
+    }
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return "$0";
-    return `$${amount.toFixed(2)}`;
+    if (!amount || amount === 0) return "$0";
+    return `$${Number(amount).toFixed(2)}`;
   };
 
   // ============================================================
-  // FILTER USERS
+  // FILTER USERS - Safe with null check
   // ============================================================
 
-  const filteredUsers = users.filter((user) =>
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = (users || []).filter((user) =>
+    (user?.name || "").toLowerCase().includes((searchTerm || "").toLowerCase()) ||
+    (user?.email || "").toLowerCase().includes((searchTerm || "").toLowerCase())
   );
 
   // ============================================================
@@ -276,7 +373,7 @@ export default function AdminData() {
   const statCards = [
     { icon: FiUsers, label: "Total Users", value: stats.totalUsers || 0, color: "blue" },
     { icon: FiUserCheck, label: "Active Users", value: stats.activeUsers || 0, color: "green" },
-    { icon: FiUserX, label: "Inactive Users", value: (stats.totalUsers || 0) - (stats.activeUsers || 0), color: "red" },
+    { icon: FiUserX, label: "Inactive Users", value: (stats.inactiveUsers || 0) + (stats.suspendedUsers || 0), color: "red" },
     { icon: FiCreditCard, label: "Credits Used", value: stats.totalCreditsUsed || 0, color: "amber" },
     { icon: FiDollarSign, label: "Revenue", value: formatCurrency(stats.totalRevenue || 0), color: "emerald" },
     { icon: FiActivity, label: "Total Requests", value: stats.totalRequests || 0, color: "purple" },
@@ -449,9 +546,9 @@ export default function AdminData() {
                   <h3 className={`text-sm font-semibold ${dark ? "text-white" : "text-gray-900"} mb-4`}>
                     Agent Usage
                   </h3>
-                  {agentUsage.length > 0 ? (
+                  {(agentUsage || []).length > 0 ? (
                     <div className="space-y-2.5">
-                      {agentUsage.map((agent) => {
+                      {(agentUsage || []).map((agent) => {
                         const colorMap = {
                           blue: "bg-blue-500",
                           green: "bg-emerald-500",
@@ -492,9 +589,9 @@ export default function AdminData() {
                   <h3 className={`text-sm font-semibold ${dark ? "text-white" : "text-gray-900"} mb-4`}>
                     Recent Activity
                   </h3>
-                  {recentActivities.length > 0 ? (
+                  {(recentActivities || []).length > 0 ? (
                     <div className="space-y-3">
-                      {recentActivities.slice(0, 8).map((activity) => (
+                      {(recentActivities || []).slice(0, 8).map((activity) => (
                         <div
                           key={activity.id}
                           className={`flex items-center justify-between border-b pb-3 last:border-0 last:pb-0 ${
@@ -503,7 +600,7 @@ export default function AdminData() {
                         >
                           <div>
                             <p className={`text-sm ${dark ? "text-white/80" : "text-gray-800"}`}>
-                              {activity.user || "Unknown"}
+                              {activity.user || "Unknown User"}
                             </p>
                             <p className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>
                               {activity.action || "No action"}
@@ -528,9 +625,9 @@ export default function AdminData() {
                 <h3 className={`text-sm font-semibold ${dark ? "text-white" : "text-gray-900"} mb-4`}>
                   Plan Distribution
                 </h3>
-                {planDistribution.length > 0 ? (
+                {(planDistribution || []).length > 0 ? (
                   <div className="flex flex-wrap gap-4">
-                    {planDistribution.map((plan) => (
+                    {(planDistribution || []).map((plan) => (
                       <div key={plan.name} className="flex items-center gap-2">
                         <span className={`rounded-full border px-2.5 py-0.5 text-xs ${getPlanColor(plan.name)}`}>
                           {plan.name}
@@ -594,7 +691,7 @@ export default function AdminData() {
               <div className={`overflow-x-auto rounded-xl border ${
                 dark ? "border-white/[0.08] bg-white/[0.02]" : "border-gray-200 bg-white"
               }`}>
-                {users.length > 0 ? (
+                {(users || []).length > 0 ? (
                   <table className="w-full text-sm">
                     <thead>
                       <tr className={`border-b text-left text-xs ${
@@ -616,8 +713,8 @@ export default function AdminData() {
                         }`}>
                           <td className="px-4 py-3">
                             <div>
-                              <p className={dark ? "text-white/90" : "text-gray-800"}>{user.name}</p>
-                              <p className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>{user.email}</p>
+                              <p className={dark ? "text-white/90" : "text-gray-800"}>{user.name || "Unknown"}</p>
+                              <p className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>{user.email || ""}</p>
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -668,8 +765,8 @@ export default function AdminData() {
 
           {activeTab === "agents" && (
             <div className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-4`}>
-              {agentUsage.length > 0 ? (
-                agentUsage.map((agent) => {
+              {(agentUsage || []).length > 0 ? (
+                (agentUsage || []).map((agent) => {
                   const colorMap = {
                     blue: "border-blue-500/20 bg-blue-500/10 text-blue-400",
                     green: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
@@ -729,7 +826,7 @@ export default function AdminData() {
               <div className={`overflow-x-auto rounded-xl border ${
                 dark ? "border-white/[0.08] bg-white/[0.02]" : "border-gray-200 bg-white"
               }`}>
-                {transactions.length > 0 ? (
+                {(transactions || []).length > 0 ? (
                   <table className="w-full text-sm">
                     <thead>
                       <tr className={`border-b text-left text-xs ${
@@ -744,12 +841,12 @@ export default function AdminData() {
                       </tr>
                     </thead>
                     <tbody>
-                      {transactions.map((transaction) => (
+                      {(transactions || []).map((transaction) => (
                         <tr key={transaction.id} className={`border-b last:border-0 hover:bg-white/[0.02] ${
                           dark ? "border-white/[0.06]" : "border-gray-100"
                         }`}>
                           <td className={`px-4 py-3 ${dark ? "text-white/90" : "text-gray-800"}`}>
-                            {transaction.user}
+                            {transaction.user || "Unknown"}
                           </td>
                           <td className="px-4 py-3">
                             <span className={`rounded-full border px-2.5 py-0.5 text-xs ${getPlanColor(transaction.plan)}`}>
@@ -757,13 +854,13 @@ export default function AdminData() {
                             </span>
                           </td>
                           <td className={dark ? "text-white/80" : "text-gray-700"}>
-                            ${transaction.amount?.toFixed(2) || "0.00"}
+                            ${Number(transaction.amount || 0).toFixed(2)}
                           </td>
                           <td className={dark ? "text-white/80" : "text-gray-700"}>
                             {transaction.credits || 0}
                           </td>
                           <td className={dark ? "text-gray-500" : "text-gray-400"}>
-                            {transaction.createdAt ? formatDate(transaction.createdAt) : "N/A"}
+                            {formatDate(transaction.createdAt)}
                           </td>
                           <td className="px-4 py-3">
                             <span className={`rounded-full border px-2.5 py-0.5 text-xs ${getStatusColor(transaction.status)}`}>
@@ -796,6 +893,7 @@ export default function AdminData() {
                   System Settings
                 </h3>
                 <div className="space-y-4">
+                  {/* Maintenance Mode */}
                   <div className={`flex items-center justify-between border-b pb-4 ${
                     dark ? "border-white/[0.06]" : "border-gray-200"
                   }`}>
@@ -806,13 +904,19 @@ export default function AdminData() {
                       </p>
                     </div>
                     <label className="relative inline-flex cursor-pointer items-center">
-                      <input type="checkbox" className="peer sr-only" />
+                      <input 
+                        type="checkbox" 
+                        checked={settings.maintenanceMode}
+                        onChange={() => setSettings({...settings, maintenanceMode: !settings.maintenanceMode})}
+                        className="peer sr-only" 
+                      />
                       <div className={`h-6 w-11 rounded-full ${
                         dark ? "bg-white/[0.08] peer-checked:bg-indigo-600" : "bg-gray-200 peer-checked:bg-indigo-600"
                       } after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/10 after:bg-white after:transition-all peer-checked:after:translate-x-full`} />
                     </label>
                   </div>
 
+                  {/* New User Registration */}
                   <div className={`flex items-center justify-between border-b pb-4 ${
                     dark ? "border-white/[0.06]" : "border-gray-200"
                   }`}>
@@ -823,13 +927,19 @@ export default function AdminData() {
                       </p>
                     </div>
                     <label className="relative inline-flex cursor-pointer items-center">
-                      <input type="checkbox" defaultChecked className="peer sr-only" />
+                      <input 
+                        type="checkbox" 
+                        checked={settings.newUserRegistration}
+                        onChange={() => setSettings({...settings, newUserRegistration: !settings.newUserRegistration})}
+                        className="peer sr-only" 
+                      />
                       <div className={`h-6 w-11 rounded-full ${
                         dark ? "bg-white/[0.08] peer-checked:bg-indigo-600" : "bg-gray-200 peer-checked:bg-indigo-600"
                       } after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/10 after:bg-white after:transition-all peer-checked:after:translate-x-full`} />
                     </label>
                   </div>
 
+                  {/* Free Plan Credits */}
                   <div className={`flex items-center justify-between border-b pb-4 ${
                     dark ? "border-white/[0.06]" : "border-gray-200"
                   }`}>
@@ -841,7 +951,8 @@ export default function AdminData() {
                     </div>
                     <input
                       type="number"
-                      defaultValue={10}
+                      value={settings.freePlanCredits}
+                      onChange={(e) => setSettings({...settings, freePlanCredits: parseInt(e.target.value) || 0})}
                       className={`w-20 rounded-xl border px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none ${
                         dark
                           ? "border-white/[0.08] bg-white/[0.02] text-white"
@@ -850,6 +961,29 @@ export default function AdminData() {
                     />
                   </div>
 
+                  {/* Max File Size */}
+                  <div className={`flex items-center justify-between border-b pb-4 ${
+                    dark ? "border-white/[0.06]" : "border-gray-200"
+                  }`}>
+                    <div>
+                      <p className={`text-sm ${dark ? "text-white/80" : "text-gray-700"}`}>Max File Size (MB)</p>
+                      <p className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>
+                        Maximum file upload size in MB
+                      </p>
+                    </div>
+                    <input
+                      type="number"
+                      value={settings.maxFileSize}
+                      onChange={(e) => setSettings({...settings, maxFileSize: parseInt(e.target.value) || 10})}
+                      className={`w-20 rounded-xl border px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none ${
+                        dark
+                          ? "border-white/[0.08] bg-white/[0.02] text-white"
+                          : "border-gray-200 bg-white text-gray-900"
+                      }`}
+                    />
+                  </div>
+
+                  {/* Default Language */}
                   <div className={`flex items-center justify-between ${
                     dark ? "border-white/[0.06]" : "border-gray-200"
                   }`}>
@@ -860,7 +994,8 @@ export default function AdminData() {
                       </p>
                     </div>
                     <select
-                      defaultValue="en"
+                      value={settings.defaultLanguage}
+                      onChange={(e) => setSettings({...settings, defaultLanguage: e.target.value})}
                       className={`rounded-xl border px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none ${
                         dark
                           ? "border-white/[0.08] bg-white/[0.02] text-white"
@@ -871,7 +1006,31 @@ export default function AdminData() {
                       <option value="ur">Urdu</option>
                       <option value="es">Spanish</option>
                       <option value="fr">French</option>
+                      <option value="de">German</option>
+                      <option value="zh">Chinese</option>
                     </select>
+                  </div>
+
+                  {/* Save Settings Button */}
+                  <div className="pt-4">
+                    <button
+                      onClick={saveSettings}
+                      disabled={savingSettings}
+                      className={`rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition ${
+                        savingSettings
+                          ? "bg-indigo-400 cursor-not-allowed"
+                          : "bg-indigo-600 hover:bg-indigo-500"
+                      }`}
+                    >
+                      {savingSettings ? (
+                        <span className="flex items-center gap-2">
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          Saving...
+                        </span>
+                      ) : (
+                        "Save Settings"
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -912,13 +1071,13 @@ export default function AdminData() {
                 dark ? "border-white/[0.06]" : "border-gray-200"
               }`}>
                 <span className={dark ? "text-gray-500" : "text-gray-400"}>Name</span>
-                <span className={dark ? "text-white/90" : "text-gray-800"}>{selectedUser.name}</span>
+                <span className={dark ? "text-white/90" : "text-gray-800"}>{selectedUser.name || "Unknown"}</span>
               </div>
               <div className={`flex justify-between border-b pb-2 ${
                 dark ? "border-white/[0.06]" : "border-gray-200"
               }`}>
                 <span className={dark ? "text-gray-500" : "text-gray-400"}>Email</span>
-                <span className={dark ? "text-white/90" : "text-gray-800"}>{selectedUser.email}</span>
+                <span className={dark ? "text-white/90" : "text-gray-800"}>{selectedUser.email || "N/A"}</span>
               </div>
               <div className={`flex justify-between border-b pb-2 ${
                 dark ? "border-white/[0.06]" : "border-gray-200"

@@ -49,9 +49,7 @@ export default function ChatInput() {
 
   const handleFileSelect = (files) => {
     if (!files) return;
-
     const fileArray = Array.from(files);
-
     setSelectedFiles(fileArray);
   };
 
@@ -60,7 +58,6 @@ export default function ChatInput() {
       setSelectedFiles([]);
       return;
     }
-
     setSelectedFiles((prev) =>
       prev.filter((_, fileIndex) => fileIndex !== index)
     );
@@ -75,14 +72,11 @@ export default function ChatInput() {
           existingFile.name === file.name &&
           existingFile.size === file.size
       );
-
       if (exists) return prev;
-
       return [...prev, file];
     });
 
     setShowFileLoaded(false);
-
     toast.success("File added successfully");
   };
 
@@ -91,92 +85,77 @@ export default function ChatInput() {
   // --------------------------------------------------
 
   const tools = [
-    {
-      id: "auto",
-      icon: FiZap,
-      label: "Auto",
-    },
-    {
-      id: "chat",
-      icon: FiMessageSquare,
-      label: "Chat",
-    },
-    {
-      id: "search",
-      icon: FiSearch,
-      label: "Search",
-    },
-    {
-      id: "image",
-      icon: FiImage,
-      label: "Image",
-    },
-    {
-      id: "coding",
-      icon: FiCode,
-      label: "Coding",
-    },
-    {
-      id: "ppt",
-      icon: FiFileText,
-      label: "PPT",
-    },
-    {
-      id: "pdf",
-      icon: FiFile,
-      label: "PDF",
-    },
+    { id: "auto", icon: FiZap, label: "Auto" },
+    { id: "chat", icon: FiMessageSquare, label: "Chat" },
+    { id: "search", icon: FiSearch, label: "Search" },
+    { id: "image", icon: FiImage, label: "Image" },
+    { id: "coding", icon: FiCode, label: "Coding" },
+    { id: "ppt", icon: FiFileText, label: "PPT" },
+    { id: "pdf", icon: FiFile, label: "PDF" },
   ];
 
-  // --------------------------------------------------
-  // PDF DOWNLOAD
-  // --------------------------------------------------
+  // ============================================================
+  // HELPER: Parse error and build friendly message
+  // ============================================================
 
-  const downloadPDF = (pdfBase64, title) => {
-    try {
-      if (!pdfBase64) {
-        toast.error("No PDF data available");
-        return false;
-      }
+  const parseError = (error) => {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Something went wrong. Please try again.";
 
-      const byteCharacters = atob(pdfBase64);
-      const byteNumbers = new Array(byteCharacters.length);
+    const lowerMsg = String(errorMessage).toLowerCase();
 
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
+    const isRateLimit =
+      lowerMsg.includes("too many") ||
+      lowerMsg.includes("rate limit") ||
+      lowerMsg.includes("429") ||
+      lowerMsg.includes("try again");
 
-      const byteArray = new Uint8Array(byteNumbers);
-
-      const blob = new Blob([byteArray], {
-        type: "application/pdf",
-      });
-
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-
-      link.href = url;
-      link.download = `${title || "document"}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-      }, 100);
-
-      toast.success("PDF downloaded successfully");
-
-      return true;
-    } catch (error) {
-      console.error("PDF download failed:", error);
-
-      toast.error("Failed to download PDF");
-
-      return false;
+    // Extract wait time like "after 613 seconds"
+    let waitTime = null;
+    const match = String(errorMessage).match(
+      /after\s+(\d+)\s*seconds?/i
+    );
+    if (match && match[1]) {
+      waitTime = parseInt(match[1], 10);
     }
+
+    let friendlyMessage;
+    let toastMessage;
+
+    if (isRateLimit) {
+      if (waitTime) {
+        const mins = Math.floor(waitTime / 60);
+        const secs = waitTime % 60;
+        const timeStr =
+          mins > 0
+            ? `${mins} minute${mins > 1 ? "s" : ""}${
+                secs > 0 ? ` ${secs}s` : ""
+              }`
+            : `${secs} seconds`;
+
+        friendlyMessage =
+          `## ⚠️ Rate Limit Reached\n\n` +
+          `You've sent too many requests. Please wait **${timeStr}** before trying again.\n\n` +
+          `**💡 Tip:** Slow down between messages to avoid hitting the limit.`;
+
+        toastMessage = `Too many requests. Wait ${timeStr}`;
+      } else {
+        friendlyMessage =
+          `## ⚠️ Rate Limit Reached\n\n` +
+          `Too many requests. Please wait a moment before trying again.\n\n` +
+          `**💡 Tip:** Slow down between messages to avoid hitting the limit.`;
+
+        toastMessage = "Too many requests. Wait a moment.";
+      }
+    } else {
+      friendlyMessage = `## ⚠️ Error\n\n${errorMessage}`;
+      toastMessage = "Failed to get response";
+    }
+
+    return { friendlyMessage, toastMessage, isRateLimit, waitTime };
   };
 
   // --------------------------------------------------
@@ -185,7 +164,6 @@ export default function ChatInput() {
 
   const handleSend = async () => {
     const text = message.trim();
-
     if (!text || loading) return;
 
     if (!selectedConversation?._id) {
@@ -204,7 +182,6 @@ export default function ChatInput() {
 
     if (isNewConversation) {
       let newTitle = text;
-
       if (newTitle.length > 30) {
         newTitle = `${newTitle.substring(0, 30)}...`;
       }
@@ -261,7 +238,6 @@ export default function ChatInput() {
       setLoading(true);
 
       const data = await ChatAgent(payload);
-
       console.log("Full Response:", data);
 
       // --------------------------------------------------
@@ -269,18 +245,13 @@ export default function ChatInput() {
       // --------------------------------------------------
 
       let imageUrls = [];
-
       if (Array.isArray(data?.images)) {
         imageUrls = data.images
           .map((img) => {
-            if (typeof img === "string") {
-              return img;
-            }
-
+            if (typeof img === "string") return img;
             if (img && typeof img === "object") {
               return img.url || img.src || "";
             }
-
             return "";
           })
           .filter(Boolean);
@@ -298,8 +269,7 @@ export default function ChatInput() {
       if (data?.pptGenerated === true) {
         pptGenerated = true;
         pptUrl = data.pptUrl || null;
-        pptFileName =
-          data.pptFileName || "solvix-presentation.pptx";
+        pptFileName = data.pptFileName || "solvix-presentation.pptx";
         pptData = data.pptData || null;
 
         if (pptUrl) {
@@ -312,16 +282,28 @@ export default function ChatInput() {
       // --------------------------------------------------
 
       let pdfData = null;
+      let pdfUrl = null;
+      let pdfBase64 = null;
+      let pdfGenerated = false;
 
-      if (data?.pdf && data?.pdfGenerated === true) {
-        pdfData = data.pdf;
+      if (data?.pdfGenerated === true) {
+        pdfGenerated = true;
+        pdfBase64 = data.pdfBase64 || null;
+        pdfUrl = data.pdfUrl || null;
+        pdfData = data.document || null;
 
-        setTimeout(() => {
-          downloadPDF(
-            pdfData,
-            data.response?.slice(0, 30) || "document"
-          );
-        }, 500);
+        console.log("📄 PDF Debug:", {
+          hasBase64: !!pdfBase64,
+          base64Length: pdfBase64?.length,
+          hasUrl: !!pdfUrl,
+          url: pdfUrl,
+        });
+
+        if (pdfBase64 || pdfUrl) {
+          toast.success("PDF generated successfully");
+        } else {
+          toast.error("PDF generated but no data received");
+        }
       }
 
       // --------------------------------------------------
@@ -332,15 +314,17 @@ export default function ChatInput() {
         addMessage({
           role: "assistant",
           content: data?.response || "No response",
-
           conversationId: selectedConversation._id,
 
           images: imageUrls,
 
-          pdf: pdfData || data?.pdf || null,
-          pdfUrl: data?.pdfUrl || null,
-          pdfGenerated: data?.pdfGenerated === true,
+          // PDF fields
+          pdf: pdfData || null,
+          pdfUrl: pdfUrl || null,
+          pdfBase64: pdfBase64 || null,
+          pdfGenerated: pdfGenerated,
 
+          // PPT fields
           ppt: data?.ppt || null,
           pptUrl: pptUrl || data?.pptUrl || null,
           pptGenerated:
@@ -360,19 +344,20 @@ export default function ChatInput() {
         error?.response?.data || error?.message
       );
 
+      // ✅ Parse error and build friendly message
+      const { friendlyMessage, toastMessage, isRateLimit } =
+        parseError(error);
+
       dispatch(
         addMessage({
           role: "assistant",
-          content:
-            "Sorry, something went wrong. Please try again.",
-
+          content: friendlyMessage,
           conversationId: selectedConversation._id,
-
           images: [],
-
           pdf: null,
+          pdfUrl: null,
+          pdfBase64: null,
           pdfGenerated: false,
-
           ppt: null,
           pptGenerated: false,
           pptUrl: null,
@@ -381,7 +366,11 @@ export default function ChatInput() {
         })
       );
 
-      toast.error("Failed to get response");
+      if (isRateLimit) {
+        toast.error(toastMessage);
+      } else {
+        toast.error(toastMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -393,10 +382,7 @@ export default function ChatInput() {
 
   return (
     <>
-      {/* ==========================================
-          FILE UPLOAD MODAL
-      ========================================== */}
-
+      {/* FILE UPLOAD MODAL */}
       {showFileLoaded && (
         <Fileloaded
           dark={dark}
@@ -405,10 +391,7 @@ export default function ChatInput() {
         />
       )}
 
-      {/* ==========================================
-          ERROR MODAL
-      ========================================== */}
-
+      {/* ERROR MODAL */}
       {showErrorModal && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center px-4 backdrop-blur-sm ${
@@ -443,8 +426,8 @@ export default function ChatInput() {
                 dark ? "text-gray-400" : "text-gray-500"
               }`}
             >
-              Please select a conversation from the sidebar
-              before sending a message.
+              Please select a conversation from the sidebar before
+              sending a message.
             </p>
 
             <button
@@ -462,28 +445,20 @@ export default function ChatInput() {
         </div>
       )}
 
-      {/* ==========================================
-          CHAT INPUT
-      ========================================== */}
-
+      {/* CHAT INPUT */}
       <div
         className={`w-full border-t px-4 py-2 ${
-          dark
-            ? "border-white/10 bg-black"
-            : "border-gray-200 bg-white"
+          dark ? "border-white/10 bg-black" : "border-gray-200 bg-white"
         }`}
       >
         {/* Tools */}
-
         <div className="w-full py-2">
           <div className="flex flex-wrap items-center justify-around gap-2">
             {tools.map((item) => {
               const Icon = item.icon;
-
               const isActive =
                 selectedAgent === item.id ||
-                (selectedAgent === "Auto" &&
-                  item.id === "auto");
+                (selectedAgent === "Auto" && item.id === "auto");
 
               return (
                 <button
@@ -504,7 +479,6 @@ export default function ChatInput() {
                     size={15}
                     className="shrink-0 transition-transform duration-200 group-hover:scale-110"
                   />
-
                   <span>{item.label}</span>
                 </button>
               );
@@ -513,7 +487,6 @@ export default function ChatInput() {
         </div>
 
         {/* Selected Files */}
-
         {selectedFiles.length > 0 && (
           <div className="mx-auto mb-2 flex max-w-4xl flex-wrap gap-2">
             {selectedFiles.map((file, index) => (
@@ -526,11 +499,7 @@ export default function ChatInput() {
                 }`}
               >
                 <FiFile className="shrink-0" />
-
-                <span className="truncate">
-                  {file.name}
-                </span>
-
+                <span className="truncate">{file.name}</span>
                 <button
                   type="button"
                   onClick={() => handleFileRemove(index)}
@@ -544,7 +513,6 @@ export default function ChatInput() {
         )}
 
         {/* Input */}
-
         <div className="mx-auto max-w-4xl">
           <div
             className={`flex items-end gap-2 rounded-md border p-2 shadow-sm ${
@@ -564,18 +532,13 @@ export default function ChatInput() {
               onChange={(e) => setMessage(e.target.value)}
               disabled={loading}
               onKeyDown={(e) => {
-                if (
-                  e.key === "Enter" &&
-                  !e.shiftKey
-                ) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSend();
                 }
               }}
               placeholder={
-                loading
-                  ? "Solvix is thinking..."
-                  : "Ask anything..."
+                loading ? "Solvix is thinking..." : "Ask anything..."
               }
               rows={1}
               className={`max-h-32 min-h-[40px] flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2.5 text-sm leading-5 outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
@@ -587,34 +550,24 @@ export default function ChatInput() {
 
             <div className="flex shrink-0 items-center gap-1">
               {/* ATTACH */}
-
               <button
                 type="button"
                 title="Attach file"
-                onClick={() =>
-                  setShowFileLoaded(true)
-                }
+                onClick={() => setShowFileLoaded(true)}
                 className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all hover:scale-105 active:scale-95 ${
                   dark
                     ? "text-gray-400 hover:bg-white/10 hover:text-white"
                     : "text-gray-500 hover:bg-gray-100 hover:text-black"
                 }`}
               >
-                <FiPaperclip
-                  size={19}
-                  strokeWidth={1.8}
-                />
+                <FiPaperclip size={19} strokeWidth={1.8} />
               </button>
 
               {/* VOICE */}
-
               <div className="-ms-2.5">
                 <VoiceText
                   onTranscript={(text) => {
-                    console.log(
-                      "Final transcript:",
-                      text
-                    );
+                    console.log("Final transcript:", text);
                   }}
                   setMessage={setMessage}
                   dark={dark}
@@ -623,7 +576,6 @@ export default function ChatInput() {
               </div>
 
               {/* SEND */}
-
               <button
                 type="button"
                 onClick={handleSend}

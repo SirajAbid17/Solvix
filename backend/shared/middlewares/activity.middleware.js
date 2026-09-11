@@ -11,7 +11,8 @@ const PAID_SERVICES = [
   'resume-upload',
   'cv-generator',
   'portfolio-generator',
-  'mock-interview',
+   'mock-interview/generate',  // ✅ ADDED
+  'mock-interview/generate',  // ✅ ADDED
 ];
 
 // ============================================================

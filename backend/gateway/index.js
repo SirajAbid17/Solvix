@@ -10,12 +10,16 @@ import morgan from "morgan"
 import axios from "axios"
 import redis from "../shared/redis/redis.js"
 import { trackActivity, getUserActivity } from "../shared/middlewares/activity.middleware.js"
+import adminRouter from "./routes/admin.routes.js"
 
 dotenv.config()
 
 const PORT = process.env.PORT
 const app = express()
 
+// ============================================================
+// ✅ CORS - Allow frontend origin with credentials
+// ============================================================
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173", 
   credentials: true,
@@ -23,8 +27,19 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }))
 
+// ============================================================
+// ✅ IMPORTANT: Parse JSON body BEFORE admin routes
+// ============================================================
+app.use(express.json({ limit: "50mb" }))
+app.use(express.urlencoded({ extended: true, limit: "50mb" }))
+
 app.use(cookieParser())
 app.use(morgan("dev"))
+
+// ============================================================
+// ✅ ADMIN ROUTES - MUST BE BEFORE CREDITS MIDDLEWARE
+// ============================================================
+app.use("/admin", adminRouter)
 
 // ============================================================
 // ✅ CREDITS MIDDLEWARE - SIRF PAID SERVICES KE LIYE
@@ -242,12 +257,12 @@ app.use(
 // ✅ RESUME - PAID (SIRF UPLOAD PAR CREDITS DEDUCT HO)
 // ============================================================
 
-// ✅ Resume Upload - PAID (2 credits) - ORDER FIXED: checkCredits FIRST then trackActivity
+// ✅ Resume Upload - PAID (2 credits)
 app.post(
   "/resume/upload",
   protect,
-  checkCredits,      // ✅ PEHLE CREDITS DEDUCT KARO
-  trackActivity,     // ✅ PHIR ACTIVITY TRACK KARO
+  checkCredits,
+  trackActivity,
   proxy(process.env.Resume_Services, {
     proxyReqPathResolver: (req) => {
       return `/resume/upload`;
@@ -343,15 +358,117 @@ app.use(
 )
 
 // ============================================================
-// ✅ PAID ROUTES - 2 Credits deducted (SIRF YEH 2 ROUTES)
+// ✅ MOCK INTERVIEW - PAID (2 CREDITS)
 // ============================================================
 
-// ✅ CV - PAID - ORDER FIXED: checkCredits FIRST then trackActivity
+app.post(
+  "/mock-interview/generate",
+  protect,
+  checkCredits,
+  trackActivity,
+  proxy(process.env.MOCK_INTERVIEW_SERVICES, {
+    proxyReqPathResolver: (req) => {
+      return `/mock-interview/generate`;
+    },
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      console.log("Mock Interview User:", srcReq.user);
+
+      if (!srcReq.user) {
+        throw new Error("User not found");
+      }
+
+      const userId = srcReq.user._id || srcReq.user.userId || srcReq.user?.user?._id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      proxyReqOpts.headers["x-user-id"] = String(userId);
+      proxyReqOpts.headers["x-user-email"] = srcReq.user.email || srcReq.user?.user?.email || "";
+      proxyReqOpts.headers["x-user-name"] = srcReq.user.name || srcReq.user?.user?.name || "";
+
+      if (srcReq.headers.authorization) {
+        proxyReqOpts.headers.authorization = srcReq.headers.authorization;
+      }
+
+      if (srcReq.headers.cookie) {
+        proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+      }
+
+      if (srcReq.headers["content-type"]) {
+        proxyReqOpts.headers["content-type"] = srcReq.headers["content-type"];
+      }
+
+      return proxyReqOpts;
+    },
+    parseReqBody: false,
+    proxyErrorHandler: (err, res) => {
+      console.error("Mock Interview Proxy Error:", err);
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    },
+  })
+)
+
+// Mock Interview GET routes - FREE with tracking
+app.use(
+  "/mock-interview",
+  protect,
+  trackActivity,
+  skipCredits,
+  proxy(process.env.MOCK_INTERVIEW_SERVICES, {
+    proxyReqPathResolver: (req) => {
+      return `/mock-interview${req.url}`;
+    },
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      console.log("Mock Interview GET User:", srcReq.user);
+
+      if (!srcReq.user) {
+        throw new Error("User not found");
+      }
+
+      const userId = srcReq.user._id || srcReq.user.userId || srcReq.user?.user?._id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      proxyReqOpts.headers["x-user-id"] = String(userId);
+      proxyReqOpts.headers["x-user-email"] = srcReq.user.email || srcReq.user?.user?.email || "";
+      proxyReqOpts.headers["x-user-name"] = srcReq.user.name || srcReq.user?.user?.name || "";
+
+      if (srcReq.headers.authorization) {
+        proxyReqOpts.headers.authorization = srcReq.headers.authorization;
+      }
+
+      if (srcReq.headers.cookie) {
+        proxyReqOpts.headers.cookie = srcReq.headers.cookie;
+      }
+
+      return proxyReqOpts;
+    },
+    proxyErrorHandler: (err, res) => {
+      console.error("Mock Interview GET Proxy Error:", err);
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    },
+    parseReqBody: false,
+  })
+)
+
+// ============================================================
+// ✅ CV - PAID
+// ============================================================
+
 app.use(
   "/cv",
   protect,
-  checkCredits,      // ✅ PEHLE CREDITS DEDUCT KARO
-  trackActivity,     // ✅ PHIR ACTIVITY TRACK KARO
+  checkCredits,
+  trackActivity,
   proxy(process.env.CV_Services || process.env.Resume_Services, {
     proxyReqPathResolver: (req) => {
       return `/cv${req.url}`;
@@ -398,12 +515,15 @@ app.use(
   })
 )
 
-// ✅ PORTFOLIO - PAID - ORDER FIXED: checkCredits FIRST then trackActivity
+// ============================================================
+// ✅ PORTFOLIO - PAID
+// ============================================================
+
 app.use(
   "/portfolio",
   protect,
-  checkCredits,      // ✅ PEHLE CREDITS DEDUCT KARO
-  trackActivity,     // ✅ PHIR ACTIVITY TRACK KARO
+  checkCredits,
+  trackActivity,
   proxy(
     process.env.PORTFOLIO_SERVICES,
     {
@@ -453,6 +573,10 @@ app.use(
   )
 )
 
+// ============================================================
+// ✅ START SERVER
+// ============================================================
+
 app.listen(PORT, () => {
   console.log(`✅ Gateway running on port ${PORT}`)
   console.log("====================================")
@@ -471,6 +595,7 @@ app.listen(PORT, () => {
   console.log("   /resume/upload - Resume Upload")
   console.log("   /portfolio/*   - Portfolio Service")
   console.log("   /cv/*          - CV Service")
+  console.log("   /mock-interview/generate - Mock Interview (POST)")
   console.log("====================================")
   console.log("📈 Activity Tracking: ENABLED")
   console.log("====================================")

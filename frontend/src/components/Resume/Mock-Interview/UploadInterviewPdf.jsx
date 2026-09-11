@@ -1,13 +1,17 @@
-
 import React, { useRef, useState } from "react";
 import {
   FaCloudUploadAlt,
   FaFilePdf,
   FaMagic,
   FaTimes,
+  FaSpinner,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { useTheme } from "../../../BgContext/ThemeContext";
 import { useNavigate } from "react-router-dom";
+
+import { toast } from "react-hot-toast";
+import { generateMockInterview } from "../../../Features/mockInterview";
 
 export default function UploadInterviewPdf() {
   const { dark } = useTheme();
@@ -17,6 +21,9 @@ export default function UploadInterviewPdf() {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState(null);
 
   // -----------------------------
   // Handle File
@@ -29,11 +36,18 @@ export default function UploadInterviewPdf() {
       file.name.toLowerCase().endsWith(".pdf");
 
     if (!isPdf) {
-      alert("Please upload a PDF file only.");
+      toast.error("Please upload a PDF file only.");
+      return;
+    }
+
+    // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB.");
       return;
     }
 
     setSelectedFile(file);
+    setError(null);
   };
 
   // -----------------------------
@@ -41,7 +55,6 @@ export default function UploadInterviewPdf() {
   // -----------------------------
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
-
     if (file) {
       handleFile(file);
     }
@@ -65,7 +78,6 @@ export default function UploadInterviewPdf() {
     setIsDragging(false);
 
     const file = event.dataTransfer.files?.[0];
-
     if (file) {
       handleFile(file);
     }
@@ -76,8 +88,9 @@ export default function UploadInterviewPdf() {
   // -----------------------------
   const removeFile = (event) => {
     event.stopPropagation();
-
     setSelectedFile(null);
+    setError(null);
+    setUploadProgress(0);
 
     if (inputRef.current) {
       inputRef.current.value = "";
@@ -87,28 +100,73 @@ export default function UploadInterviewPdf() {
   // -----------------------------
   // Generate Interview
   // -----------------------------
-  const handleGenerateInterview = () => {
+  const handleGenerateInterview = async () => {
     if (!selectedFile) {
       inputRef.current?.click();
       return;
     }
 
-    // You can upload/process the PDF here
-    // before navigating if your backend requires it.
+    try {
+      setLoading(true);
+      setError(null);
+      setUploadProgress(10);
 
-    navigate("/interview-practice", {
-      state: {
-        resumeFile: selectedFile,
-      },
-    });
+      const formData = new FormData();
+      formData.append("resume", selectedFile);
+
+      // Simulate progress
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 500);
+
+      const response = await generateMockInterview(formData);
+
+      clearInterval(interval);
+      setUploadProgress(100);
+
+      console.log("✅ Interview Generated:", response);
+
+      if (response.success) {
+        toast.success("🎉 Mock interview generated successfully!");
+
+        // Navigate to interview practice with the data
+        navigate(`/interview-practice/${response.data._id}`, {
+          state: {
+            interview: response.data,
+          },
+        });
+      } else {
+        throw new Error(response.message || "Failed to generate interview");
+      }
+    } catch (error) {
+      console.error("❌ Generate Error:", error);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to generate interview. Please try again.";
+
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+      setUploadProgress(0);
+    }
   };
 
+  // -----------------------------
+  // Render
+  // -----------------------------
   return (
     <div
       className={`p-8 transition-colors duration-300 ${
-        dark
-          ? "border-white/10 bg-white/[0.03]"
-          : "border-gray-200 bg-gray-50"
+        dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
       }`}
     >
       {/* Header */}
@@ -133,7 +191,7 @@ export default function UploadInterviewPdf() {
 
       {/* Upload Area */}
       <div
-        onClick={() => inputRef.current?.click()}
+        onClick={() => !loading && inputRef.current?.click()}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -145,19 +203,27 @@ export default function UploadInterviewPdf() {
             : dark
             ? "border-white/15 hover:border-white/40 hover:bg-white/[0.02]"
             : "border-gray-300 bg-white hover:border-black hover:bg-gray-100"
-        }`}
+        } ${loading ? "cursor-not-allowed opacity-70" : ""}`}
       >
         {/* Upload Icon */}
         <div
           className={`mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full transition-transform duration-300 ${
             isDragging ? "scale-110" : ""
           } ${
-            dark
+            loading
+              ? dark
+                ? "bg-white/10 text-gray-400"
+                : "bg-gray-200 text-gray-500"
+              : dark
               ? "bg-white text-black"
               : "bg-black text-white"
           }`}
         >
-          <FaCloudUploadAlt size={34} />
+          {loading ? (
+            <FaSpinner size={34} className="animate-spin" />
+          ) : (
+            <FaCloudUploadAlt size={34} />
+          )}
         </div>
 
         {/* Title */}
@@ -166,19 +232,36 @@ export default function UploadInterviewPdf() {
             dark ? "text-white" : "text-black"
           }`}
         >
-          {selectedFile ? "Resume Selected" : "Upload Resume PDF"}
+          {loading
+            ? "Generating Interview..."
+            : selectedFile
+            ? "Resume Selected"
+            : "Upload Resume PDF"}
         </h3>
 
+        {/* Loading Progress */}
+        {loading && (
+          <div className="mt-4">
+            <div className="h-2 w-full max-w-md mx-auto overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
+              <div
+                className="h-full rounded-full bg-green-500 transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+            <p className={`mt-2 text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>
+              {uploadProgress < 100 ? "Analyzing your resume..." : "Almost done..."}
+            </p>
+          </div>
+        )}
+
         {/* Description */}
-        {!selectedFile ? (
-          <p
-            className={`mt-3 ${
-              dark ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
+        {!loading && !selectedFile && (
+          <p className={`mt-3 ${dark ? "text-gray-400" : "text-gray-500"}`}>
             Click here or drag & drop your PDF file.
           </p>
-        ) : (
+        )}
+
+        {!loading && selectedFile && (
           <p
             className={`mx-auto mt-3 max-w-md truncate ${
               dark ? "text-gray-300" : "text-gray-600"
@@ -188,8 +271,13 @@ export default function UploadInterviewPdf() {
           </p>
         )}
 
+        {/* Error Message */}
+        {error && !loading && (
+          <p className="mt-3 text-sm text-red-500">{error}</p>
+        )}
+
         {/* File Type / Selected File */}
-        {selectedFile ? (
+        {!loading && selectedFile ? (
           <div
             onClick={(event) => event.stopPropagation()}
             className={`mx-auto mt-8 flex max-w-md items-center justify-between gap-4 rounded-2xl border px-5 py-4 ${
@@ -225,17 +313,18 @@ export default function UploadInterviewPdf() {
             <button
               type="button"
               onClick={removeFile}
+              disabled={loading}
               className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
                 dark
                   ? "text-gray-400 hover:bg-white/10 hover:text-white"
                   : "text-gray-500 hover:bg-gray-100 hover:text-black"
-              }`}
+              } ${loading ? "cursor-not-allowed opacity-50" : ""}`}
               aria-label="Remove file"
             >
               <FaTimes />
             </button>
           </div>
-        ) : (
+        ) : !loading && (
           <div
             className={`mx-auto mt-8 flex w-fit items-center gap-3 rounded-xl px-5 py-3 ${
               dark
@@ -244,7 +333,7 @@ export default function UploadInterviewPdf() {
             }`}
           >
             <FaFilePdf className="text-red-500" />
-            PDF Files Only
+            PDF Files Only (Max 10MB)
           </div>
         )}
 
@@ -255,6 +344,7 @@ export default function UploadInterviewPdf() {
           accept="application/pdf,.pdf"
           onChange={handleFileChange}
           className="hidden"
+          disabled={loading}
         />
       </div>
 
@@ -263,15 +353,28 @@ export default function UploadInterviewPdf() {
         <button
           type="button"
           onClick={handleGenerateInterview}
+          disabled={!selectedFile || loading}
           className={`flex items-center gap-2 rounded-xl px-8 py-3 font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-            dark
+            !selectedFile || loading
+              ? dark
+                ? "cursor-not-allowed bg-white/10 text-gray-500"
+                : "cursor-not-allowed bg-gray-200 text-gray-400"
+              : dark
               ? "bg-white text-black hover:bg-gray-200"
               : "bg-black text-white hover:bg-gray-800"
           }`}
         >
-          <FaMagic />
-
-          {selectedFile ? "Generate Interview" : "Choose Resume"}
+          {loading ? (
+            <>
+              <FaSpinner className="animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <FaMagic />
+              {selectedFile ? "Generate Interview" : "Choose Resume"}
+            </>
+          )}
         </button>
       </div>
     </div>

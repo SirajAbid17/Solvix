@@ -76,7 +76,7 @@ export const ImageAgent = async (state) => {
     return {
       ...state,
 
-      aiResponse: `Your image has been generated successfully.${cloudinaryUrl ? ' (Stored on Cloudinary)' : ''}`,
+      aiResponse: `Your image has been generated successfully.${cloudinaryUrl ? ' ' : ''}`,
 
       images: [
         {

@@ -3,34 +3,43 @@ import cloudinary from "../config/cloudinary.js";
 
 export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
   try {
-    // Convert buffer to base64
     const base64String = buffer.toString("base64");
-    
-    // Determine MIME type based on folder
-    let mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
+    let mimeType =
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation";
     let resourceType = "raw";
     let format = "pptx";
-    
+
     if (folder === "pdf") {
       mimeType = "application/pdf";
       format = "pdf";
+      // ✅ CRITICAL FIX: PDF ko "image" resource type use karo
+      resourceType = "image";
     } else if (folder === "images" || folder === "image") {
       mimeType = "image/png";
       resourceType = "image";
       format = "png";
     }
-    
+
     const dataUri = `data:${mimeType};base64,${base64String}`;
 
-    // Upload to Cloudinary
+    // ✅ Clean public_id (no dots, no Date.now() weirdness)
+    const cleanId = String(fileName || `${folder}_${Date.now()}`)
+      .replace(/\.(pdf|pptx|png|jpg|jpeg)$/i, "")
+      .replace(/[^a-z0-9_\-]/gi, "_");
+
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: `solvix/${folder}`,
       resource_type: resourceType,
-      public_id: fileName || `${folder}_${Date.now()}`,
+      public_id: cleanId,
       format: format,
+      // ✅ PDFs ke liye inline render allow
+      type: "upload",
+      access_mode: "public",
     });
 
     console.log(`✅ Uploaded ${folder} to Cloudinary:`, result.secure_url);
+
     return {
       success: true,
       url: result.secure_url,
@@ -45,7 +54,7 @@ export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
   }
 };
 
-// ✅ New function specifically for image upload with optimization
+// ✅ Image upload with optimization (unchanged)
 export const uploadImageToCloudinary = async (buffer, fileName) => {
   try {
     const cloudinary = (await import("../config/cloudinary.js")).default;
@@ -60,8 +69,8 @@ export const uploadImageToCloudinary = async (buffer, fileName) => {
           transformation: [
             { quality: "auto" },
             { fetch_format: "auto" },
-            { width: 1024, height: 1024, crop: "limit" }
-          ]
+            { width: 1024, height: 1024, crop: "limit" },
+          ],
         },
         (error, result) => {
           if (error) {

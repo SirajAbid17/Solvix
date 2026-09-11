@@ -83,7 +83,7 @@ export default function App() {
         <Route path="/cv/:id" element={<ShowResume />} />
 
         <Route path="/all-resume" element={<AllResume />} />
-        <Route path="/interview-practice" element={<InterviewPractice />} />
+        <Route path="/interview-practice/:id?" element={<InterviewPractice />} />
         <Route
           path="/resume-analysis"
           element={<ResumeAnalysis />}

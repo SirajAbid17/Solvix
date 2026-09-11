@@ -1,7 +1,5 @@
 import express from "express";
-
 import uploadPDF from "../middleware/multer.js";
-
 import {
   generateInterview,
   getMyInterviews,
@@ -11,38 +9,16 @@ import {
 
 const router = express.Router();
 
+// ✅ Generate Interview - PAID (2 credits)
+router.post("/generate", uploadPDF.single("resume"), generateInterview);
 
-// Generate AI Interview
+// ✅ Get interviews - FREE
+router.get("/my-interviews", getMyInterviews);
 
-router.post(
-  "/generate",
-  uploadPDF.single("resume"),
-  generateInterview
-);
+// ✅ Get single interview - FREE
+router.get("/:id", getInterviewById);
 
-
-// Get interviews
-
-router.get(
-  "/my-interviews",
-  getMyInterviews
-);
-
-
-// Get single interview
-
-router.get(
-  "/:id",
-  getInterviewById
-);
-
-
-// Delete
-
-router.delete(
-  "/:id",
-  deleteInterview
-);
-
+// ✅ Delete interview - FREE
+router.delete("/:id", deleteInterview);
 
 export default router;
