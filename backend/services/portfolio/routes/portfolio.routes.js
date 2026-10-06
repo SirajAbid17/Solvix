@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   uploadPortfolio,
   analyzePortfolioController,
@@ -6,8 +7,12 @@ import {
   getAllUserPortfolios,
   deletePortfolio,
 } from "../controllers/portfolio.controller.js";
+
 import { upload } from "../middlewares/upload.middleware.js";
 import { portfolioUser } from "../middlewares/user.middleware.js";
+import { uploadRateLimit } from "../../../shared/rateLimit.js";
+
+
 
 const router = express.Router();
 
@@ -16,6 +21,7 @@ router.get("/:slug", getPortfolioBySlug);
 router.post(
   "/upload",
   portfolioUser,
+  uploadRateLimit,
   upload.single("pdf"),
   uploadPortfolio
 );
@@ -23,6 +29,7 @@ router.post(
 router.post(
   "/:id/analyze",
   portfolioUser,
+  uploadRateLimit,
   analyzePortfolioController
 );
 

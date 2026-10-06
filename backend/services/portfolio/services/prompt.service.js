@@ -42,24 +42,24 @@ If presentation content is missing, GENERATE it professionally.
 
 Generate:
 
-• Hero Title
-• Hero Subtitle
-• Professional About Me
-• Career Objective
-• Professional Summary
-• Tagline
-• Call To Action
-• Why Hire Me
-• Services
-• Strengths
-• Soft Skills
-• Portfolio Description
-• Website Intro
-• SEO Title
-• SEO Description
-• Keywords
-• Professional Bio
-• Footer Description
+??? Hero Title
+??? Hero Subtitle
+??? Professional About Me
+??? Career Objective
+??? Professional Summary
+??? Tagline
+??? Call To Action
+??? Why Hire Me
+??? Services
+??? Strengths
+??? Soft Skills
+??? Portfolio Description
+??? Website Intro
+??? SEO Title
+??? SEO Description
+??? Keywords
+??? Professional Bio
+??? Footer Description
 
 Rewrite poor summaries into professional summaries.
 
@@ -77,18 +77,18 @@ Analyze the candidate.
 
 Recommend:
 
-• Portfolio Style
-• UI Style
-• Layout
-• Theme
-• Color Palette
-• Typography
-• Animation Style
-• Navigation Style
-• Hero Layout
-• Project Layout
-• Contact Layout
-• Best Website Personality
+??? Portfolio Style
+??? UI Style
+??? Layout
+??? Theme
+??? Color Palette
+??? Typography
+??? Animation Style
+??? Navigation Style
+??? Hero Layout
+??? Project Layout
+??? Contact Layout
+??? Best Website Personality
 
 ###############################
 PROJECT ANALYSIS
@@ -96,13 +96,13 @@ PROJECT ANALYSIS
 
 For every project determine:
 
-• Category
-• Complexity
-• Highlight Features
-• Technologies
-• Industry
-• Suggested Card Style
-• Suggested Banner Text
+??? Category
+??? Complexity
+??? Highlight Features
+??? Technologies
+??? Industry
+??? Suggested Card Style
+??? Suggested Banner Text
 
 If no project image exists generate ONLY an imagePrompt.
 

@@ -1,5 +1,7 @@
 import axios from "axios";
+import { getAllAgentStats, getAgentUsageFromRedis } from "../../shared/middlewares/activity.middleware.js";
 import redis from "../../shared/redis/redis.js";
+
 
 // ============================================================
 // SERVICE URLs
@@ -53,16 +55,9 @@ export const getAdminStats = async (req, res) => {
       fetchFromService(`${BILLING_SERVICE}/admin/stats`),
     ]);
 
-    let totalRequests = 0;
-    try {
-      const keys = await redis.keys("activity:*:total");
-      for (const key of keys) {
-        const count = await redis.get(key);
-        totalRequests += parseInt(count) || 0;
-      }
-    } catch (e) {
-      console.warn("Redis activity stats error:", e.message);
-    }
+    // ✅ Get global requests from Redis (already tracked)
+    const totalRequests = parseInt(await redis.get("admin:global:requests") || 0);
+    const totalCreditsUsedGlobal = parseInt(await redis.get("admin:global:credits-used") || 0);
 
     const stats = {
       totalUsers: users?.data?.totalUsers || 0,
@@ -71,11 +66,11 @@ export const getAdminStats = async (req, res) => {
       inactiveUsers: users?.data?.inactiveUsers || 0,
       suspendedUsers: users?.data?.suspendedUsers || 0,
       newUsersThisMonth: users?.data?.newUsersThisMonth || 0,
-      totalCreditsUsed: users?.data?.totalCreditsUsed || 0,
+      totalCreditsUsed: totalCreditsUsedGlobal || users?.data?.totalCreditsUsed || 0,
       avgCreditsPerUser: users?.data?.avgCreditsPerUser || 0,
       totalRevenue: billing?.data?.totalRevenue || 0,
       totalAgents: 7,
-      totalRequests: totalRequests || 0,
+      totalRequests,
     };
 
     await redis.set(cacheKey, JSON.stringify(stats), "EX", 120);
@@ -207,8 +202,9 @@ export const getAdminActivities = async (req, res) => {
       });
     }
 
+    // ✅ Get top active users from Redis
     const activityKeys = await redis.keys("activity:*:total");
-    const activities = [];
+    const userActivities = [];
 
     for (const key of activityKeys) {
       try {
@@ -217,43 +213,60 @@ export const getAdminActivities = async (req, res) => {
         const count = await redis.get(key);
 
         if (count && parseInt(count) > 0) {
-          const userInfo = await fetchFromService(`${AUTH_SERVICE}/admin/user/${userId}`);
-          
-          if (userInfo?.success) {
-            const user = userInfo.user || userInfo;
-            activities.push({
-              id: userId,
-              user: user.name || "Unknown User",
-              email: user.email || "",
-              action: `Made ${count} requests`,
-              time: "Just now",
-              timestamp: new Date().toISOString(),
-              requests: parseInt(count),
-            });
-          } else {
-            activities.push({
-              id: userId,
-              user: "Unknown User",
-              email: "",
-              action: `Made ${count} requests`,
-              time: "Just now",
-              timestamp: new Date().toISOString(),
-              requests: parseInt(count),
-            });
-          }
+          userActivities.push({
+            userId,
+            requests: parseInt(count),
+          });
         }
       } catch (e) {
-        console.warn("Activity processing error:", e.message);
+        // Ignore
       }
     }
 
-    activities.sort((a, b) => (b.requests || 0) - (a.requests || 0));
+    // Sort by requests
+    userActivities.sort((a, b) => b.requests - a.requests);
+    const topUsers = userActivities.slice(0, Number(limit));
+
+    // Fetch user info in parallel
+    const activities = await Promise.all(
+      topUsers.map(async (item) => {
+        try {
+          const userInfo = await fetchFromService(
+            `${AUTH_SERVICE}/admin/user/${item.userId}`
+          );
+
+          const user = userInfo?.user || userInfo;
+
+          return {
+            id: item.userId,
+            user: user?.name || "Unknown User",
+            email: user?.email || "",
+            action: `Made ${item.requests} requests`,
+            time: "Recently",
+            timestamp: new Date().toISOString(),
+            requests: item.requests,
+            plan: user?.plan || "free",
+          };
+        } catch {
+          return {
+            id: item.userId,
+            user: "Unknown User",
+            email: "",
+            action: `Made ${item.requests} requests`,
+            time: "Recently",
+            timestamp: new Date().toISOString(),
+            requests: item.requests,
+            plan: "free",
+          };
+        }
+      })
+    );
 
     const result = {
       success: true,
       fromCache: false,
-      data: activities.slice(0, Number(limit)),
-      total: activities.length,
+      data: activities,
+      total: userActivities.length,
     };
 
     await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
@@ -286,49 +299,12 @@ export const getAdminAgentUsage = async (req, res) => {
       });
     }
 
-    const agentKeys = await redis.keys("activity:*:service:*");
-    const agentUsage = {};
+    // ✅ Get all agent stats (includes paid + free)
+    const agents = await getAllAgentStats();
 
-    for (const key of agentKeys) {
-      try {
-        const parts = key.split(":");
-        const agentName = parts[parts.length - 1];
-        const count = await redis.get(key);
-        
-        if (count && parseInt(count) > 0) {
-          agentUsage[agentName] = (agentUsage[agentName] || 0) + parseInt(count);
-        }
-      } catch (e) {
-        // Ignore
-      }
-    }
+    console.log("📤 Sending agent usage to frontend:", agents);
 
-    const allAgents = [
-      { name: "Chat Agent", key: "Chat", color: "blue" },
-      { name: "Search Agent", key: "Search", color: "green" },
-      { name: "Coding Agent", key: "Coding", color: "purple" },
-      { name: "Image Agent", key: "Image", color: "orange" },
-      { name: "PDF Agent", key: "PDF", color: "red" },
-      { name: "PPT Agent", key: "PPT", color: "pink" },
-      { name: "Resume Agent", key: "Resume Analyzer", color: "teal" },
-    ];
-
-    const totalUsage = Object.values(agentUsage).reduce((sum, val) => sum + val, 0) || 1;
-
-    const agents = allAgents.map((agent) => {
-      const usage = agentUsage[agent.key] || 0;
-      const percentage = Math.min(Math.round((usage / totalUsage) * 100), 100);
-      return {
-        name: agent.name,
-        usage: percentage,
-        color: agent.color,
-        count: usage,
-      };
-    });
-
-    agents.sort((a, b) => b.usage - a.usage);
-
-    await redis.set(cacheKey, JSON.stringify(agents), "EX", 300);
+    await redis.set(cacheKey, JSON.stringify(agents), "EX", 30); // 30 sec cache
 
     return res.status(200).json({
       success: true,
@@ -337,18 +313,9 @@ export const getAdminAgentUsage = async (req, res) => {
     });
   } catch (error) {
     console.error("Get Agent Usage Error:", error);
-    const defaultAgents = [
-      { name: "Chat Agent", usage: 85, color: "blue" },
-      { name: "Search Agent", usage: 72, color: "green" },
-      { name: "Coding Agent", usage: 68, color: "purple" },
-      { name: "Image Agent", usage: 55, color: "orange" },
-      { name: "PDF Agent", usage: 42, color: "red" },
-      { name: "PPT Agent", usage: 38, color: "pink" },
-      { name: "Resume Agent", usage: 90, color: "teal" },
-    ];
     return res.status(200).json({
       success: true,
-      data: defaultAgents,
+      data: [],
     });
   }
 };
@@ -373,7 +340,7 @@ export const getAdminPlanDistribution = async (req, res) => {
     const response = await fetchFromService(`${AUTH_SERVICE}/admin/plan-distribution`);
 
     const plans = response?.plans || [];
-    
+
     if (plans.length === 0) {
       const defaultPlans = [
         { name: "Free", count: 0, percentage: 0 },
@@ -395,14 +362,13 @@ export const getAdminPlanDistribution = async (req, res) => {
     });
   } catch (error) {
     console.error("Get Plan Distribution Error:", error);
-    const defaultPlans = [
-      { name: "Free", count: 0, percentage: 0 },
-      { name: "Starter", count: 0, percentage: 0 },
-      { name: "Pro", count: 0, percentage: 0 },
-    ];
     return res.status(200).json({
       success: true,
-      data: defaultPlans,
+      data: [
+        { name: "Free", count: 0, percentage: 0 },
+        { name: "Starter", count: 0, percentage: 0 },
+        { name: "Pro", count: 0, percentage: 0 },
+      ],
     });
   }
 };
@@ -435,11 +401,9 @@ export const updateUserCredits = async (req, res) => {
       });
     }
 
+    // Clear cache
     await redis.del("admin:stats");
-    const keys = await redis.keys("admin:users:*");
-    for (const key of keys) {
-      await redis.del(key);
-    }
+    await clearAdminUsersCache();
 
     return res.status(200).json({
       success: true,
@@ -468,7 +432,7 @@ export const updateUserPlan = async (req, res) => {
     if (!validPlans.includes(plan)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid plan type. Must be: free, starter, pro, enterprise",
+        message: "Invalid plan type",
       });
     }
 
@@ -484,12 +448,10 @@ export const updateUserPlan = async (req, res) => {
       });
     }
 
+    // Clear cache
     await redis.del("admin:stats");
     await redis.del("admin:plan-distribution");
-    const keys = await redis.keys("admin:users:*");
-    for (const key of keys) {
-      await redis.del(key);
-    }
+    await clearAdminUsersCache();
 
     return res.status(200).json({
       success: true,
@@ -517,7 +479,7 @@ export const toggleUserStatus = async (req, res) => {
     if (!["active", "inactive", "suspended"].includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid status. Must be: active, inactive, suspended",
+        message: "Invalid status",
       });
     }
 
@@ -533,11 +495,9 @@ export const toggleUserStatus = async (req, res) => {
       });
     }
 
+    // Clear cache
     await redis.del("admin:stats");
-    const keys = await redis.keys("admin:users:*");
-    for (const key of keys) {
-      await redis.del(key);
-    }
+    await clearAdminUsersCache();
 
     return res.status(200).json({
       success: true,
@@ -572,11 +532,9 @@ export const deleteUser = async (req, res) => {
       });
     }
 
+    // Clear cache
     await redis.del("admin:stats");
-    const keys = await redis.keys("admin:users:*");
-    for (const key of keys) {
-      await redis.del(key);
-    }
+    await clearAdminUsersCache();
 
     return res.status(200).json({
       success: true,
@@ -592,18 +550,15 @@ export const deleteUser = async (req, res) => {
 };
 
 // ============================================================
-// 11. GET ADMIN SETTINGS - FIXED
+// 11. GET ADMIN SETTINGS
 // ============================================================
 
 export const getAdminSettings = async (req, res) => {
   try {
     const cacheKey = "admin:settings";
-    
-    // ✅ Check if settings exist in Redis
     const cached = await redis.get(cacheKey);
 
     if (cached) {
-      console.log("📤 Returning cached settings");
       return res.status(200).json({
         success: true,
         fromCache: true,
@@ -611,7 +566,6 @@ export const getAdminSettings = async (req, res) => {
       });
     }
 
-    // ✅ Default settings if not found in Redis
     const settings = {
       maintenanceMode: false,
       newUserRegistration: true,
@@ -623,10 +577,7 @@ export const getAdminSettings = async (req, res) => {
       allowedFileTypes: ["pdf", "png", "jpg", "jpeg", "doc", "docx"],
     };
 
-    // ✅ Save defaults to Redis with 7 days expiry
     await redis.set(cacheKey, JSON.stringify(settings), "EX", 7 * 24 * 60 * 60);
-
-    console.log("📤 Returning default settings");
 
     return res.status(200).json({
       success: true,
@@ -643,20 +594,17 @@ export const getAdminSettings = async (req, res) => {
 };
 
 // ============================================================
-// 12. UPDATE ADMIN SETTINGS - FIXED
+// 12. UPDATE ADMIN SETTINGS
 // ============================================================
 
 export const updateAdminSettings = async (req, res) => {
   try {
     const settings = req.body;
 
-    console.log("📥 Received settings update:", settings);
-
-    // ✅ Validate settings
     if (settings.freePlanCredits !== undefined && settings.freePlanCredits < 0) {
       return res.status(400).json({
         success: false,
-        message: "Free plan credits must be greater than or equal to 0",
+        message: "Free plan credits must be >= 0",
       });
     }
 
@@ -667,11 +615,8 @@ export const updateAdminSettings = async (req, res) => {
       });
     }
 
-    // ✅ Save to Redis with 7 days expiry
     const cacheKey = "admin:settings";
     await redis.set(cacheKey, JSON.stringify(settings), "EX", 7 * 24 * 60 * 60);
-
-    console.log("✅ Admin settings saved successfully:", settings);
 
     return res.status(200).json({
       success: true,
@@ -683,7 +628,21 @@ export const updateAdminSettings = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || "Failed to update settings",
-      error: error.message,
     });
+  }
+};
+
+// ============================================================
+// HELPER: Clear Admin Users Cache
+// ============================================================
+
+const clearAdminUsersCache = async () => {
+  try {
+    const keys = await redis.keys("admin:users:*");
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+  } catch (error) {
+    console.warn("Cache clear error:", error.message);
   }
 };

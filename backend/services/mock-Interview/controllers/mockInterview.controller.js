@@ -5,6 +5,7 @@ import { generateMockInterview } from "../services/mockInterview.service.js";
 import redis from "../../../shared/redis/redis.js";
 
 
+
 // ============================================
 // Generate Interview (PAID)
 // ============================================
@@ -13,7 +14,7 @@ export const generateInterview = async (req, res) => {
   try {
     console.log("========== MOCK INTERVIEW START ==========");
 
-    // ✅ Get userId from headers (passed by gateway)
+    // ??? Get userId from headers (passed by gateway)
     const userId = req.headers["x-user-id"];
 
     if (!userId) {
@@ -30,26 +31,26 @@ export const generateInterview = async (req, res) => {
       });
     }
 
-    console.log("1️⃣ PDF received:", req.file.originalname);
-    console.log("2️⃣ PDF size:", req.file.size);
+    console.log("1?????? PDF received:", req.file.originalname);
+    console.log("2?????? PDF size:", req.file.size);
 
-    console.log("3️⃣ Starting PDF extraction...");
+    console.log("3?????? Starting PDF extraction...");
 
     const extractedText = await extractTextFromPDF(req.file.buffer);
 
-    console.log("4️⃣ PDF extraction completed. Text length:", extractedText.length);
+    console.log("4?????? PDF extraction completed. Text length:", extractedText.length);
 
-    console.log("5️⃣ Starting Cloudinary upload...");
+    console.log("5?????? Starting Cloudinary upload...");
 
     const uploadedPDF = await uploadPDFToCloudinary(req.file.buffer, req.file.originalname);
 
-    console.log("6️⃣ Cloudinary upload completed:", uploadedPDF.secure_url);
+    console.log("6?????? Cloudinary upload completed:", uploadedPDF.secure_url);
 
-    console.log("7️⃣ Starting LangChain/Groq...");
+    console.log("7?????? Starting LangChain/Groq...");
 
     const interview = await generateMockInterview(extractedText);
 
-    console.log("8️⃣ AI generation completed");
+    console.log("8?????? AI generation completed");
 
     const totalQuestions =
       interview.dsaQuestions.length +
@@ -58,9 +59,9 @@ export const generateInterview = async (req, res) => {
       interview.behavioralQuestions.length +
       interview.hrQuestions.length;
 
-    console.log("9️⃣ Total questions:", totalQuestions);
+    console.log("9?????? Total questions:", totalQuestions);
 
-    // ✅ Store with userId
+    // ??? Store with userId
     const savedInterview = await MockInterview.create({
       userId: userId,
       title: interview.title || "AI Mock Interview",
@@ -81,9 +82,9 @@ export const generateInterview = async (req, res) => {
       status: "generated",
     });
 
-    console.log("🔟 MongoDB save completed");
+    console.log("???? MongoDB save completed");
 
-    // ✅ Cache the interview in Redis
+    // ??? Cache the interview in Redis
     const cacheKey = `mock-interview:${savedInterview._id}`;
     await redis.set(
       cacheKey,
@@ -92,7 +93,7 @@ export const generateInterview = async (req, res) => {
       60 * 60 * 24 // 24 hours cache
     );
 
-    // ✅ Clear user's interviews cache
+    // ??? Clear user's interviews cache
     await redis.del(`mock-interviews:${userId}`);
 
     return res.status(201).json({
@@ -102,7 +103,7 @@ export const generateInterview = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ MOCK INTERVIEW ERROR:", error);
+    console.error("??? MOCK INTERVIEW ERROR:", error);
 
     return res.status(500).json({
       success: false,
@@ -188,7 +189,7 @@ export const getInterviewById = async (req, res) => {
     if (cached) {
       const interview = JSON.parse(cached);
 
-      // ✅ Verify ownership
+      // ??? Verify ownership
       if (String(interview.userId) !== String(userId)) {
         return res.status(403).json({
           success: false,
@@ -212,7 +213,7 @@ export const getInterviewById = async (req, res) => {
       });
     }
 
-    // ✅ Verify ownership
+    // ??? Verify ownership
     if (String(interview.userId) !== String(userId)) {
       return res.status(403).json({
         success: false,
@@ -262,7 +263,7 @@ export const deleteInterview = async (req, res) => {
       });
     }
 
-    // ✅ Verify ownership
+    // ??? Verify ownership
     if (String(interview.userId) !== String(userId)) {
       return res.status(403).json({
         success: false,
@@ -272,7 +273,7 @@ export const deleteInterview = async (req, res) => {
 
     await MockInterview.findByIdAndDelete(id);
 
-    // ✅ Clear caches
+    // ??? Clear caches
     await redis.del(`mock-interview:${id}`);
     await redis.del(`mock-interviews:${userId}`);
 
@@ -282,6 +283,111 @@ export const deleteInterview = async (req, res) => {
     });
   } catch (error) {
     console.error("Delete Interview Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ============================================================
+// Generate NEXT BATCH (15 more questions)
+// ============================================================
+export const generateNextBatch = async (req, res) => {
+  try {
+    const userId = req.headers["x-user-id"];
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - User ID required",
+      });
+    }
+
+    const { id } = req.params;
+
+    // Find existing interview
+    const existing = await MockInterview.findById(id);
+
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: "Interview not found",
+      });
+    }
+
+    if (String(existing.userId) !== String(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    // Re-extract text from stored PDF
+    console.log("???? Fetching resume PDF for next batch...");
+
+    // Fetch PDF from Cloudinary
+    const pdfResponse = await fetch(existing.pdf.url);
+    const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
+
+    const { extractTextFromPDF } = await import(
+      "../services/pdf.service.js"
+    );
+    const extractedText = await extractTextFromPDF(pdfBuffer);
+
+    // Collect previous question topics/questions to avoid repeats
+    const previousTopics = [
+      ...existing.dsaQuestions.map((q) => `DSA: ${q.question}`),
+      ...existing.technicalQuestions.map((q) => `Tech: ${q.question}`),
+      ...existing.projectQuestions.map((q) => `Project: ${q.question}`),
+      ...existing.behavioralQuestions.map((q) => `Behavioral: ${q.question}`),
+      ...existing.hrQuestions.map((q) => `HR: ${q.question}`),
+    ];
+
+    // Count existing batches
+    const currentBatch = Math.floor(previousTopics.length / 15) + 1;
+
+    console.log(`???? Generating batch #${currentBatch + 1}...`);
+
+    // Generate NEW batch
+    const { generateMockInterview } = await import(
+      "../services/mockInterview.service.js"
+    );
+
+    const newBatch = await generateMockInterview(extractedText, {
+      batchNumber: currentBatch + 1,
+      previousTopics,
+    });
+
+    // ??? Append new questions to existing interview
+    existing.dsaQuestions.push(...newBatch.dsaQuestions);
+    existing.technicalQuestions.push(...newBatch.technicalQuestions);
+    existing.projectQuestions.push(...newBatch.projectQuestions);
+    existing.behavioralQuestions.push(...newBatch.behavioralQuestions);
+    existing.hrQuestions.push(...newBatch.hrQuestions);
+
+    existing.totalQuestions =
+      existing.dsaQuestions.length +
+      existing.technicalQuestions.length +
+      existing.projectQuestions.length +
+      existing.behavioralQuestions.length +
+      existing.hrQuestions.length;
+
+    await existing.save();
+
+    // Clear cache
+    await redis.del(`mock-interview:${id}`);
+    await redis.del(`mock-interviews:${userId}`);
+
+    console.log(`??? Batch #${currentBatch + 1} added. Total now: ${existing.totalQuestions}`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Batch ${currentBatch + 1} generated successfully`,
+      data: existing,
+    });
+  } catch (error) {
+    console.error("??? Generate Next Batch Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message,

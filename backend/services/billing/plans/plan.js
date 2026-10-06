@@ -9,12 +9,12 @@ export const plans = {
     id: "starter",
     name: "Starter",
     price: 3.99,
-    credits: 500,
+    credits: 100,
   },
   pro: {
     id: "pro",
     name: "Pro",
     price: 4.99,
-    credits: 1200,
+    credits: 200,
   }
 };

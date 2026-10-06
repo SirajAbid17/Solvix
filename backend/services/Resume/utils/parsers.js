@@ -313,7 +313,7 @@ const parseVolunteeringText = (data) => {
 const parseDuration = (duration) => {
   if (!duration) return null;
   
-  const match = duration.match(/(\d{4})\s*[-–—]\s*(\d{4})/);
+  const match = duration.match(/(\d{4})\s*[-??????]\s*(\d{4})/);
   if (match) {
     return {
       startDate: new Date(`${match[1]}-01-01`),
@@ -321,7 +321,7 @@ const parseDuration = (duration) => {
     };
   }
   
-  const presentMatch = duration.match(/(\d{4})\s*[-–—]\s*Present/i);
+  const presentMatch = duration.match(/(\d{4})\s*[-??????]\s*Present/i);
   if (presentMatch) {
     return {
       startDate: new Date(`${presentMatch[1]}-01-01`),

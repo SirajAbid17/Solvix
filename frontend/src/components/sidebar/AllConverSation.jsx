@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "../../BgContext/ThemeContext";
 
@@ -8,12 +8,9 @@ import {
 } from "../../redux/conversationSlice";
 
 import { RiMessageAi3Fill } from "react-icons/ri";
-import {
-  FiEdit2,
-  FiCheck,
-  FiX,
-  FiMessageSquare,
-} from "react-icons/fi";
+import { FiEdit2, FiCheck, FiX, FiMessageSquare } from "react-icons/fi";
+
+import { gsap } from "gsap";
 
 import UpdateConversation from "../../Features/UpdateConversation";
 
@@ -21,7 +18,7 @@ export default function AllConverSation() {
   const dispatch = useDispatch();
 
   const { conversations, selectedConversation } = useSelector(
-    (state) => state.conversation
+    (state) => state.conversation,
   );
 
   const { dark } = useTheme();
@@ -30,9 +27,82 @@ export default function AllConverSation() {
   const [editTitle, setEditTitle] = useState("");
   const [titleLoading, setTitleLoading] = useState(false);
 
-  // ============================================
+  // ============================================================
+  // GSAP REFS
+  // ============================================================
+
+  const containerRef = useRef(null);
+  const cardsRef = useRef([]);
+  const emptyStateRef = useRef(null);
+
+  // ============================================================
+  // GSAP - CONVERSATION ENTRANCE
+  // ============================================================
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const cards = cardsRef.current.filter(Boolean);
+
+    if (!cards.length) return;
+
+    // Initial state
+    gsap.set(cards, {
+      opacity: 0,
+      y: 18,
+      scale: 0.97,
+      filter: "blur(4px)",
+    });
+
+    // Slow premium entrance
+    gsap.to(cards, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      duration: 0.65,
+      stagger: 0.08,
+      ease: "power3.out",
+      clearProps: "filter",
+    });
+
+    return () => {
+      gsap.killTweensOf(cards);
+    };
+  }, [conversations]);
+
+  // ============================================================
+  // GSAP - EMPTY STATE
+  // ============================================================
+
+  useEffect(() => {
+    if (!emptyStateRef.current || conversations.length > 0) return;
+
+    const elements = emptyStateRef.current.querySelectorAll(
+      "[data-empty-animation]",
+    );
+
+    gsap.set(elements, {
+      opacity: 0,
+      y: 15,
+    });
+
+    gsap.to(elements, {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      stagger: 0.12,
+      ease: "power3.out",
+    });
+
+    return () => {
+      gsap.killTweensOf(elements);
+    };
+  }, [conversations.length]);
+
+  // ============================================================
   // LOG CONVERSATIONS
-  // ============================================
+  // ============================================================
 
   useEffect(() => {
     console.log(
@@ -40,24 +110,21 @@ export default function AllConverSation() {
       conversations.map((c) => ({
         id: c._id,
         title: c.title,
-      }))
+      })),
     );
   }, [conversations]);
 
-  // ============================================
+  // ============================================================
   // LOG SELECTED CONVERSATION
-  // ============================================
+  // ============================================================
 
   useEffect(() => {
-    console.log(
-      "Selected conversation:",
-      selectedConversation?.title
-    );
+    console.log("Selected conversation:", selectedConversation?.title);
   }, [selectedConversation]);
 
-  // ============================================
+  // ============================================================
   // SELECT CONVERSATION
-  // ============================================
+  // ============================================================
 
   const handleSelectConversation = (conversation) => {
     console.log("Selecting conversation:", conversation.title);
@@ -65,22 +132,20 @@ export default function AllConverSation() {
     dispatch(setSelectedConversation(conversation));
   };
 
-  // ============================================
+  // ============================================================
   // START EDIT
-  // ============================================
+  // ============================================================
 
   const handleStartEdit = (e, conversation) => {
     e.stopPropagation();
 
     setEditingId(conversation._id);
-    setEditTitle(
-      conversation.title || "New Conversation"
-    );
+    setEditTitle(conversation.title || "New Conversation");
   };
 
-  // ============================================
+  // ============================================================
   // SAVE TITLE
-  // ============================================
+  // ============================================================
 
   const handleSaveTitle = async (e, conversationId) => {
     e.stopPropagation();
@@ -92,9 +157,7 @@ export default function AllConverSation() {
       return;
     }
 
-    const conversation = conversations.find(
-      (c) => c._id === conversationId
-    );
+    const conversation = conversations.find((c) => c._id === conversationId);
 
     if (!conversation) {
       setEditingId(null);
@@ -118,27 +181,22 @@ export default function AllConverSation() {
         updateConversationTitle({
           id: conversationId,
           title: trimmedTitle,
-        })
+        }),
       );
 
       setEditingId(null);
     } catch (error) {
-      console.error(
-        "Failed to update title:",
-        error
-      );
+      console.error("Failed to update title:", error);
 
-      alert(
-        "Failed to update title. Please try again."
-      );
+      alert("Failed to update title. Please try again.");
     } finally {
       setTitleLoading(false);
     }
   };
 
-  // ============================================
+  // ============================================================
   // CANCEL EDIT
-  // ============================================
+  // ============================================================
 
   const handleCancelEdit = (e) => {
     e.stopPropagation();
@@ -146,9 +204,9 @@ export default function AllConverSation() {
     setEditingId(null);
   };
 
-  // ============================================
+  // ============================================================
   // KEYBOARD EVENTS
-  // ============================================
+  // ============================================================
 
   const handleKeyDown = (e, conversationId) => {
     if (e.key === "Enter") {
@@ -162,9 +220,35 @@ export default function AllConverSation() {
     }
   };
 
-  // ============================================
+  // ============================================================
+  // CARD HOVER ANIMATION
+  // ============================================================
+
+  const handleCardEnter = (element) => {
+    if (!element) return;
+
+    gsap.to(element, {
+      y: -2,
+      scale: 1.008,
+      duration: 0.35,
+      ease: "power2.out",
+    });
+  };
+
+  const handleCardLeave = (element) => {
+    if (!element) return;
+
+    gsap.to(element, {
+      y: 0,
+      scale: 1,
+      duration: 0.45,
+      ease: "power3.out",
+    });
+  };
+
+  // ============================================================
   // FORMAT TIME
-  // ============================================
+  // ============================================================
 
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
@@ -193,27 +277,25 @@ export default function AllConverSation() {
     return date.toLocaleDateString();
   };
 
-  // ============================================
+  // ============================================================
   // GET TITLE
-  // ============================================
+  // ============================================================
 
   const getConversationTitle = (conversation) => {
-    if (
-      conversation.title &&
-      conversation.title !== "New Conversation"
-    ) {
+    if (conversation.title && conversation.title !== "New Conversation") {
       return conversation.title;
     }
 
     return "New Conversation";
   };
 
-  // ============================================
+  // ============================================================
   // UI
-  // ============================================
+  // ============================================================
 
   return (
     <div
+      ref={containerRef}
       className={`
         relative
         w-full
@@ -247,27 +329,30 @@ export default function AllConverSation() {
         }
       `}
     >
-      {/* ============================================
+      {/* ======================================================
           CONVERSATIONS
-      ============================================ */}
+      ====================================================== */}
 
       {conversations.length > 0 ? (
         conversations.map((item, index) => {
-          const isSelected =
-            selectedConversation?._id === item._id;
+          const isSelected = selectedConversation?._id === item._id;
 
-          const isEditing =
-            editingId === item._id;
+          const isEditing = editingId === item._id;
 
-          const displayTitle =
-            getConversationTitle(item);
+          const displayTitle = getConversationTitle(item);
 
           return (
             <div
               key={item._id || index}
-              onClick={() =>
-                !isEditing &&
-                handleSelectConversation(item)
+              ref={(el) => {
+                cardsRef.current[index] = el;
+              }}
+              onClick={() => !isEditing && handleSelectConversation(item)}
+              onMouseEnter={(e) =>
+                !isEditing && handleCardEnter(e.currentTarget)
+              }
+              onMouseLeave={(e) =>
+                !isEditing && handleCardLeave(e.currentTarget)
               }
               className={`
                 group
@@ -292,8 +377,8 @@ export default function AllConverSation() {
 
                 border
 
-                transition-all
-                duration-200
+                transition-colors
+                duration-300
                 ease-out
 
                 overflow-hidden
@@ -319,9 +404,7 @@ export default function AllConverSation() {
                         hover:bg-white/[0.055]
                         hover:border-white/[0.10]
 
-                        hover:shadow-[0_4px_18px_rgba(0,0,0,0.15)]
-
-                        hover:-translate-y-[1px]
+                        hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]
                       `
                       : `
                         bg-white
@@ -330,16 +413,38 @@ export default function AllConverSation() {
                         hover:bg-gray-50/80
                         hover:border-gray-200
 
-                        hover:shadow-[0_4px_15px_rgba(0,0,0,0.05)]
-
-                        hover:-translate-y-[1px]
+                        hover:shadow-[0_8px_20px_rgba(0,0,0,0.05)]
                       `
                 }
               `}
             >
-              {/* ========================================
+              {/* ==================================================
+                  SUBTLE SHINE
+              ================================================== */}
+
+              <div
+                className={`
+                  pointer-events-none
+                  absolute
+                  inset-0
+
+                  opacity-0
+                  group-hover:opacity-100
+
+                  transition-opacity
+                  duration-500
+
+                  ${
+                    dark
+                      ? "bg-gradient-to-r from-transparent via-white/[0.025] to-transparent"
+                      : "bg-gradient-to-r from-transparent via-blue-500/[0.025] to-transparent"
+                  }
+                `}
+              />
+
+              {/* ==================================================
                   SELECTED LEFT INDICATOR
-              ======================================== */}
+              ================================================== */}
 
               <div
                 className={`
@@ -354,21 +459,21 @@ export default function AllConverSation() {
                   rounded-r-full
 
                   transition-all
-                  duration-300
+                  duration-500
 
                   ${
                     isSelected
                       ? dark
-                        ? "h-7 bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.7)]"
-                        : "h-7 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.35)]"
+                        ? "h-7 bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,0.7)]"
+                        : "h-7 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.35)]"
                       : "h-0 bg-transparent"
                   }
                 `}
               />
 
-              {/* ========================================
+              {/* ==================================================
                   MESSAGE ICON
-              ======================================== */}
+              ================================================== */}
 
               <div
                 className={`
@@ -388,7 +493,9 @@ export default function AllConverSation() {
                   rounded-lg
 
                   transition-all
-                  duration-200
+                  duration-300
+
+                  group-hover:scale-[1.04]
 
                   ${
                     isSelected
@@ -396,6 +503,7 @@ export default function AllConverSation() {
                         ? `
                           bg-blue-500/15
                           text-blue-400
+                          shadow-[0_0_15px_rgba(59,130,246,0.08)]
                         `
                         : `
                           bg-blue-100
@@ -419,12 +527,10 @@ export default function AllConverSation() {
                   }
                 `}
               >
-                <FiMessageSquare
-                  size={15}
-                  strokeWidth={2}
-                />
+                <FiMessageSquare size={15} strokeWidth={2} />
 
                 {/* Selected dot */}
+
                 {isSelected && (
                   <span
                     className={`
@@ -437,29 +543,23 @@ export default function AllConverSation() {
 
                       rounded-full
 
-                      ${
-                        dark
-                          ? "bg-blue-400"
-                          : "bg-blue-500"
-                      }
+                      ${dark ? "bg-blue-400" : "bg-blue-500"}
 
                       ring-2
 
-                      ${
-                        dark
-                          ? "ring-[#111827]"
-                          : "ring-white"
-                      }
+                      ${dark ? "ring-[#111827]" : "ring-white"}
+
+                      animate-pulse
                     `}
                   />
                 )}
               </div>
 
-              {/* ========================================
+              {/* ==================================================
                   CONTENT
-              ======================================== */}
+              ================================================== */}
 
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 relative z-10">
                 {/* Time Row */}
 
                 <div
@@ -487,6 +587,7 @@ export default function AllConverSation() {
                       truncate
 
                       transition-colors
+                      duration-300
 
                       ${
                         isSelected
@@ -499,10 +600,7 @@ export default function AllConverSation() {
                       }
                     `}
                   >
-                    {formatTime(
-                      item.updatedAt ||
-                        item.createdAt
-                    )}
+                    {formatTime(item.updatedAt || item.createdAt)}
                   </span>
 
                   {/* Active indicator */}
@@ -517,11 +615,7 @@ export default function AllConverSation() {
 
                         rounded-full
 
-                        ${
-                          dark
-                            ? "bg-blue-400"
-                            : "bg-blue-500"
-                        }
+                        ${dark ? "bg-blue-400" : "bg-blue-500"}
 
                         animate-pulse
                       `}
@@ -529,9 +623,9 @@ export default function AllConverSation() {
                   )}
                 </div>
 
-                {/* ======================================
+                {/* ==================================================
                     EDIT MODE
-                ====================================== */}
+                ================================================== */}
 
                 {isEditing ? (
                   <div
@@ -542,24 +636,13 @@ export default function AllConverSation() {
 
                       w-full
                     "
-                    onClick={(e) =>
-                      e.stopPropagation()
-                    }
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <input
                       type="text"
                       value={editTitle}
-                      onChange={(e) =>
-                        setEditTitle(
-                          e.target.value
-                        )
-                      }
-                      onKeyDown={(e) =>
-                        handleKeyDown(
-                          e,
-                          item._id
-                        )
-                      }
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, item._id)}
                       autoFocus
                       disabled={titleLoading}
                       className={`
@@ -612,12 +695,7 @@ export default function AllConverSation() {
                     {/* Save */}
 
                     <button
-                      onClick={(e) =>
-                        handleSaveTitle(
-                          e,
-                          item._id
-                        )
-                      }
+                      onClick={(e) => handleSaveTitle(e, item._id)}
                       disabled={titleLoading}
                       aria-label="Save title"
                       className={`
@@ -654,11 +732,7 @@ export default function AllConverSation() {
                             `
                         }
 
-                        ${
-                          titleLoading
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }
+                        ${titleLoading ? "opacity-50 cursor-not-allowed" : ""}
                       `}
                     >
                       <FiCheck size={13} />
@@ -708,9 +782,9 @@ export default function AllConverSation() {
                     </button>
                   </div>
                 ) : (
-                  /* ====================================
+                  /* ==================================================
                      NORMAL TITLE
-                  ==================================== */
+                  ================================================== */
 
                   <div
                     className="
@@ -742,6 +816,7 @@ export default function AllConverSation() {
                         tracking-[-0.01em]
 
                         transition-colors
+                        duration-300
 
                         ${
                           isSelected
@@ -765,17 +840,12 @@ export default function AllConverSation() {
                       {displayTitle}
                     </h1>
 
-                    {/* =================================
+                    {/* ==================================================
                         EDIT BUTTON
-                    ================================= */}
+                    ================================================== */}
 
                     <button
-                      onClick={(e) =>
-                        handleStartEdit(
-                          e,
-                          item
-                        )
-                      }
+                      onClick={(e) => handleStartEdit(e, item)}
                       aria-label="Edit conversation title"
                       className={`
                         flex
@@ -798,9 +868,9 @@ export default function AllConverSation() {
                         focus:opacity-100
 
                         transition-all
-                        duration-200
+                        duration-300
 
-                        hover:scale-105
+                        hover:scale-110
                         active:scale-95
 
                         ${
@@ -837,11 +907,12 @@ export default function AllConverSation() {
           );
         })
       ) : (
-        /* ============================================
+        /* ============================================================
            EMPTY STATE
-        ============================================ */
+        ============================================================ */
 
         <div
+          ref={emptyStateRef}
           className="
             min-h-full
 
@@ -856,6 +927,7 @@ export default function AllConverSation() {
             {/* Icon */}
 
             <div
+              data-empty-animation
               className={`
                 mx-auto
 
@@ -893,17 +965,14 @@ export default function AllConverSation() {
             {/* Heading */}
 
             <p
+              data-empty-animation
               className={`
                 text-xs
                 sm:text-sm
 
                 font-semibold
 
-                ${
-                  dark
-                    ? "text-gray-400"
-                    : "text-gray-600"
-                }
+                ${dark ? "text-gray-400" : "text-gray-600"}
               `}
             >
               No conversations yet
@@ -912,17 +981,14 @@ export default function AllConverSation() {
             {/* Description */}
 
             <p
+              data-empty-animation
               className={`
                 text-[10px]
                 sm:text-[11px]
 
                 mt-1
 
-                ${
-                  dark
-                    ? "text-gray-600"
-                    : "text-gray-400"
-                }
+                ${dark ? "text-gray-600" : "text-gray-400"}
               `}
             >
               Start a new chat to begin

@@ -13,20 +13,7 @@ export default function ResumeActions({
 }) {
   return (
     <div className="mb-6 flex flex-wrap justify-end gap-2">
-      <button
-        onClick={onEdit}
-        className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition flex items-center gap-2 shadow-sm"
-      >
-        <FaEdit className="h-4 w-4" />
-        Edit
-      </button>
-      <button
-        onClick={onPrint}
-        className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700 transition flex items-center gap-2 shadow-sm"
-      >
-        <FaPrint className="h-4 w-4" />
-        Print
-      </button>
+   
       <button
         onClick={onDownload}
         disabled={downloading}

@@ -1,11 +1,15 @@
-
 import React, { useEffect } from "react";
-import Home from "./pages/Home";
 import { Route, Routes } from "react-router-dom";
-import Page_not_Found from "./pages/Page_not_Found";
 import { useDispatch, useSelector } from "react-redux";
 import { setuserData, setUserLoading } from "./redux/userSlice";
+import GetcurrentUser from "./Features/GetCurrentUser";
 
+// Route Guards
+import { ProtectedRoute, PublicRoute, AdminRoute } from "./protectedroute/ProtectedRoute";
+
+// Pages
+import Home from "./pages/Home";
+import Page_not_Found from "./pages/Page_not_Found";
 import UserDashboard from "./pages/UserDashboard";
 import Resume from "./pages/Resume";
 import CVGenerate from "./pages/CVGenerate";
@@ -19,16 +23,19 @@ import AllPortfolio from "./pages/AllPortfolio";
 import LoginRequired from "./pages/LoginRequired";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./components/pricing/PaymentSuccess";
-import GetcurrentUser from "./Features/GetCurrentUser";
 import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
 import Loading from "./components/Loading/Loading";
 import AdminDashboard from "./pages/AdminDashboard";
 import InterviewPractice from "./pages/InterviewPractice";
+
+// ============================================================
+// MAIN APP
+// ============================================================
+
 export default function App() {
   const dispatch = useDispatch();
 
-  const user = useSelector((state) => state.user.userdata);
   const loading = useSelector((state) => state.user.loading);
 
   useEffect(() => {
@@ -54,68 +61,196 @@ export default function App() {
     getuser();
   }, [dispatch]);
 
-  // VERY IMPORTANT
-  // Don't show LoginRequired while /me is still being checked.
+  // Show loading while checking auth
   if (loading) {
-    return (
-     <Loading/>
-    );
+    return <Loading />;
   }
 
   return (
     <div>
       <Routes>
+        {/* ============================================ */}
+        {/* PUBLIC ROUTES - Always accessible */}
+        {/* ============================================ */}
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/contact" element={<Contact />} />
+
+        {/* ============================================ */}
+        {/* LOGIN REQUIRED - Only if not logged in */}
+        {/* ============================================ */}
         <Route
-          path="/"
-          element={user ? <Home /> : <LoginRequired />}
+          path="/login-required"
+          element={
+            <PublicRoute>
+              <LoginRequired />
+            </PublicRoute>
+          }
         />
 
-        <Route path="/user-dashboard" element={<UserDashboard />} />
+        {/* ============================================ */}
+        {/* PROTECTED ROUTES - Require login */}
+        {/* ============================================ */}
 
-        <Route path="/resume" element={<Resume />} />
+        {/* HOME */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/cv-generator" element={<CVGenerate />} />
+        {/* USER DASHBOARD */}
+        <Route
+          path="/user-dashboard"
+          element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/portfolio" element={<Portfolio />} />
+        {/* RESUME */}
+        <Route
+          path="/resume"
+          element={
+            <ProtectedRoute>
+              <Resume />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/mock-interview" element={<Interview />} />
-
-        <Route path="/cv/:id" element={<ShowResume />} />
-
-        <Route path="/all-resume" element={<AllResume />} />
-        <Route path="/interview-practice/:id?" element={<InterviewPractice />} />
         <Route
           path="/resume-analysis"
-          element={<ResumeAnalysis />}
+          element={
+            <ProtectedRoute>
+              <ResumeAnalysis />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/all-resume"
+          element={
+            <ProtectedRoute>
+              <AllResume />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* CV GENERATOR */}
+        <Route
+          path="/cv-generator"
+          element={
+            <ProtectedRoute>
+              <CVGenerate />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/cv/:id"
+          element={
+            <ProtectedRoute>
+              <ShowResume />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* PORTFOLIO */}
+        <Route
+          path="/portfolio"
+          element={
+            <ProtectedRoute>
+              <Portfolio />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/portfolio/preview/:slug"
-          element={<WebsitePreview />}
-        />
-
-        <Route
-          path="/all-portfolio"
-          element={<AllPortfolio />}
+          element={
+            <ProtectedRoute>
+              <WebsitePreview />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/portfolio/:id"
-          element={<WebsitePreview />}
+          element={
+            <ProtectedRoute>
+              <WebsitePreview />
+            </ProtectedRoute>
+          }
         />
-
-        <Route path="/pricing" element={<Pricing />} />
 
         <Route
-          path="/payment/success"
-          element={<PaymentSuccess />}
+          path="/all-portfolio"
+          element={
+            <ProtectedRoute>
+              <AllPortfolio />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/privacy" element={<Privacy />} />
-       <Route path="/contact" element={<Contact />} />
-<Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+        {/* MOCK INTERVIEW */}
+        <Route
+          path="/mock-interview"
+          element={
+            <ProtectedRoute>
+              <Interview />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/interview-practice/:id?"
+          element={
+            <ProtectedRoute>
+              <InterviewPractice />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* PRICING */}
+        <Route
+          path="/pricing"
+          element={
+            <ProtectedRoute>
+              <Pricing />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* PAYMENT */}
+        <Route
+          path="/payment/success"
+          element={
+            <ProtectedRoute>
+              <PaymentSuccess />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ============================================ */}
+        {/* ADMIN ROUTES - Require admin privileges */}
+        {/* ============================================ */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
+        {/* ============================================ */}
+        {/* 404 - PAGE NOT FOUND */}
+        {/* ============================================ */}
         <Route path="*" element={<Page_not_Found />} />
       </Routes>
     </div>
   );
 }
-

@@ -9,11 +9,11 @@ dotenv.config();
 const app = express();
 
 // ============================================================
-// ✅ CORS - Allow gateway origin with credentials
+// ??? CORS - Allow gateway origin with credentials
 // ============================================================
 const allowedOrigins = [
-  "http://localhost:5000",  // ✅ Gateway
-  "http://localhost:5173",  // ✅ Frontend
+  "http://localhost:5000",  // ??? Gateway
+  "http://localhost:5173",  // ??? Frontend
   "http://localhost:3000",
   process.env.FRONTEND_URL,
 ].filter(Boolean);

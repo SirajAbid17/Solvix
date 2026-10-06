@@ -4,8 +4,8 @@ import { uploadPdf } from "../services/upload.service.js";
 import { extractPdfText } from "../services/pdf.service.js";
 import Portfolio from "../models/portfolio.models.js";
 import { analyzePortfolio } from "../services/analysis.service.js";
-import redis from "../../../shared/redis/redis.js";
 import mongoose from "mongoose";
+import redis from "../../../shared/redis/redis.js";
 
 const CACHE_TIME = 60 * 60;
 

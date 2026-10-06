@@ -6,6 +6,8 @@ import { uploadPDFToCloudinary } from "../services/cloudinary.service.js";
 import { analyzeResume, findJobs } from "../services/Gemini.service.js";
 import redis from "../../../shared/redis/redis.js";
 
+
+
 const CACHE_TIME = 60 * 60;
 
 export const uploadResume = async (req, res) => {

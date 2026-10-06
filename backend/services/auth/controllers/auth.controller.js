@@ -2,18 +2,19 @@ import { getAuth } from "firebase-admin/auth";
 import app from "../config/firebase.js";
 import User from "../models/user.models.js";
 import jwt from "jsonwebtoken";
-import redis from "../../../shared/redis/redis.js";
+
 import dotenv from "dotenv";
+import redis from "../../../shared/redis/redis.js";
 dotenv.config();
 
-// ✅ Admin emails list (Hardcoded - Simple way)
-const ADMIN_EMAILS = [
-  process.env.ADMIN_EMAILS,
-];
+// ✅ FIXED: Proper admin emails parsing
+const ADMIN_EMAILS = process.env.ADMIN_EMAILS
+  ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim().toLowerCase())
+  : [];
 
-// ✅ Check if user is admin
 const checkIsAdmin = (email) => {
-  return ADMIN_EMAILS.includes(email);
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase());
 };
 
 /*
@@ -60,11 +61,7 @@ export const Login = async (req, res) => {
         status: "active",
       });
 
-      console.log("✅ New user created");
-      console.log("👤 User:", user._id);
-      console.log("💳 Credits:", user.credits);
-      console.log("📊 Total Credits:", user.totalcredits);
-      console.log("👑 Is Admin:", user.isAdmin);
+      console.log("✅ New user created:", user._id, "| Admin:", isAdmin);
     }
 
     /*
@@ -79,9 +76,7 @@ export const Login = async (req, res) => {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
+      { expiresIn: "7d" }
     );
 
     /*
@@ -94,6 +89,7 @@ export const Login = async (req, res) => {
       `session-${sessionid}`,
       JSON.stringify({
         userId: user._id.toString(),
+        _id: user._id.toString(),
         firebaseId: user.firebaseId,
         name: user.name,
         email: user.email,
@@ -116,7 +112,7 @@ export const Login = async (req, res) => {
 
     res.cookie("sessionid", sessionid, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -167,7 +163,7 @@ export const Logout = async (req, res) => {
       await redis.del(`session-${sessionid}`);
       res.clearCookie("sessionid", {
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         path: "/",
       });
@@ -236,20 +232,7 @@ export const UpdateUserPayment = async (req, res) => {
     user.totalcredits = oldTotalCredits + creditsToAdd;
     await user.save();
 
-    console.log("");
-    console.log("====================================");
-    console.log("✅ USER PAYMENT UPDATED");
-    console.log("====================================");
-    console.log("Mongo User ID:", user._id.toString());
-    console.log("Firebase ID:", user.firebaseId);
-    console.log("Plan:", user.plan);
-    console.log("Old Credits:", oldCredits);
-    console.log("Added Credits:", creditsToAdd);
-    console.log("New Credits:", user.credits);
-    console.log("Old Total:", oldTotalCredits);
-    console.log("New Total:", user.totalcredits);
-    console.log("====================================");
-
+    // Update Redis sessions
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -260,14 +243,12 @@ export const UpdateUserPayment = async (req, res) => {
           sessionData.plan = user.plan;
           sessionData.credits = user.credits;
           sessionData.totalcredits = user.totalcredits;
-          sessionData.isAdmin = user.isAdmin || false;
           const ttl = await redis.ttl(key);
           if (ttl > 0) {
             await redis.set(key, JSON.stringify(sessionData), "EX", ttl);
           }
         }
       }
-      console.log("✅ Redis sessions updated");
     } catch (redisError) {
       console.warn("⚠️ Redis update failed:", redisError.message);
     }
@@ -340,7 +321,7 @@ export const GetUserCredits = async (req, res) => {
 
 /*
 ====================================================
-✅ DEDUCT CREDITS
+DEDUCT CREDITS
 ====================================================
 */
 
@@ -375,17 +356,9 @@ export const DeductCredits = async (req, res) => {
     user.credits = Number(credits);
     await user.save();
 
-    console.log("");
-    console.log("====================================");
-    console.log("💰 CREDITS DEDUCTED");
-    console.log("====================================");
-    console.log("User ID:", userId);
-    console.log("Service:", service || "Unknown");
-    console.log("Deducted:", deducted || 2);
-    console.log("Old Credits:", oldCredits);
-    console.log("New Credits:", user.credits);
-    console.log("====================================");
+    console.log(`💰 Credits deducted: ${deducted || 2} | ${oldCredits} → ${user.credits} | User: ${userId}`);
 
+    // Update Redis sessions
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -394,7 +367,6 @@ export const DeductCredits = async (req, res) => {
         const sessionData = JSON.parse(session);
         if (String(sessionData.userId) === String(userId)) {
           sessionData.credits = user.credits;
-          sessionData.isAdmin = user.isAdmin || false;
           const ttl = await redis.ttl(key);
           if (ttl > 0) {
             await redis.set(key, JSON.stringify(sessionData), "EX", ttl);
@@ -444,13 +416,13 @@ export const getAdminUsersStats = async (req, res) => {
       createdAt: { $gte: startOfMonth },
     });
 
-    const users = await User.find({});
+    const users = await User.find({}).select("credits totalcredits");
     let totalCreditsUsed = 0;
     let totalCredits = 0;
 
     for (const user of users) {
       const used = (user.totalcredits || 0) - (user.credits || 0);
-      totalCreditsUsed += used;
+      totalCreditsUsed += Math.max(0, used);
       totalCredits += user.totalcredits || 0;
     }
 
@@ -506,31 +478,38 @@ export const getAdminUsersList = async (req, res) => {
 
     const total = await User.countDocuments(query);
 
-    const formattedUsers = [];
-    for (const user of users) {
-      let requestCount = 0;
-      try {
-        const totalKey = `activity:${user._id}:total`;
-        const count = await redis.get(totalKey);
-        requestCount = parseInt(count) || 0;
-      } catch (e) {
-        // Ignore Redis errors
-      }
+    // ✅ Batch fetch activity counts using pipeline
+    const userIds = users.map((u) => u._id.toString());
+    const activityCounts = {};
 
-      formattedUsers.push({
-        id: user._id,
-        name: user.name || "Unknown User",
-        email: user.email || "",
-        plan: user.plan || "free",
-        credits: user.credits || 0,
-        totalCredits: user.totalcredits || 0,
-        status: user.isAdmin ? "admin" : user.status || "active",
-        isAdmin: user.isAdmin || false,
-        requests: requestCount,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      });
+    try {
+      const keys = await redis.keys("activity:*:total");
+      for (const key of keys) {
+        const parts = key.split(":");
+        const uid = parts[1];
+        if (userIds.includes(uid)) {
+          const count = await redis.get(key);
+          activityCounts[uid] = parseInt(count) || 0;
+        }
+      }
+    } catch (e) {
+      console.warn("Redis activity fetch error:", e.message);
     }
+
+    const formattedUsers = users.map((user) => ({
+      id: user._id,
+      _id: user._id,
+      name: user.name || "Unknown User",
+      email: user.email || "",
+      plan: user.plan || "free",
+      credits: user.credits || 0,
+      totalCredits: user.totalcredits || 0,
+      status: user.isAdmin ? "admin" : user.status || "active",
+      isAdmin: user.isAdmin || false,
+      requests: activityCounts[user._id.toString()] || 0,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
 
     return res.status(200).json({
       success: true,
@@ -572,13 +551,14 @@ export const getUserById = async (req, res) => {
       const count = await redis.get(totalKey);
       requestCount = parseInt(count) || 0;
     } catch (e) {
-      // Ignore Redis errors
+      // Ignore
     }
 
     return res.status(200).json({
       success: true,
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name || "Unknown User",
         email: user.email || "",
         plan: user.plan || "free",
@@ -630,6 +610,7 @@ export const updateUserCreditsAdmin = async (req, res) => {
     user.credits = credits;
     await user.save();
 
+    // Update Redis sessions
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -684,7 +665,7 @@ export const updateUserPlanAdmin = async (req, res) => {
     if (!validPlans.includes(plan)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid plan type. Must be: free, starter, pro, enterprise",
+        message: "Invalid plan type",
       });
     }
 
@@ -700,6 +681,7 @@ export const updateUserPlanAdmin = async (req, res) => {
     user.plan = plan;
     await user.save();
 
+    // Update Redis sessions
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -753,7 +735,7 @@ export const toggleUserStatusAdmin = async (req, res) => {
     if (!["active", "inactive", "suspended"].includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid status. Must be: active, inactive, suspended",
+        message: "Invalid status",
       });
     }
 
@@ -765,7 +747,6 @@ export const toggleUserStatusAdmin = async (req, res) => {
       });
     }
 
-    // Don't change admin status
     if (user.isAdmin) {
       return res.status(403).json({
         success: false,
@@ -824,6 +805,7 @@ export const deleteUserAdmin = async (req, res) => {
 
     await User.findByIdAndDelete(id);
 
+    // Cleanup Redis
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -835,7 +817,6 @@ export const deleteUserAdmin = async (req, res) => {
           }
         }
       }
-      // Clear activity data
       const activityKeys = await redis.keys(`activity:${id}:*`);
       for (const key of activityKeys) {
         await redis.del(key);
@@ -857,10 +838,15 @@ export const deleteUserAdmin = async (req, res) => {
   }
 };
 
+/*
+====================================================
+ADMIN: GET PLAN DISTRIBUTION
+====================================================
+*/
 
 export const getPlanDistribution = async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).select("plan");
     const planCount = {};
 
     for (const user of users) {
@@ -875,7 +861,6 @@ export const getPlanDistribution = async (req, res) => {
       percentage: Math.round((planCount[name] / total) * 100),
     }));
 
-    // Sort by count descending
     plans.sort((a, b) => b.count - a.count);
 
     return res.status(200).json({
@@ -912,7 +897,6 @@ export const getUserActivity = async (req, res) => {
     const totalKey = `activity:${id}:total`;
     const totalRequests = parseInt(await redis.get(totalKey) || 0);
 
-    // Get service usage
     const serviceKeys = await redis.keys(`activity:${id}:service:*`);
     const services = {};
     for (const key of serviceKeys) {

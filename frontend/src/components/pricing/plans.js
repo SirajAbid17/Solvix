@@ -19,7 +19,7 @@ export const plans = [
         id: "starter",
         name: "Starter",
         amount: 3.99,
-        credits: 500,
+        credits: 100,
         speed: "Fast Speed",
         description: "More credits for regular AI usage.",
         features: [
@@ -35,7 +35,7 @@ export const plans = [
         id: "pro",
         name: "Pro",
         amount: 4.99,
-        credits: 1200,
+        credits: 200,
         speed: "Fastest Speed",
         description: "Maximum credits with the fastest AI experience.",
         features: [

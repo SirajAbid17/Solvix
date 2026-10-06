@@ -18,6 +18,7 @@ import {
   FiPieChart,
   FiCalendar,
   FiChevronRight,
+  FiChevronLeft,
 } from "react-icons/fi";
 
 import {
@@ -106,6 +107,132 @@ const COLORS = [
 ];
 
 // ============================================================
+// PAGINATION COMPONENT (inline - same file)
+// ============================================================
+
+const PaginatedList = ({
+  items = [],
+  itemsPerPage = 5,
+  renderItem,
+  emptyState,
+  resetKey,
+}) => {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // ✅ Reset page when list length or resetKey changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [resetKey, items.length]);
+
+  const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
+
+  // ✅ Agar current page out of range ho jaye to fix karo
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return items.slice(start, start + itemsPerPage);
+  }, [items, currentPage, itemsPerPage]);
+
+  if (!items.length) return emptyState || null;
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* ITEMS */}
+      <div className="space-y-2">
+        {paginatedItems.map((item, index) => renderItem(item, index))}
+      </div>
+
+      {/* PAGINATION CONTROLS */}
+      {totalPages > 1 && (
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-white/[0.06] pt-4 sm:flex-row">
+          {/* Info */}
+          <p className="text-xs text-gray-500">
+            Showing{" "}
+            <span className="font-semibold text-gray-300">
+              {(currentPage - 1) * itemsPerPage + 1}
+            </span>{" "}
+            –{" "}
+            <span className="font-semibold text-gray-300">
+              {Math.min(currentPage * itemsPerPage, items.length)}
+            </span>{" "}
+            of{" "}
+            <span className="font-semibold text-gray-300">{items.length}</span>
+          </p>
+
+          {/* Buttons */}
+          <div className="flex items-center gap-1.5">
+            {/* Prev */}
+            <button
+              type="button"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] text-gray-400 transition hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08] disabled:hover:bg-white/[0.02] disabled:hover:text-gray-400"
+              aria-label="Previous page"
+            >
+              <FiChevronLeft className="text-sm" />
+            </button>
+
+            {/* Page numbers with smart ellipsis */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((page) => {
+                if (totalPages <= 7) return true;
+                return (
+                  page === 1 ||
+                  page === totalPages ||
+                  Math.abs(page - currentPage) <= 1
+                );
+              })
+              .map((page, idx, arr) => {
+                const prev = arr[idx - 1];
+                const showEllipsis = prev && page - prev > 1;
+                return (
+                  <React.Fragment key={page}>
+                    {showEllipsis && (
+                      <span className="px-1 text-xs text-gray-600">…</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => goToPage(page)}
+                      className={`h-8 min-w-8 rounded-lg px-2 text-xs font-semibold transition ${
+                        currentPage === page
+                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                          : "border border-white/[0.08] bg-white/[0.02] text-gray-400 hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-400"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+
+            {/* Next */}
+            <button
+              type="button"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] text-gray-400 transition hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08] disabled:hover:bg-white/[0.02] disabled:hover:text-gray-400"
+              aria-label="Next page"
+            >
+              <FiChevronRight className="text-sm" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============================================================
 // CHARTS SECTION COMPONENT
 // ============================================================
 
@@ -171,8 +298,6 @@ const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
           </ResponsiveContainer>
         </div>
       </Card>
-
-   
 
       {/* Pie Chart */}
       <Card className="p-6">
@@ -410,8 +535,6 @@ export default function UserData() {
       {/* Background glow */}
       <div className="pointer-events-none fixed left-1/2 top-0 z-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-indigo-600/[0.035] blur-[130px]" />
 
-     
-
       {/* HEADER */}
       <DashboardHeader
         userCredits={userCredits}
@@ -496,47 +619,49 @@ export default function UserData() {
                 </button>
               </Card>
 
-              {/* Credit history */}
+              {/* Credit history with pagination */}
               <Card className="p-6">
                 <SectionHeader
                   title="Credit Usage History"
                   description="Your latest credit transactions"
                   icon={<FiClock />}
                 />
-                {creditHistory.length > 0 ? (
-                  <div className="space-y-2">
-                    {creditHistory.slice(0, 10).map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 transition hover:border-white/10 hover:bg-white/[0.025]"
-                      >
-                        <div className="min-w-0">
-                          <span className="text-sm font-medium text-white">
-                            {item.service || "Unknown Service"}
-                          </span>
-                          <p className="mt-1 text-xs text-gray-600">
-                            {formatDate(item.timestamp)} at{" "}
-                            {formatTime(item.timestamp)}
-                          </p>
-                        </div>
-                        <div className="shrink-0 text-right">
-                          <span className="text-sm font-semibold text-red-400">
-                            -{item.credits ?? 0}
-                          </span>
-                          <p className="mt-1 text-[10px] text-gray-600">
-                            Remaining: {item.remaining ?? 0}
-                          </p>
-                        </div>
+                <PaginatedList
+                  items={creditHistory}
+                  itemsPerPage={5}
+                  resetKey={activeTab}
+                  emptyState={
+                    <EmptyState
+                      icon={<FiClock />}
+                      title="No credit usage history yet"
+                      description="Start using Solvix AI to see your credit transactions."
+                    />
+                  }
+                  renderItem={(item, index) => (
+                    <div
+                      key={`credit-${index}`}
+                      className="flex items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 transition hover:border-white/10 hover:bg-white/[0.025]"
+                    >
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-white">
+                          {item.service || "Unknown Service"}
+                        </span>
+                        <p className="mt-1 text-xs text-gray-600">
+                          {formatDate(item.timestamp)} at{" "}
+                          {formatTime(item.timestamp)}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={<FiClock />}
-                    title="No credit usage history yet"
-                    description="Start using Solvix AI to see your credit transactions."
-                  />
-                )}
+                      <div className="shrink-0 text-right">
+                        <span className="text-sm font-semibold text-red-400">
+                          -{item.credits ?? 0}
+                        </span>
+                        <p className="mt-1 text-[10px] text-gray-600">
+                          Remaining: {item.remaining ?? 0}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                />
               </Card>
             </div>
           )}
@@ -608,52 +733,54 @@ export default function UserData() {
                 </div>
               </Card>
 
-              {/* Activity log */}
+              {/* Activity log with pagination */}
               <Card className="p-6">
                 <SectionHeader
                   title="Recent Activity Log"
                   description="Latest actions performed"
                   icon={<FiActivity />}
                 />
-                {creditHistory.length > 0 ? (
-                  <div className="space-y-3">
-                    {creditHistory.slice(0, 10).map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 transition hover:border-indigo-500/20 hover:bg-indigo-500/[0.02]"
-                      >
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
-                            <FiChevronRight className="text-xs" />
-                          </div>
-                          <div className="min-w-0">
-                            <span className="block truncate text-sm font-medium text-white">
-                              {item.service || "Unknown Service"}
-                            </span>
-                            <p className="mt-1 text-xs text-gray-600">
-                              {formatDate(item.timestamp)} at{" "}
-                              {formatTime(item.timestamp)}
-                            </p>
-                          </div>
+                <PaginatedList
+                  items={creditHistory}
+                  itemsPerPage={5}
+                  resetKey={activeTab}
+                  emptyState={
+                    <EmptyState
+                      icon={<FiActivity />}
+                      title="No activity recorded yet"
+                      description="Start using Solvix AI to see your activity."
+                    />
+                  }
+                  renderItem={(item, index) => (
+                    <div
+                      key={`activity-${index}`}
+                      className="flex items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 transition hover:border-indigo-500/20 hover:bg-indigo-500/[0.02]"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
+                          <FiChevronRight className="text-xs" />
                         </div>
-                        <div className="shrink-0 text-right">
-                          <span className="text-sm font-semibold text-red-400">
-                            -{item.credits ?? 0}
+                        <div className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-white">
+                            {item.service || "Unknown Service"}
                           </span>
-                          <p className="mt-1 text-[10px] text-gray-600">
-                            {item.remaining ?? 0} remaining
+                          <p className="mt-1 text-xs text-gray-600">
+                            {formatDate(item.timestamp)} at{" "}
+                            {formatTime(item.timestamp)}
                           </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={<FiActivity />}
-                    title="No activity recorded yet"
-                    description="Start using Solvix AI to see your activity."
-                  />
-                )}
+                      <div className="shrink-0 text-right">
+                        <span className="text-sm font-semibold text-red-400">
+                          -{item.credits ?? 0}
+                        </span>
+                        <p className="mt-1 text-[10px] text-gray-600">
+                          {item.remaining ?? 0} remaining
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                />
               </Card>
             </div>
           )}

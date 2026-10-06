@@ -4,7 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
@@ -19,10 +20,10 @@
     "@langchain/tavily": "^1.2.0",
     "axios": "^1.19.0",
     "cloudinary": "^2.10.1",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.8.1",
-    "nodemon": "^3.1.14",
     "pdfkit": "^0.20.1",
     "pptxgenjs": "^4.0.1"
   }

@@ -8,43 +8,41 @@ const UserSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
     name: {
       type: String,
       default: "",
     },
-
     email: {
       type: String,
       default: "",
     },
-
     avatar: {
       type: String,
       default: "",
     },
-
     plan: {
       type: String,
-      enum: ["free", "starter", "pro"],
+      enum: ["free", "starter", "pro", "enterprise"],
       default: "free",
     },
-
     credits: {
       type: Number,
       default: 10,
       min: 0,
     },
-
     totalcredits: {
       type: Number,
       default: 10,
       min: 0,
     },
-
-    isAdmin: { // ✅ Admin flag added
+    isAdmin: {
       type: Boolean,
       default: false,
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
     },
   },
   {

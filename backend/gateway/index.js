@@ -23,7 +23,7 @@ const app = express()
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173", 
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }))
 
@@ -590,12 +590,16 @@ app.listen(PORT, () => {
   console.log("   /agent/*     - All Agents (FREE)")
   console.log("   /billing/*   - Billing (FREE)")
   console.log("   /resume/*    - GET routes (FREE)")
+  console.log("   /mock-interview/* - GET routes (FREE)")
   console.log("====================================")
   console.log("💰 PAID Routes (2 Credits):")
   console.log("   /resume/upload - Resume Upload")
   console.log("   /portfolio/*   - Portfolio Service")
   console.log("   /cv/*          - CV Service")
   console.log("   /mock-interview/generate - Mock Interview (POST)")
+  console.log("====================================")
+  console.log("🔒 ADMIN Routes:")
+  console.log("   /admin/*       - Admin Panel")
   console.log("====================================")
   console.log("📈 Activity Tracking: ENABLED")
   console.log("====================================")

@@ -10,8 +10,8 @@ const startServer = async () => {
   try {
     await connectDB();
     app.listen(PORT, () => {
-      console.log(`✅ Mock Interview Service running on http://localhost:${PORT}`);
-      console.log(`📋 Health check: http://localhost:${PORT}/health`);
+      console.log(`??? Mock Interview Service running on http://localhost:${PORT}`);
+      console.log(`???? Health check: http://localhost:${PORT}/health`);
     });
   } catch (error) {
     console.error("Server Error:", error.message);

@@ -64,3 +64,21 @@ export const deleteInterview = async (id) => {
     throw error;
   }
 };
+
+// ============================================================
+// ✅ GENERATE NEXT BATCH (15 MORE QUESTIONS)
+// ============================================================
+
+export const generateNextBatch = async (interviewId) => {
+  try {
+    const { data } = await api.post(
+      `/mock-interview/${interviewId}/next-batch`
+    );
+    console.log("✅ Next Batch Generated:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ Generate Next Batch Error:", error);
+    console.error("Error Response:", error.response?.data);
+    throw error;
+  }
+};
