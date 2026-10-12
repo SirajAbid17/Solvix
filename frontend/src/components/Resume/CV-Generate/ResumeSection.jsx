@@ -1,4 +1,4 @@
-// components/Resume/CV-Generate/ResumeSection.jsx
+
 import React from "react";
 
 export default function ResumeSection({

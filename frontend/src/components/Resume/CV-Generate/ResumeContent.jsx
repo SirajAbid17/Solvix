@@ -1,4 +1,4 @@
-// components/Resume/CV-Generate/components/ResumeContent.jsx
+
 import React from "react";
 import {
   FaUser,
@@ -24,7 +24,7 @@ import {
 } from "react-icons/fa";
 
 export default function ResumeContent({ resume }) {
-  // Data Extraction
+  
   const personal = resume.personal || {};
   const social = resume.social || {};
   const aiData = resume.ai || {};
@@ -112,7 +112,7 @@ export default function ResumeContent({ resume }) {
 
   return (
     <div style={{ backgroundColor: "#ffffff", color: "#111827" }}>
-      {/* Header Section */}
+      {}
       <div className="mb-8 flex flex-col items-start gap-6 border-b-2 border-gray-200 pb-8 md:flex-row md:items-center">
         {hasProfileImage ? (
           <img
@@ -186,7 +186,7 @@ export default function ResumeContent({ resume }) {
         </div>
       </div>
 
-      {/* Professional Summary */}
+      {}
       {summary && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -199,7 +199,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Education */}
+      {}
       {education.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -236,7 +236,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Experience */}
+      {}
       {experience.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -279,7 +279,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Skills */}
+      {}
       {skills.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -301,7 +301,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Projects */}
+      {}
       {projects.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-5 uppercase tracking-wide flex items-center gap-3">
@@ -371,7 +371,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Certifications */}
+      {}
       {certifications.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -397,7 +397,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Languages */}
+      {}
       {languages.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -429,7 +429,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Interests */}
+      {}
       {interests.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -449,7 +449,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Hobbies */}
+      {}
       {hobbies.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -469,10 +469,10 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Two Column Layout */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-8">
-          {/* Awards */}
+          {}
           {awards.length > 0 && (
             <div className="section-card">
               <h2 className="section-heading text-xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -500,7 +500,7 @@ export default function ResumeContent({ resume }) {
             </div>
           )}
 
-          {/* Volunteering */}
+          {}
           {volunteering.length > 0 && (
             <div className="section-card">
               <h2 className="section-heading text-xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -530,7 +530,7 @@ export default function ResumeContent({ resume }) {
         </div>
 
         <div className="space-y-8">
-          {/* References */}
+          {}
           {references.length > 0 && (
             <div className="section-card">
               <h2 className="section-heading text-xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -570,7 +570,7 @@ export default function ResumeContent({ resume }) {
         </div>
       </div>
 
-      {/* Publications */}
+      {}
       {publications.length > 0 && (
         <div className="section-card mt-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -615,7 +615,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {/* Custom Sections */}
+      {}
       {customSections.length > 0 && (
         <div className="section-card mt-8">
           {customSections.map((section, index) => (

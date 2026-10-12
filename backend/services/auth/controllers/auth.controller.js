@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import redis from "../../../shared/redis/redis.js";
 dotenv.config();
 
-// ✅ FIXED: Proper admin emails parsing
+
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS
   ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim().toLowerCase())
   : [];
@@ -17,11 +17,6 @@ const checkIsAdmin = (email) => {
   return ADMIN_EMAILS.includes(email.toLowerCase());
 };
 
-/*
-====================================================
-LOGIN
-====================================================
-*/
 
 export const Login = async (req, res) => {
   try {
@@ -40,11 +35,6 @@ export const Login = async (req, res) => {
       firebaseId: decoded.uid,
     });
 
-    /*
-    ================================================
-    CREATE USER
-    ================================================
-    */
 
     if (!user) {
       const isAdmin = checkIsAdmin(decoded.email);
@@ -61,14 +51,10 @@ export const Login = async (req, res) => {
         status: "active",
       });
 
-      console.log("✅ New user created:", user._id, "| Admin:", isAdmin);
+      
     }
 
-    /*
-    ================================================
-    JWT SESSION
-    ================================================
-    */
+    
 
     const sessionid = jwt.sign(
       {
@@ -79,11 +65,7 @@ export const Login = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    /*
-    ================================================
-    REDIS SESSION
-    ================================================
-    */
+  
 
     await redis.set(
       `session-${sessionid}`,
@@ -104,12 +86,6 @@ export const Login = async (req, res) => {
       7 * 24 * 60 * 60
     );
 
-    /*
-    ================================================
-    COOKIE
-    ================================================
-    */
-
     res.cookie("sessionid", sessionid, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -118,11 +94,7 @@ export const Login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    /*
-    ================================================
-    RESPONSE
-    ================================================
-    */
+  
 
     return res.status(200).json({
       success: true,
@@ -141,7 +113,7 @@ export const Login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Login Error:", error);
+    console.error("Login Error:", error);
     return res.status(401).json({
       success: false,
       message: "Authentication failed",
@@ -149,11 +121,6 @@ export const Login = async (req, res) => {
   }
 };
 
-/*
-====================================================
-LOGOUT
-====================================================
-*/
 
 export const Logout = async (req, res) => {
   try {
@@ -174,7 +141,7 @@ export const Logout = async (req, res) => {
       message: "Logout successful",
     });
   } catch (error) {
-    console.error("❌ Logout Error:", error);
+    console.error("Logout Error:", error);
     return res.status(500).json({
       success: false,
       message: "Logout failed",
@@ -182,11 +149,6 @@ export const Logout = async (req, res) => {
   }
 };
 
-/*
-====================================================
-UPDATE USER AFTER PAYMENT
-====================================================
-*/
 
 export const UpdateUserPayment = async (req, res) => {
   try {
@@ -232,7 +194,7 @@ export const UpdateUserPayment = async (req, res) => {
     user.totalcredits = oldTotalCredits + creditsToAdd;
     await user.save();
 
-    // Update Redis sessions
+   
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -250,7 +212,7 @@ export const UpdateUserPayment = async (req, res) => {
         }
       }
     } catch (redisError) {
-      console.warn("⚠️ Redis update failed:", redisError.message);
+      console.warn("Redis update failed:", redisError.message);
     }
 
     return res.status(200).json({
@@ -271,7 +233,7 @@ export const UpdateUserPayment = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ UpdateUserPayment Error:", error);
+    console.error("UpdateUserPayment Error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to update user payment",
@@ -279,11 +241,6 @@ export const UpdateUserPayment = async (req, res) => {
   }
 };
 
-/*
-====================================================
-GET USER CREDITS
-====================================================
-*/
 
 export const GetUserCredits = async (req, res) => {
   try {
@@ -311,7 +268,7 @@ export const GetUserCredits = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Get User Credits Error:", error);
+    console.error("Get User Credits Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -319,11 +276,6 @@ export const GetUserCredits = async (req, res) => {
   }
 };
 
-/*
-====================================================
-DEDUCT CREDITS
-====================================================
-*/
 
 export const DeductCredits = async (req, res) => {
   try {
@@ -356,9 +308,9 @@ export const DeductCredits = async (req, res) => {
     user.credits = Number(credits);
     await user.save();
 
-    console.log(`💰 Credits deducted: ${deducted || 2} | ${oldCredits} → ${user.credits} | User: ${userId}`);
+    console.log(`Credits deducted: ${deducted || 2} | ${oldCredits} → ${user.credits} | User: ${userId}`);
 
-    // Update Redis sessions
+    
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -374,7 +326,7 @@ export const DeductCredits = async (req, res) => {
         }
       }
     } catch (redisError) {
-      console.warn("⚠️ Redis update failed:", redisError.message);
+      console.warn("Redis update failed:", redisError.message);
     }
 
     return res.status(200).json({
@@ -387,7 +339,7 @@ export const DeductCredits = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Deduct Credits Error:", error);
+    console.error("Deduct Credits Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message || "Failed to deduct credits",
@@ -395,11 +347,6 @@ export const DeductCredits = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: GET USERS STATS
-====================================================
-*/
 
 export const getAdminUsersStats = async (req, res) => {
   try {
@@ -450,11 +397,6 @@ export const getAdminUsersStats = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: GET USERS LIST
-====================================================
-*/
 
 export const getAdminUsersList = async (req, res) => {
   try {
@@ -478,7 +420,7 @@ export const getAdminUsersList = async (req, res) => {
 
     const total = await User.countDocuments(query);
 
-    // ✅ Batch fetch activity counts using pipeline
+    
     const userIds = users.map((u) => u._id.toString());
     const activityCounts = {};
 
@@ -527,11 +469,6 @@ export const getAdminUsersList = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: GET USER BY ID
-====================================================
-*/
 
 export const getUserById = async (req, res) => {
   try {
@@ -551,7 +488,7 @@ export const getUserById = async (req, res) => {
       const count = await redis.get(totalKey);
       requestCount = parseInt(count) || 0;
     } catch (e) {
-      // Ignore
+     
     }
 
     return res.status(200).json({
@@ -580,11 +517,6 @@ export const getUserById = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: UPDATE USER CREDITS
-====================================================
-*/
 
 export const updateUserCreditsAdmin = async (req, res) => {
   try {
@@ -610,7 +542,7 @@ export const updateUserCreditsAdmin = async (req, res) => {
     user.credits = credits;
     await user.save();
 
-    // Update Redis sessions
+   
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -650,11 +582,6 @@ export const updateUserCreditsAdmin = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: UPDATE USER PLAN
-====================================================
-*/
 
 export const updateUserPlanAdmin = async (req, res) => {
   try {
@@ -681,7 +608,7 @@ export const updateUserPlanAdmin = async (req, res) => {
     user.plan = plan;
     await user.save();
 
-    // Update Redis sessions
+   
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -721,11 +648,6 @@ export const updateUserPlanAdmin = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: TOGGLE USER STATUS
-====================================================
-*/
 
 export const toggleUserStatusAdmin = async (req, res) => {
   try {
@@ -778,11 +700,7 @@ export const toggleUserStatusAdmin = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: DELETE USER
-====================================================
-*/
+
 
 export const deleteUserAdmin = async (req, res) => {
   try {
@@ -805,7 +723,7 @@ export const deleteUserAdmin = async (req, res) => {
 
     await User.findByIdAndDelete(id);
 
-    // Cleanup Redis
+  
     try {
       const keys = await redis.keys("session-*");
       for (const key of keys) {
@@ -838,11 +756,6 @@ export const deleteUserAdmin = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: GET PLAN DISTRIBUTION
-====================================================
-*/
 
 export const getPlanDistribution = async (req, res) => {
   try {
@@ -876,11 +789,6 @@ export const getPlanDistribution = async (req, res) => {
   }
 };
 
-/*
-====================================================
-ADMIN: GET USER ACTIVITY
-====================================================
-*/
 
 export const getUserActivity = async (req, res) => {
   try {

@@ -1,27 +1,27 @@
-// components/Resume/CV-Generate/ResumeDetailsForm.jsx
+
 import React, { useState, useEffect, useRef } from "react";
 import { FaFileAlt, FaMagic } from "react-icons/fa";
 import { AwardsSection, CertificationsSection, CustomSectionsSection, EducationSection, ExperienceSection, HobbiesSection, InterestsSection, LanguagesSection, ProjectsSection, PublicationsSection, ReferencesSection, SkillsSection, VolunteeringSection } from "../../sections";
 
 
-// import {
-//   SkillsSection,
-//   ExperienceSection,
-//   EducationSection,
-//   ProjectsSection,
-//   CertificationsSection,
-//   LanguagesSection,
-//   InterestsSection,
-//   HobbiesSection,
-//   AwardsSection,
-//   PublicationsSection,
-//   VolunteeringSection,
-//   ReferencesSection,
-//   CustomSectionsSection,
-// } from "./ResumeInputFields";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default function ResumeDetailsForm({ resumeDetails, handleChange, onGenerate, loading, dark }) {
-  // Local state for dynamic fields
+  
   const [skills, setSkills] = useState([]);
   const [newSkill, setNewSkill] = useState("");
 
@@ -418,9 +418,9 @@ export default function ResumeDetailsForm({ resumeDetails, handleChange, onGener
     }
   };
 
-  // ============================================
-  // STYLES (Same as original)
-  // ============================================
+  
+  
+  
   const inputStyle = `w-full rounded-xl border px-4 py-3 outline-none transition-all
     ${dark
       ? "border-white/10 bg-black text-white placeholder:text-gray-500 focus:border-white"
@@ -437,12 +437,12 @@ export default function ResumeDetailsForm({ resumeDetails, handleChange, onGener
 
   const labelStyle = `block text-sm font-semibold mb-2 ${dark ? 'text-gray-300' : 'text-gray-700'}`;
 
-  // ============================================
-  // RENDER
-  // ============================================
+  
+  
+  
   return (
     <div className="space-y-6 overflow-y-auto custom-scrollbar">
-      {/* Header */}
+      {}
       <div className="flex items-center gap-3 scrollbar-hide">
         <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
           <FaFileAlt />
@@ -456,7 +456,7 @@ export default function ResumeDetailsForm({ resumeDetails, handleChange, onGener
       </div>
 
       <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2">
-        {/* ====== PROFESSIONAL SUMMARY ====== */}
+        {}
         <div className={cardStyle}>
           <div className="mb-4 flex items-center gap-3">
             <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -481,7 +481,7 @@ export default function ResumeDetailsForm({ resumeDetails, handleChange, onGener
   skills={skills} setSkills={setSkills}
   newSkill={newSkill} setNewSkill={setNewSkill}
   dark={dark} inputStyle={inputStyle}
-  cardStyle={cardStyle}  // ← ADD
+  cardStyle={cardStyle}  
 />
 
         <ExperienceSection 

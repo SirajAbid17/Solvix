@@ -1,8 +1,8 @@
 import api from "../utlis/axios";
 
-// ============================================================
-// UPLOAD PORTFOLIO
-// ============================================================
+
+
+
 
 export const uploadPortfolio = async (formData) => {
   try {
@@ -34,9 +34,9 @@ export const uploadPortfolio = async (formData) => {
   }
 };
 
-// ============================================================
-// ANALYZE PORTFOLIO
-// ============================================================
+
+
+
 
 export const analyzePortfolio = async (id) => {
   try {
@@ -65,9 +65,9 @@ export const analyzePortfolio = async (id) => {
   }
 };
 
-// ============================================================
-// GET ALL USER PORTFOLIOS
-// ============================================================
+
+
+
 
 export const getAllPortfolios = async () => {
   try {
@@ -96,16 +96,16 @@ export const getAllPortfolios = async () => {
   }
 };
 
-// ============================================================
-// BACKWARD COMPATIBILITY
-// ============================================================
+
+
+
 
 export const getMyPortfolios =
   getAllPortfolios;
 
-// ============================================================
-// GET PORTFOLIO BY SLUG
-// ============================================================
+
+
+
 
 export const getPortfolioBySlug = async (
   slug
@@ -136,9 +136,9 @@ export const getPortfolioBySlug = async (
   }
 };
 
-// ============================================================
-// DELETE PORTFOLIO
-// ============================================================
+
+
+
 
 export const deletePortfolio = async (
   id

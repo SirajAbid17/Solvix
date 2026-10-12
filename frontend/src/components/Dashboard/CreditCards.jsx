@@ -1,4 +1,4 @@
-// src/components/Dashboard/CreditCards.jsx
+
 import React from "react";
 import { FiCreditCard, FiTrendingUp } from "react-icons/fi";
 import { Card } from "./shared";

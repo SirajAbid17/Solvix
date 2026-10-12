@@ -46,7 +46,7 @@ export default function ThinkingIndicator({ dark }) {
               `}
             >
               Thinking
-              {/* 3 animated dots */}
+              {}
               <span className="inline-flex items-center  gap-0.5 ml-0.5">
                 <span
                   className={`
@@ -78,7 +78,7 @@ export default function ThinkingIndicator({ dark }) {
         </div>
       </div>
 
-      {/* Keyframes */}
+      {}
       <style>{`
         @keyframes dotBounce {
           0%, 60%, 100% {

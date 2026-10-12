@@ -1,9 +1,8 @@
-// middleware/multer.js
 import multer from "multer";
 
 const storage = multer.memoryStorage();
 
-// File filter for PDFs
+
 const pdfFileFilter = (req, file, cb) => {
   if (file.mimetype !== "application/pdf") {
     return cb(new Error("Only PDF files are allowed"), false);
@@ -11,7 +10,7 @@ const pdfFileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
-// File filter for Images
+
 const imageFileFilter = (req, file, cb) => {
   const allowedMimes = [
     "image/jpeg",
@@ -29,29 +28,29 @@ const imageFileFilter = (req, file, cb) => {
   }
 };
 
-// PDF Upload middleware
+
 export const uploadPDF = multer({
   storage,
   fileFilter: pdfFileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 5 * 1024 * 1024, 
   },
 });
 
-// Image Upload middleware
+
 export const uploadImage = multer({
   storage,
   fileFilter: imageFileFilter,
   limits: {
-    fileSize: 2 * 1024 * 1024, // 2MB
+    fileSize: 2 * 1024 * 1024, 
   },
 });
 
-// Combined middleware for both PDF and Image
+
 export const uploadFiles = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 5 * 1024 * 1024, 
   },
 });
 

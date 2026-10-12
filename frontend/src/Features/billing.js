@@ -2,7 +2,7 @@ import api from "../utlis/axios";
 
 export const createOrder = async (planType) => {
     try {
-        // ✅ Gateway will forward to billing service
+        
         const { data } = await api.post("/billing/create-order", { planType });
         return data;
     } catch (error) {

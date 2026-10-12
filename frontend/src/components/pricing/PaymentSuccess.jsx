@@ -24,7 +24,7 @@ export default function PaymentSuccess() {
     const [status, setStatus] = useState("loading");
     const [paymentDetails, setPaymentDetails] = useState(null);
 
-    // Refs for GSAP animations
+    
     const containerRef = useRef(null);
     const iconRef = useRef(null);
     const titleRef = useRef(null);
@@ -52,7 +52,7 @@ export default function PaymentSuccess() {
         }
     }, [sessionId]);
 
-    // GSAP Animations
+    
     useEffect(() => {
         if (status === "success" && containerRef.current) {
             const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -104,7 +104,7 @@ export default function PaymentSuccess() {
         }
     }, [status]);
 
-    // Loading state
+    
     if (status === "loading") {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -126,7 +126,7 @@ export default function PaymentSuccess() {
         );
     }
 
-    // Error state
+    
     if (status === "error") {
         return (
             <div 
@@ -190,28 +190,28 @@ export default function PaymentSuccess() {
         );
     }
 
-    // Success state
+    
     return (
         <div 
             ref={containerRef}
             className="min-h-screen bg-black flex items-center justify-center px-4 overflow-hidden"
         >
-            {/* Background Glow Effects */}
+            {}
             <div className="fixed inset-0 -z-10">
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[140px]"></div>
                 <div className="absolute top-0 right-0 w-[250px] h-[250px] bg-purple-500/5 rounded-full blur-[100px]"></div>
                 <div className="absolute bottom-0 left-0 w-[250px] h-[250px] bg-purple-400/5 rounded-full blur-[100px]"></div>
             </div>
 
-            {/* Main Card with Border on Top */}
+            {}
             <div className="relative text-center max-w-md w-full bg-white/[0.02] rounded-2xl border border-white/[0.06] p-6 backdrop-blur-sm">
-                {/* Top Border Gradient */}
+                {}
                 <div className="absolute -top-px left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-purple-500/60 to-transparent"></div>
                 
-                {/* Top Border Glow */}
+                {}
                 <div className="absolute -top-px left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-purple-500/20 blur-sm"></div>
 
-                {/* Success Icon */}
+                {}
                 <div 
                     ref={iconRef}
                     className="flex justify-center mb-5"
@@ -225,7 +225,7 @@ export default function PaymentSuccess() {
                     </div>
                 </div>
 
-                {/* Title */}
+                {}
                 <div ref={titleRef}>
                     <h1 className="text-3xl font-bold text-white mb-1.5 tracking-tight">
                         Payment Successful!
@@ -235,7 +235,7 @@ export default function PaymentSuccess() {
                     </p>
                 </div>
 
-                {/* Credits Badge */}
+                {}
                 <div 
                     ref={creditsRef}
                     className="mt-5 inline-flex items-center gap-2.5 bg-gradient-to-r from-purple-500/20 to-green-500/20 px-6 py-2.5 rounded-full border border-purple-500/20"
@@ -249,7 +249,7 @@ export default function PaymentSuccess() {
 
                
 
-                {/* Action Buttons */}
+                {}
                 <div 
                     ref={buttonsRef}
                     className="mt-6 flex flex-col sm:flex-row gap-3 justify-center"
@@ -272,7 +272,7 @@ export default function PaymentSuccess() {
                     </button>
                 </div>
 
-                {/* Decorative Line */}
+                {}
                 <div className="mt-5 flex items-center justify-center gap-2">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent"></div>
                     <div className="flex gap-1.5">

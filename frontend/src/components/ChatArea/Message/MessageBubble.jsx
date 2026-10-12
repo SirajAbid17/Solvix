@@ -67,9 +67,7 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
       })
     : "";
 
-  // ============================================================
-  // COPY FALLBACK
-  // ============================================================
+  
 
   const fallbackCopy = (text) => {
     try {
@@ -138,16 +136,16 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
     );
   };
 
-  // ============================================================
-  // PDF DOWNLOAD
-  // ============================================================
+  
+  
+  
 
   const handlePDFDownload = (pdfData, title, id) => {
     const downloadKey = `pdf-${id}`;
     setPdfDownloading((prev) => ({ ...prev, [downloadKey]: true }));
 
     try {
-      // URL case — open in new tab
+      
       if (
         pdfData &&
         typeof pdfData === "string" &&
@@ -191,9 +189,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
     }
   };
 
-  // ============================================================
-  // PPT DOWNLOAD
-  // ============================================================
+  
+  
+  
 
   const handlePPTDownload = (pptData, title, id) => {
     const downloadKey = `ppt-${id}`;
@@ -245,9 +243,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
     }
   };
 
-  // ============================================================
-  // IMAGE HANDLING
-  // ============================================================
+  
+  
+  
 
   const handleImageError = (key) => {
     setImageErrors((prev) => ({ ...prev, [key]: true }));
@@ -282,9 +280,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
     }
   };
 
-  // ============================================================
-  // MARKDOWN COMPONENTS
-  // ============================================================
+  
+  
+  
 
   const markdownComponents = {
     p: ({ children }) => (
@@ -447,13 +445,13 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
     ),
   };
 
-  // ============================================================
-  // RENDER
-  // ============================================================
+  
+  
+  
 
   return (
     <>
-      {/* Image Preview Modal */}
+      {}
       {previewImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm animate-fadeIn p-4"
@@ -498,7 +496,7 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
               : undefined
           }
         >
-          {/* Ambient glow for AI messages only */}
+          {}
           {!isUser && (
             <div
               className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl opacity-10 pointer-events-none ${
@@ -509,9 +507,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
             />
           )}
 
-          {/* ================================================== */}
-          {/* MESSAGE HEADER */}
-          {/* ================================================== */}
+          {}
+          {}
+          {}
           <div className="mb-2.5 flex min-w-0 items-center justify-between gap-3 relative">
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
@@ -546,9 +544,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
               )}
             </div>
 
-            {/* Action buttons */}
+            {}
             <div className="flex items-center gap-1">
-              {/* Copy button */}
+              {}
               <button
                 type="button"
                 onClick={(e) => {
@@ -577,7 +575,7 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
                 )}
               </button>
 
-              {/* Share button */}
+              {}
               <button
                 type="button"
                 onClick={handleShare}
@@ -599,16 +597,16 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
             </div>
           </div>
 
-          {/* ================================================== */}
-          {/* USER MESSAGE */}
-          {/* ================================================== */}
+          {}
+          {}
+          {}
           {isUser ? (
             <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-[15px] leading-7 relative text-black">
               {content}
             </p>
           ) : (
             <>
-              {/* AI MESSAGE */}
+              {}
               <div
                 className={`
                   min-w-0 max-w-none overflow-hidden prose prose-sm
@@ -630,9 +628,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
                 </ReactMarkdown>
               </div>
 
-              {/* ================================================== */}
-              {/* PPT DOWNLOAD */}
-              {/* ================================================== */}
+              {}
+              {}
+              {}
               {hasPptData && (
                 <div
                   className={`mt-4 pt-4 border-t ${
@@ -718,9 +716,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
                 </div>
               )}
 
-              {/* ================================================== */}
-              {/* PDF DOWNLOAD */}
-              {/* ================================================== */}
+              {}
+              {}
+              {}
               {hasPdfData && (
                 <div
                   className={`mt-4 pt-4 border-t ${
@@ -802,9 +800,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
                 </div>
               )}
 
-              {/* ================================================== */}
-              {/* GENERATED IMAGES */}
-              {/* ================================================== */}
+              {}
+              {}
+              {}
               {images.length > 0 && (
                 <div className="mt-4 min-w-0">
                   <p
@@ -869,10 +867,10 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
                               onError={() => handleImageError(imageKey)}
                             />
 
-                            {/* Overlay on hover */}
+                            {}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-                            {/* Preview button */}
+                            {}
                             <button
                               type="button"
                               onClick={() => setPreviewImage(finalUrl)}
@@ -882,7 +880,7 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
                               <FiMaximize2 size={14} />
                             </button>
 
-                            {/* Image number badge */}
+                            {}
                             <div className="absolute top-2 left-2 flex h-6 min-w-6 items-center justify-center rounded-lg bg-black/60 backdrop-blur-sm px-2 text-[10px] font-bold text-white opacity-0 group-hover/image:opacity-100 transition-all duration-300">
                               #{imgIndex + 1}
                             </div>
@@ -947,9 +945,9 @@ export default function MessageBubble({ message, index, dark, onPDFDownload }) {
   );
 }
 
-// ============================================================
-// FILE NAME SANITIZER
-// ============================================================
+
+
+
 
 function sanitizeFileName(name) {
   return (

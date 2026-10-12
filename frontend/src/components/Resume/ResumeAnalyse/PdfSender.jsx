@@ -1,4 +1,4 @@
-// PdfSender.jsx
+
 import React, { useRef, useState, useEffect } from "react";
 import {
   FaCloudUploadAlt,
@@ -31,7 +31,7 @@ export default function PdfSender() {
   const [analysisData, setAnalysisData] = useState(null);
   const resumes = useSelector((state) => state.resume.resumes);
 
-  // Check if analysis data exists on component mount
+  
   useEffect(() => {
     if (resumes && resumes.length > 0) {
       setAnalysisData(resumes[0]);
@@ -45,7 +45,7 @@ export default function PdfSender() {
       return;
     }
 
-    // Validate file size (10MB limit)
+    
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File size exceeds 10MB limit.");
       return;
@@ -60,7 +60,7 @@ export default function PdfSender() {
       const formData = new FormData();
       formData.append("resume", file);
 
-      // Simulate upload progress
+      
       const progressInterval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 90) {
@@ -79,23 +79,23 @@ export default function PdfSender() {
       console.log("Upload Response:", data);
 
       if (data.success) {
-        // Dispatch the uploaded resume data
+        
         dispatch(setResumes([data.analysis]));
         setAnalysisData(data.analysis);
         setAnalysisComplete(true);
 
-        // Show success toast
+        
         const successMessage = data.analysis?.name
           ? `Resume for ${data.analysis.name} analyzed successfully!`
           : "Resume analyzed successfully!";
         
         toast.success(successMessage);
 
-        // Reset file state after successful upload
+        
         setFile(null);
         setUploadProgress(0);
         
-        // Reset file input
+        
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -110,7 +110,7 @@ export default function PdfSender() {
       toast.error(error.response?.data?.message || "Upload failed");
     } finally {
       setLoading(false);
-      // Reset progress after a delay
+      
       setTimeout(() => {
         setUploadProgress(0);
       }, 2000);
@@ -123,7 +123,7 @@ export default function PdfSender() {
     setError(null);
     setAnalysisComplete(false);
 
-    // Validate file type
+    
     const allowedTypes = [
       "application/pdf",
       "image/png",
@@ -138,7 +138,7 @@ export default function PdfSender() {
       return;
     }
 
-    // Validate file size
+    
     if (selectedFile.size > 10 * 1024 * 1024) {
       const errorMsg = "File size exceeds 10MB limit.";
       setError(errorMsg);
@@ -206,7 +206,7 @@ export default function PdfSender() {
       <div className="mx-auto flex min-h-[calc(100vh-150px)] max-w-4xl items-center justify-center">
         <div className="w-full">
 
-          {/* Header */}
+          {}
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold sm:text-3xl">
               Upload Your Resume
@@ -224,14 +224,14 @@ export default function PdfSender() {
             </p>
           </div>
 
-          {/* Analysis Complete Message - Centered */}
+          {}
           {analysisComplete && analysisData && (
             <div className="mx-auto max-w-2xl mb-6">
               <div className={`
                 relative overflow-hidden rounded-2xl p-8 text-center
                 ${dark ? "bg-white/[0.05] border border-white/10" : "bg-gray-50 border border-gray-200"}
               `}>
-                {/* Animated background effect */}
+                {}
                 <div className="absolute inset-0 opacity-5">
                   <div className="absolute top-0 left-1/4 w-64 h-64 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
                   <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-500 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -317,7 +317,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {/* Upload Area - Only show when not analysis complete */}
+          {}
           {!analysisComplete && (
             <div
               onDragOver={(e) => {
@@ -350,7 +350,7 @@ export default function PdfSender() {
                 }
               `}
             >
-              {/* Loading Overlay */}
+              {}
               {loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-10">
                   <div className="text-center">
@@ -368,7 +368,7 @@ export default function PdfSender() {
                 </div>
               )}
 
-              {/* Upload Icon */}
+              {}
               <div
                 className={`
                   mb-5 flex h-20 w-20
@@ -399,7 +399,7 @@ export default function PdfSender() {
                 )}
               </div>
 
-              {/* File Selected */}
+              {}
               {file ? (
                 <>
                   <div className="flex items-center gap-2">
@@ -462,7 +462,7 @@ export default function PdfSender() {
                     or click anywhere to browse from your computer
                   </p>
 
-                  {/* Choose Resume Button */}
+                  {}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -496,14 +496,14 @@ export default function PdfSender() {
                 </>
               )}
 
-              {/* Error Message */}
+              {}
               {error && (
                 <div className="mt-4 text-red-500 text-sm font-medium">
                   {error}
                 </div>
               )}
 
-              {/* Hidden Input */}
+              {}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -514,7 +514,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {/* Bottom Info - Hide when analysis complete */}
+          {}
           {!analysisComplete && (
             <div
               className={`
@@ -540,7 +540,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {/* Upload Button - Only show when file is selected and not analysis complete */}
+          {}
           {file && !analysisComplete && (
             <div className="flex justify-center mt-6">
               <button
@@ -577,7 +577,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {/* Existing Analysis - Show if resumes exist in Redux but no upload just happened */}
+          {}
           {resumes && resumes.length > 0 && !analysisComplete && !file && (
             <div className="flex justify-center mt-6">
               <button

@@ -10,9 +10,9 @@ export default function CodePreviewLogic({
   setIsFullscreen,
   setCopied,
 }) {
-  // =========================================================
-  // EXECUTE CODE
-  // =========================================================
+  
+  
+  
 
   const executeCode = useCallback(() => {
     const iframe = iframeRef.current;
@@ -39,12 +39,12 @@ export default function CodePreviewLogic({
         throw new Error("Unable to access iframe document.");
       }
 
-      // Clear and write new content
+      
       doc.open();
       doc.write(latestCode.code);
       doc.close();
 
-      // Force iframe to reload content
+      
       iframe.src = "about:blank";
 
       setTimeout(() => {
@@ -80,9 +80,9 @@ export default function CodePreviewLogic({
     setIsLoading,
   ]);
 
-  // =========================================================
-  // AUTO EXECUTE
-  // =========================================================
+  
+  
+  
 
   useEffect(() => {
     if (!latestCode) {
@@ -113,9 +113,9 @@ export default function CodePreviewLogic({
     executionTimerRef,
   ]);
 
-  // =========================================================
-  // COPY
-  // =========================================================
+  
+  
+  
 
   const handleCopy = async () => {
     if (!latestCode?.code) {
@@ -166,9 +166,9 @@ export default function CodePreviewLogic({
     }
   };
 
-  // =========================================================
-  // FULLSCREEN ESC
-  // =========================================================
+  
+  
+  
 
   useEffect(() => {
     const handleKeyDown = (event) => {

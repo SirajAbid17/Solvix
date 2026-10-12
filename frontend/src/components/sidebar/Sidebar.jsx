@@ -24,9 +24,8 @@ export default function Sidebar() {
   
   const { userdata, isAdmin } = useSelector((state) => state.user);
   
-  // ✅ Debug logs
-  console.log('🔍 Sidebar - isAdmin:', isAdmin);
-  console.log('🔍 Sidebar - userdata:', userdata);
+  
+ 
   
   const [open, setOpen] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -114,7 +113,7 @@ export default function Sidebar() {
         ${open ? "w-72" : "w-16"}
       `}
     >
-      {/* HEADER */}
+    
       <div
         className={`
           flex
@@ -235,7 +234,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* NEW CHAT BUTTON */}
+     
       <div className="shrink-0 px-2 pt-2">
         <button
           type="button"
@@ -277,7 +276,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* CONVERSATIONS + CELEBRATION */}
+      {}
       {open && (
         <div
           className="
@@ -311,7 +310,7 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* USER SECTION */}
+      {}
       <div
         className={`
           relative
@@ -496,7 +495,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* USER MODAL */}
+      {}
       {showUserModal && userdata && (
         <div
           className="
@@ -530,7 +529,7 @@ export default function Sidebar() {
             `}
             onClick={(event) => event.stopPropagation()}
           >
-            {/* CLOSE */}
+            {}
             <button
               type="button"
               onClick={() => setShowUserModal(false)}
@@ -568,7 +567,7 @@ export default function Sidebar() {
               </svg>
             </button>
 
-            {/* PROFILE */}
+            {}
             <div className="flex flex-col items-center text-center">
               {avatar ? (
                 <img
@@ -646,7 +645,7 @@ export default function Sidebar() {
               </span>
 
               <div className="mt-4 w-full space-y-2">
-                {/* ✅ ADMIN DASHBOARD - SIRF ADMIN KO DIKHEGA */}
+                {}
                 {isAdmin && (
                   <button
                     type="button"
@@ -690,7 +689,7 @@ export default function Sidebar() {
                   </button>
                 )}
 
-                {/* USER DASHBOARD */}
+                {}
                 <button
                   type="button"
                   onClick={() => {
@@ -732,14 +731,14 @@ export default function Sidebar() {
                   />
                 </button>
 
-                {/* DIVIDER */}
+                {}
                 <div
                   className={`my-1.5 h-px w-full ${
                     dark ? "bg-white/[0.08]" : "bg-gray-200"
                   }`}
                 />
 
-                {/* LOGOUT */}
+                {}
                 <button
                   type="button"
                   onClick={handleLogout}

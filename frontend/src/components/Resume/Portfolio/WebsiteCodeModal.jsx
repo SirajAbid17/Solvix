@@ -34,9 +34,9 @@ export default function WebsiteCodeModal({
   const [copied, setCopied] =
     useState(false);
 
-  // ============================================================
-  // GET GENERATED CODE
-  // ============================================================
+  
+  
+  
 
   const generatedCode =
     portfolio?.generatedCode || {};
@@ -92,9 +92,9 @@ export default function WebsiteCodeModal({
     }
   }, [rawHtml]);
 
-  // ============================================================
-  // FORMAT CSS
-  // ============================================================
+  
+  
+  
 
   const css = useMemo(() => {
     if (!rawCss) return "";
@@ -154,9 +154,9 @@ export default function WebsiteCodeModal({
     }
   }, [rawJs]);
 
-  // ============================================================
-  // CODE TABS
-  // ============================================================
+  
+  
+  
 
   const codeTabs = useMemo(
     () => [
@@ -184,9 +184,9 @@ export default function WebsiteCodeModal({
     [html, css, js]
   );
 
-  // ============================================================
-  // ACTIVE TAB
-  // ============================================================
+  
+  
+  
 
   const activeTab = useMemo(() => {
     return (
@@ -229,9 +229,9 @@ export default function WebsiteCodeModal({
     };
   }, [isOpen, onClose]);
 
-  // ============================================================
-  // BODY SCROLL LOCK
-  // ============================================================
+  
+  
+  
 
   useEffect(() => {
     if (!isOpen) return;
@@ -248,18 +248,18 @@ export default function WebsiteCodeModal({
     };
   }, [isOpen]);
 
-  // ============================================================
-  // RESET WHEN PORTFOLIO CHANGES
-  // ============================================================
+  
+  
+  
 
   useEffect(() => {
     setActiveCodeTab("html");
     setCopied(false);
   }, [portfolio]);
 
-  // ============================================================
-  // COPY CODE
-  // ============================================================
+  
+  
+  
 
   const copyCode = async () => {
     if (!currentCode) {
@@ -294,9 +294,9 @@ export default function WebsiteCodeModal({
     }
   };
 
-  // ============================================================
-  // FALLBACK COPY
-  // ============================================================
+  
+  
+  
 
   const copyUsingFallback = () => {
     try {
@@ -364,9 +364,9 @@ export default function WebsiteCodeModal({
     }
   };
 
-  // ============================================================
-  // CHANGE TAB
-  // ============================================================
+  
+  
+  
 
   const handleTabChange = (
     tabId
@@ -376,17 +376,17 @@ export default function WebsiteCodeModal({
     setCopied(false);
   };
 
-  // ============================================================
-  // DON'T RENDER
-  // ============================================================
+  
+  
+  
 
   if (!isOpen) {
     return null;
   }
 
-  // ============================================================
-  // UI
-  // ============================================================
+  
+  
+  
 
   return (
     <div
@@ -407,9 +407,7 @@ export default function WebsiteCodeModal({
         }
       }}
     >
-      {/* ======================================================
-          MODAL
-      ====================================================== */}
+      {}
 
       <div
         className="
@@ -426,9 +424,7 @@ export default function WebsiteCodeModal({
           shadow-2xl
         "
       >
-        {/* ====================================================
-            HEADER
-        ==================================================== */}
+        {}
 
         <header
           className="
@@ -444,7 +440,7 @@ export default function WebsiteCodeModal({
             sm:px-5
           "
         >
-          {/* LEFT */}
+          {}
 
           <div
             className="
@@ -496,7 +492,7 @@ export default function WebsiteCodeModal({
             </div>
           </div>
 
-          {/* CLOSE */}
+          {}
 
           <button
             type="button"
@@ -521,9 +517,7 @@ export default function WebsiteCodeModal({
           </button>
         </header>
 
-        {/* ====================================================
-            TOOLBAR
-        ==================================================== */}
+        {}
 
         <div
           className="
@@ -539,7 +533,7 @@ export default function WebsiteCodeModal({
             px-3
           "
         >
-          {/* TABS */}
+          {}
 
           <div
             className="
@@ -584,7 +578,7 @@ export default function WebsiteCodeModal({
             )}
           </div>
 
-          {/* COPY BUTTON */}
+          {}
 
           <button
             type="button"
@@ -634,9 +628,7 @@ export default function WebsiteCodeModal({
           </button>
         </div>
 
-        {/* ====================================================
-            CODE EDITOR
-        ==================================================== */}
+        {}
 
         <main
           className="
@@ -730,9 +722,7 @@ export default function WebsiteCodeModal({
           )}
         </main>
 
-        {/* ====================================================
-            FOOTER
-        ==================================================== */}
+        {}
 
         <footer
           className="
@@ -800,9 +790,7 @@ export default function WebsiteCodeModal({
         </footer>
       </div>
 
-      {/* ======================================================
-          CUSTOM SCROLLBAR
-      ====================================================== */}
+      {}
 
       <style>
         {`

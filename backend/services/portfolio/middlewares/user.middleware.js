@@ -1,5 +1,3 @@
-// middlewares/user.middleware.js
-
 export const portfolioUser = (req, res, next) => {
   try {
     const userId = req.headers["x-user-id"];

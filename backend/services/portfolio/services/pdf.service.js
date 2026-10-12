@@ -10,7 +10,7 @@ export const extractPdfText = async (buffer) => {
 
     let text = "";
 
-    // Extract text from all pages
+   
     for (let page = 1; page <= pdf.numPages; page++) {
       const currentPage = await pdf.getPage(page);
 
@@ -25,9 +25,6 @@ export const extractPdfText = async (buffer) => {
 
     text = text.trim();
 
-    // ===============================
-    // Create Chunks
-    // ===============================
     const chunkSize = 3000;
     const chunkOverlap = 300;
 
@@ -43,12 +40,10 @@ export const extractPdfText = async (buffer) => {
       start += chunkSize - chunkOverlap;
     }
 
-    console.log("\n==============================");
+   
     console.log("PDF Extraction Completed");
-    console.log("==============================");
-    console.log(`Pages : ${pdf.numPages}`);
-    console.log(`Characters : ${text.length}`);
-    console.log(`Chunks : ${chunks.length}`);
+   
+    
 
   chunks.forEach((chunk, index) => {
   console.log(`\n========== Chunk ${index + 1} ==========\n`);

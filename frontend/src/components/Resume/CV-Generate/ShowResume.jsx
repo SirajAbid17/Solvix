@@ -1,4 +1,4 @@
-// components/Resume/CV-Generate/ShowResume.jsx
+
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "../../../BgContext/ThemeContext";

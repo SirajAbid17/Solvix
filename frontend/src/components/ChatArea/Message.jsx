@@ -27,9 +27,9 @@ export default function Message() {
     setPdfDownloading,
   ] = useState({});
 
-  // ============================================================
-  // SELECTED CONVERSATION
-  // ============================================================
+  
+  
+  
 
   const selectedConversation =
     useSelector(
@@ -38,9 +38,9 @@ export default function Message() {
           .selectedConversation
     );
 
-  // ============================================================
-  // ALL MESSAGES
-  // ============================================================
+  
+  
+  
 
   const allMessages =
     useSelector(
@@ -48,9 +48,9 @@ export default function Message() {
         state.message.messages
     );
 
-  // ============================================================
-  // FILTER MESSAGES
-  // ============================================================
+  
+  
+  
 
   const messages =
     allMessages.filter(
@@ -59,17 +59,17 @@ export default function Message() {
         selectedConversation?._id
     );
 
-  // ============================================================
-  // WELCOME SCREEN
-  // ============================================================
+  
+  
+  
 
   const showWelcome =
     messages.length === 0 ||
     !selectedConversation;
 
-  // ============================================================
-  // AUTO SCROLL
-  // ============================================================
+  
+  
+  
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView(
@@ -79,9 +79,9 @@ export default function Message() {
     );
   }, [messages]);
 
-  // ============================================================
-  // THINKING STATE
-  // ============================================================
+  
+  
+  
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -98,9 +98,9 @@ export default function Message() {
     }
   }, [messages]);
 
-  // ============================================================
-  // PDF DOWNLOAD
-  // ============================================================
+  
+  
+  
 
   const handlePDFDownload = (
     pdfBase64,
@@ -138,9 +138,9 @@ export default function Message() {
         return;
       }
 
-      // ========================================================
-      // CONVERT BASE64 TO BLOB
-      // ========================================================
+      
+      
+      
 
       const byteCharacters =
         atob(pdfBase64);
@@ -173,9 +173,9 @@ export default function Message() {
         }
       );
 
-      // ========================================================
-      // CREATE DOWNLOAD LINK
-      // ========================================================
+      
+      
+      
 
       const url =
         window.URL.createObjectURL(
@@ -200,9 +200,9 @@ export default function Message() {
         link
       );
 
-      // ========================================================
-      // CLEANUP URL
-      // ========================================================
+      
+      
+      
 
       setTimeout(() => {
         window.URL.revokeObjectURL(
@@ -232,9 +232,9 @@ export default function Message() {
     }
   };
 
-  // ============================================================
-  // MAIN UI
-  // ============================================================
+  
+  
+  
 
   return (
     <div
@@ -275,16 +275,16 @@ export default function Message() {
       `}
     >
       {showWelcome ? (
-        // ========================================================
-        // WELCOME SCREEN
-        // ========================================================
+        
+        
+        
 
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="w-full max-w-2xl px-4 text-center">
 
-            {/* ================================================== */}
-            {/* TITLE */}
-            {/* ================================================== */}
+            {}
+            {}
+            {}
 
             <h1
               className={`
@@ -306,9 +306,9 @@ export default function Message() {
               Welcome to Solvix
             </h1>
 
-            {/* ================================================== */}
-            {/* DESCRIPTION */}
-            {/* ================================================== */}
+            {}
+            {}
+            {}
 
             <p
               className={`

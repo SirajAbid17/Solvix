@@ -1,4 +1,3 @@
-// prompt/cv.prompt.js
 export const CVPrompt = (data) => `
 You are a Senior Resume Writer, ATS Optimization Expert, and Career Coach with 10+ years of experience helping professionals land roles at top companies.
 

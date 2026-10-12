@@ -67,7 +67,7 @@ export default function Register() {
             }
           `}
         >
-          {/* User Profile */}
+          {}
           <div
             className={`
               flex items-center gap-3
@@ -83,7 +83,7 @@ export default function Register() {
               }
             `}
           >
-            {/* Avatar */}
+            {}
             <img
               src={userdata.avatar}
               alt={userdata.name}
@@ -100,7 +100,7 @@ export default function Register() {
               `}
             />
 
-            {/* User Info */}
+            {}
             <div className="flex-1 min-w-0">
               <h1
                 className={`
@@ -132,7 +132,7 @@ export default function Register() {
               </p>
             </div>
 
-            {/* Credits */}
+            {}
             <div className="text-right">
              <button
              onClick={LogoutUser}
@@ -211,7 +211,7 @@ export default function Register() {
           </button>
         </div>
       ) : (
-        /* Google Login */
+        
         <button
           onClick={handleLogin}
           className={`

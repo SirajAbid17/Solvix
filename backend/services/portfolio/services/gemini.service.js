@@ -21,10 +21,6 @@ const getModel = (temperature = 0.15) => {
   });
 };
 
-// ============================================================
-// GET RESPONSE TEXT
-// ============================================================
-
 const getResponseText = (response) => {
   if (!response) {
     throw new Error("Empty Gemini response");
@@ -57,9 +53,6 @@ const getResponseText = (response) => {
   return JSON.stringify(response);
 };
 
-// ============================================================
-// REMOVE MARKDOWN CODE FENCES
-// ============================================================
 
 const removeCodeFences = (value = "") => {
   if (typeof value !== "string") {
@@ -76,9 +69,6 @@ const removeCodeFences = (value = "") => {
     .trim();
 };
 
-// ============================================================
-// CLEAN HTML
-// ============================================================
 
 const cleanHTML = (code = "") => {
   if (typeof code !== "string") {
@@ -87,26 +77,26 @@ const cleanHTML = (code = "") => {
 
   let html = removeCodeFences(code);
 
-  // Remove accidental markdown fences
+  
   html = html
     .replace(/^```html\s*/i, "")
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  // Remove style blocks
+  
   html = html.replace(
     /<style\b[^>]*>[\s\S]*?<\/style>/gi,
     ""
   );
 
-  // Remove script blocks
+ 
   html = html.replace(
     /<script\b[^>]*>[\s\S]*?<\/script>/gi,
     ""
   );
 
-  // Remove standalone tags
+ 
   html = html.replace(
     /<style\b[^>]*>/gi,
     ""
@@ -130,9 +120,6 @@ const cleanHTML = (code = "") => {
   return html.trim();
 };
 
-// ============================================================
-// CLEAN CSS
-// ============================================================
 
 const cleanCSS = (code = "") => {
   if (typeof code !== "string") {
@@ -147,7 +134,7 @@ const cleanCSS = (code = "") => {
     .replace(/\s*```$/i, "")
     .trim();
 
-  // Remove style tags
+ 
   css = css.replace(
     /<style\b[^>]*>/gi,
     ""
@@ -161,9 +148,6 @@ const cleanCSS = (code = "") => {
   return css.trim();
 };
 
-// ============================================================
-// CLEAN JAVASCRIPT
-// ============================================================
 
 const cleanJavaScript = (code = "") => {
   if (typeof code !== "string") {
@@ -179,7 +163,7 @@ const cleanJavaScript = (code = "") => {
     .replace(/\s*```$/i, "")
     .trim();
 
-  // Remove accidental script tags
+ 
   js = js.replace(
     /<script\b[^>]*>/gi,
     ""
@@ -193,9 +177,6 @@ const cleanJavaScript = (code = "") => {
   return js.trim();
 };
 
-// ============================================================
-// EXTRACT JSON SAFELY
-// ============================================================
 
 const extractJSON = (text) => {
   if (!text || typeof text !== "string") {
@@ -206,20 +187,14 @@ const extractJSON = (text) => {
 
   let cleaned = text.trim();
 
-  // ----------------------------------------------------------
-  // Remove markdown code fences
-  // ----------------------------------------------------------
-
+  
   cleaned = cleaned
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  // ----------------------------------------------------------
-  // Find first JSON object
-  // ----------------------------------------------------------
-
+ 
   const firstBrace =
     cleaned.indexOf("{");
 
@@ -229,10 +204,7 @@ const extractJSON = (text) => {
     );
   }
 
-  // ----------------------------------------------------------
-  // Find matching closing brace
-  // ----------------------------------------------------------
-
+ 
   let depth = 0;
   let inString = false;
   let escaped = false;
@@ -245,13 +217,13 @@ const extractJSON = (text) => {
   ) {
     const char = cleaned[i];
 
-    // Handle escaped character
+    
     if (inString && escaped) {
       escaped = false;
       continue;
     }
 
-    // Backslash inside string
+    
     if (
       inString &&
       char === "\\"
@@ -260,13 +232,13 @@ const extractJSON = (text) => {
       continue;
     }
 
-    // Toggle JSON string
+  
     if (char === '"') {
       inString = !inString;
       continue;
     }
 
-    // Ignore braces inside strings
+   
     if (inString) {
       continue;
     }
@@ -296,39 +268,11 @@ const extractJSON = (text) => {
     endIndex + 1
   );
 
-  // ----------------------------------------------------------
-  // Parse JSON
-  // ----------------------------------------------------------
-
+  
   try {
     return JSON.parse(cleaned);
   } catch (error) {
-    console.error(
-      "\n===================================="
-    );
-
-    console.error(
-      "GEMINI JSON PARSE ERROR"
-    );
-
-    console.error(
-      "===================================="
-    );
-
-    console.error(
-      "Error:",
-      error.message
-    );
-
-    console.error(
-      "JSON Length:",
-      cleaned.length
-    );
-
-    // --------------------------------------------------------
-    // Try to show exact error position
-    // --------------------------------------------------------
-
+   
     const positionMatch =
       error.message.match(
         /position (\d+)/
@@ -350,9 +294,7 @@ const extractJSON = (text) => {
           position + 500
         );
 
-      console.error(
-        "\nJSON around error:\n"
-      );
+    
 
       console.error(
         cleaned.substring(
@@ -373,9 +315,7 @@ const extractJSON = (text) => {
       );
     }
 
-    console.error(
-      "\n====================================\n"
-    );
+    
 
     throw new Error(
       `Gemini returned invalid JSON: ${error.message}`
@@ -383,9 +323,6 @@ const extractJSON = (text) => {
   }
 };
 
-// ============================================================
-// VALIDATE PORTFOLIO CODE RESPONSE
-// ============================================================
 
 const validatePortfolioCode = (
   data
@@ -421,9 +358,6 @@ const validatePortfolioCode = (
   return true;
 };
 
-// ============================================================
-// VALIDATE HTML
-// ============================================================
 
 const validateHTML = (html) => {
   if (
@@ -478,9 +412,6 @@ const validateHTML = (html) => {
   return true;
 };
 
-// ============================================================
-// VALIDATE CSS
-// ============================================================
 
 const validateCSS = (css) => {
   if (
@@ -512,9 +443,6 @@ const validateCSS = (css) => {
   return true;
 };
 
-// ============================================================
-// VALIDATE JAVASCRIPT
-// ============================================================
 
 const validateJavaScript = (js) => {
   if (
@@ -538,9 +466,6 @@ const validateJavaScript = (js) => {
   return true;
 };
 
-// ============================================================
-// PORTFOLIO ANALYSIS
-// ============================================================
 
 export const analyzeChunk = async (
   chunk
@@ -583,9 +508,6 @@ export const analyzeChunk = async (
   }
 };
 
-// ============================================================
-// PORTFOLIO CODE GENERATION PROMPT
-// ============================================================
 
 const portfolioCodePrompt = (
   portfolioData
@@ -818,9 +740,6 @@ The final response must successfully execute:
 JSON.parse(response)
 `;
 
-// ============================================================
-// PARSE PORTFOLIO CODE
-// ============================================================
 
 const parsePortfolioCode = (
   responseText
@@ -868,9 +787,6 @@ const parsePortfolioCode = (
   };
 };
 
-// ============================================================
-// GENERATE PORTFOLIO CODE
-// ============================================================
 
 export const generatePortfolioCode =
   async (
@@ -981,9 +897,6 @@ export const generatePortfolioCode =
     }
   };
 
-// ============================================================
-// DEFAULT EXPORT
-// ============================================================
 
 export default {
   analyzeChunk,

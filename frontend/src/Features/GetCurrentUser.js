@@ -9,7 +9,7 @@ const GetcurrentUser = async () => {
 
     const data = response.data;
 
-    // Backend successfully authenticated the user
+    
     if (!data?.success) {
       console.log("❌ /me returned success:false");
       return null;
@@ -23,7 +23,7 @@ const GetcurrentUser = async () => {
       plan: data.plan || "free",
       credits: Number(data.credits ?? 0),
       totalcredits: Number(data.totalcredits ?? 0),
-      isAdmin: data.isAdmin || false, // ✅ ADDED
+      isAdmin: data.isAdmin || false, 
     };
 
     console.log("✅ User data with isAdmin:", userData);

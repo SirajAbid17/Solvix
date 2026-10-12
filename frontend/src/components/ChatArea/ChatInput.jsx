@@ -43,9 +43,7 @@ export default function ChatInput() {
     (state) => state.conversation.selectedConversation
   );
 
-  // --------------------------------------------------
-  // FILE HANDLING
-  // --------------------------------------------------
+
 
   const handleFileSelect = (files) => {
     if (!files) return;
@@ -80,9 +78,9 @@ export default function ChatInput() {
     toast.success("File added successfully");
   };
 
-  // --------------------------------------------------
-  // TOOLS
-  // --------------------------------------------------
+  
+  
+  
 
   const tools = [
     { id: "auto", icon: FiZap, label: "Auto" },
@@ -94,9 +92,9 @@ export default function ChatInput() {
     { id: "pdf", icon: FiFile, label: "PDF" },
   ];
 
-  // ============================================================
-  // HELPER: Parse error and build friendly message
-  // ============================================================
+  
+  
+  
 
   const parseError = (error) => {
     const errorMessage =
@@ -113,7 +111,7 @@ export default function ChatInput() {
       lowerMsg.includes("429") ||
       lowerMsg.includes("try again");
 
-    // Extract wait time like "after 613 seconds"
+    
     let waitTime = null;
     const match = String(errorMessage).match(
       /after\s+(\d+)\s*seconds?/i
@@ -158,9 +156,9 @@ export default function ChatInput() {
     return { friendlyMessage, toastMessage, isRateLimit, waitTime };
   };
 
-  // --------------------------------------------------
-  // SEND MESSAGE
-  // --------------------------------------------------
+  
+  
+  
 
   const handleSend = async () => {
     const text = message.trim();
@@ -176,9 +174,9 @@ export default function ChatInput() {
       selectedConversation.title === "New Conversation" ||
       selectedConversation.title === "New Chat";
 
-    // --------------------------------------------------
-    // UPDATE CONVERSATION TITLE
-    // --------------------------------------------------
+    
+    
+    
 
     if (isNewConversation) {
       let newTitle = text;
@@ -216,9 +214,9 @@ export default function ChatInput() {
       agent: selectedAgent,
     };
 
-    // --------------------------------------------------
-    // USER MESSAGE
-    // --------------------------------------------------
+    
+    
+    
 
     dispatch(
       addMessage({
@@ -230,19 +228,13 @@ export default function ChatInput() {
 
     setMessage("");
 
-    // --------------------------------------------------
-    // AI REQUEST
-    // --------------------------------------------------
-
+    
     try {
       setLoading(true);
 
       const data = await ChatAgent(payload);
       console.log("Full Response:", data);
 
-      // --------------------------------------------------
-      // IMAGES
-      // --------------------------------------------------
 
       let imageUrls = [];
       if (Array.isArray(data?.images)) {
@@ -257,9 +249,7 @@ export default function ChatInput() {
           .filter(Boolean);
       }
 
-      // --------------------------------------------------
-      // PPT
-      // --------------------------------------------------
+      
 
       let pptData = null;
       let pptUrl = null;
@@ -277,9 +267,9 @@ export default function ChatInput() {
         }
       }
 
-      // --------------------------------------------------
-      // PDF
-      // --------------------------------------------------
+      
+      
+      
 
       let pdfData = null;
       let pdfUrl = null;
@@ -306,9 +296,9 @@ export default function ChatInput() {
         }
       }
 
-      // --------------------------------------------------
-      // ASSISTANT MESSAGE
-      // --------------------------------------------------
+      
+      
+      
 
       dispatch(
         addMessage({
@@ -318,13 +308,13 @@ export default function ChatInput() {
 
           images: imageUrls,
 
-          // PDF fields
+          
           pdf: pdfData || null,
           pdfUrl: pdfUrl || null,
           pdfBase64: pdfBase64 || null,
           pdfGenerated: pdfGenerated,
 
-          // PPT fields
+          
           ppt: data?.ppt || null,
           pptUrl: pptUrl || data?.pptUrl || null,
           pptGenerated:
@@ -344,7 +334,7 @@ export default function ChatInput() {
         error?.response?.data || error?.message
       );
 
-      // ✅ Parse error and build friendly message
+      
       const { friendlyMessage, toastMessage, isRateLimit } =
         parseError(error);
 
@@ -376,13 +366,13 @@ export default function ChatInput() {
     }
   };
 
-  // --------------------------------------------------
-  // UI
-  // --------------------------------------------------
+  
+  
+  
 
   return (
     <>
-      {/* FILE UPLOAD MODAL */}
+      {}
       {showFileLoaded && (
         <Fileloaded
           dark={dark}
@@ -391,7 +381,7 @@ export default function ChatInput() {
         />
       )}
 
-      {/* ERROR MODAL */}
+      {}
       {showErrorModal && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center px-4 backdrop-blur-sm ${
@@ -445,13 +435,13 @@ export default function ChatInput() {
         </div>
       )}
 
-      {/* CHAT INPUT */}
+      {}
       <div
         className={`w-full border-t px-4 py-2 ${
           dark ? "border-white/10 bg-black" : "border-gray-200 bg-white"
         }`}
       >
-        {/* Tools */}
+        {}
         <div className="w-full py-2">
           <div className="flex flex-wrap items-center justify-around gap-2">
             {tools.map((item) => {
@@ -486,7 +476,7 @@ export default function ChatInput() {
           </div>
         </div>
 
-        {/* Selected Files */}
+        {}
         {selectedFiles.length > 0 && (
           <div className="mx-auto mb-2 flex max-w-4xl flex-wrap gap-2">
             {selectedFiles.map((file, index) => (
@@ -512,7 +502,7 @@ export default function ChatInput() {
           </div>
         )}
 
-        {/* Input */}
+        {}
         <div className="mx-auto max-w-4xl">
           <div
             className={`flex items-end gap-2 rounded-md border p-2 shadow-sm ${
@@ -549,7 +539,7 @@ export default function ChatInput() {
             />
 
             <div className="flex shrink-0 items-center gap-1">
-              {/* ATTACH */}
+              {}
               <button
                 type="button"
                 title="Attach file"
@@ -563,7 +553,7 @@ export default function ChatInput() {
                 <FiPaperclip size={19} strokeWidth={1.8} />
               </button>
 
-              {/* VOICE */}
+              {}
               <div className="-ms-2.5">
                 <VoiceText
                   onTranscript={(text) => {
@@ -575,7 +565,7 @@ export default function ChatInput() {
                 />
               </div>
 
-              {/* SEND */}
+              {}
               <button
                 type="button"
                 onClick={handleSend}

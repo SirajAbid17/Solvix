@@ -8,12 +8,9 @@ dotenv.config();
 
 const app = express();
 
-// ============================================================
-// ??? CORS - Allow gateway origin with credentials
-// ============================================================
 const allowedOrigins = [
-  "http://localhost:5000",  // ??? Gateway
-  "http://localhost:5173",  // ??? Frontend
+  "http://localhost:5000",  
+  "http://localhost:5173",  
   "http://localhost:3000",
   process.env.FRONTEND_URL,
 ].filter(Boolean);
@@ -21,7 +18,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
+     
       if (!origin) return callback(null, true);
       
       if (allowedOrigins.indexOf(origin) !== -1) {
@@ -51,7 +48,7 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Health Check
+
 app.get("/health", (req, res) => {
   res.json({
     success: true,
@@ -60,10 +57,10 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Mock Interview Routes
+
 app.use("/mock-interview", mockInterviewRoutes);
 
-// Error Handler
+
 app.use((err, req, res, next) => {
   console.error("ERROR =>", err);
 

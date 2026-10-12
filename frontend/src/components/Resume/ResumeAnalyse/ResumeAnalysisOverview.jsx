@@ -1,4 +1,4 @@
-// ResumeAnalysisOverview.jsx
+
 import React from "react";
 import {
   FaCheckCircle,
@@ -14,7 +14,7 @@ import {
   FaAward,
 } from "react-icons/fa";
 
-// Roadmap Item Component
+
 function RoadmapItem({ item, dark }) {
   const isCompleted = item?.completed || false;
   const number = item?.number || "01";
@@ -44,7 +44,7 @@ function RoadmapItem({ item, dark }) {
   );
 }
 
-// Learning Item Component
+
 function LearningItem({ item, dark }) {
   const title = typeof item === 'string' ? item : item?.title || 'Course';
   const description = typeof item === 'object' ? item?.description : '';
@@ -73,9 +73,9 @@ function LearningItem({ item, dark }) {
 export default function ResumeAnalysisOverview({ analysis, dark }) {
   return (
     <>
-      {/* Stats - Score, ATS, Grade */}
+      {}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        {/* Resume Score */}
+        {}
         <div className={`rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
         }`}>
@@ -96,7 +96,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
           </div>
         </div>
 
-        {/* ATS Score */}
+        {}
         <div className={`rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
         }`}>
@@ -117,7 +117,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
           <p className="mt-2 text-xs text-gray-500">Applicant Tracking System compatibility</p>
         </div>
 
-     {/* Thank You */}
+     {}
 <div
   className={`rounded-2xl border p-5 ${
     dark
@@ -149,7 +149,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
   </p>
 </div>
 
-        {/* Summary */}
+        {}
         <div className={`rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
         }`}>
@@ -167,7 +167,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       </div>
 
-      {/* Section Scores */}
+      {}
       {Object.keys(analysis.sectionScores).length > 0 && (
         <div className={`mt-6 rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
@@ -192,7 +192,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       )}
 
-      {/* Missing Keywords */}
+      {}
       {analysis.missingKeywords.length > 0 && (
         <div className={`mt-6 rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
@@ -219,7 +219,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       )}
 
-      {/* Recommended Roles */}
+      {}
       {analysis.recommendedRoles.length > 0 && (
         <div className={`mt-6 rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
@@ -246,11 +246,11 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       )}
 
-      {/* Main Content - Strengths, Weaknesses, Roadmap, Skills */}
+      {}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Strengths & Weaknesses */}
+        {}
         <div className="space-y-6">
-          {/* Strengths */}
+          {}
           <div className={`rounded-2xl border ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -279,7 +279,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
             </div>
           </div>
 
-          {/* Weaknesses */}
+          {}
           <div className={`rounded-2xl border ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -309,9 +309,9 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
           </div>
         </div>
 
-        {/* Right Column */}
+        {}
         <div className="space-y-6">
-          {/* Roadmap */}
+          {}
           <div className={`rounded-2xl border ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -337,7 +337,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
             </div>
           </div>
 
-          {/* Skills to Improve */}
+          {}
           <div className={`rounded-2xl border p-5 ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -370,7 +370,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       </div>
 
-      {/* Next Learning */}
+      {}
       {analysis.nextLearning.length > 0 && (
         <div className={`mt-6 rounded-2xl border ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"

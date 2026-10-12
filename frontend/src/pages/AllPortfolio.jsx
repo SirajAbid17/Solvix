@@ -18,10 +18,10 @@ import {
   setPortfolioError,
 } from "../redux/portfolioSlice.js";
 
-// IMPORTANT:
-// Apne actual API function ka path/name yahan use karein.
-// Agar aapke API service ka naam different hai,
-// sirf is import ko change karna hai.
+
+
+
+
 import {
   getAllPortfolios,
   deletePortfolio,
@@ -43,9 +43,9 @@ export default function AllPortfolio() {
     (state) => state.portfolio
   );
 
-  // ============================================================
-  // LOAD PORTFOLIOS FROM DATABASE / REDIS
-  // ============================================================
+  
+  
+  
 
   const loadPortfolios = async () => {
     try {
@@ -97,17 +97,17 @@ export default function AllPortfolio() {
     }
   };
 
-  // ============================================================
-  // LOAD ON PAGE REFRESH / MOUNT
-  // ============================================================
+  
+  
+  
 
   useEffect(() => {
     loadPortfolios();
   }, []);
 
-  // ============================================================
-  // VIEW WEBSITE
-  // ============================================================
+  
+  
+  
 
   const handleViewWebsite = (
     portfolio
@@ -123,13 +123,13 @@ export default function AllPortfolio() {
       return;
     }
 
-    // Your WebsitePreview currently
-    // works with /portfolio/:slug too.
-    //
-    // If your route is:
-    // /portfolio/:slug
-    //
-    // then use slug.
+    
+    
+    
+    
+    
+    
+    
 
     if (portfolio?.slug) {
       navigate(
@@ -154,9 +154,9 @@ export default function AllPortfolio() {
     );
   };
 
-  // ============================================================
-  // DELETE
-  // ============================================================
+  
+  
+  
 
   const handleDelete = async (
     portfolio
@@ -207,17 +207,17 @@ export default function AllPortfolio() {
     }
   };
 
-  // ============================================================
-  // RETRY
-  // ============================================================
+  
+  
+  
 
   const handleRetry = () => {
     loadPortfolios();
   };
 
-  // ============================================================
-  // LOADING
-  // ============================================================
+  
+  
+  
 
   if (isLoading) {
     return (
@@ -233,9 +233,9 @@ export default function AllPortfolio() {
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
+  
+  
+  
 
   if (error) {
     return (
@@ -272,9 +272,9 @@ export default function AllPortfolio() {
     );
   }
 
-  // ============================================================
-  // MAIN UI
-  // ============================================================
+  
+  
+  
 
   return (
     <> 
@@ -284,9 +284,7 @@ export default function AllPortfolio() {
       }`}>
         <div className="mx-auto max-w-7xl">
 
-          {/* ======================================================
-              HEADER
-          ====================================================== */}
+          {}
 
           <div className="mb-10 text-center">
             <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg ${
@@ -307,7 +305,7 @@ export default function AllPortfolio() {
               All your AI-generated portfolio websites
             </p>
 
-            {/* TOTAL */}
+            {}
             {portfolios.length > 0 && (
               <p className={`mt-2 text-sm ${
                 dark ? "text-gray-500" : "text-gray-500"
@@ -320,9 +318,7 @@ export default function AllPortfolio() {
             )}
           </div>
 
-          {/* ======================================================
-              EMPTY
-          ====================================================== */}
+          {}
 
           {portfolios.length === 0 ? (
             <div className={`rounded-3xl border p-16 text-center ${
@@ -365,9 +361,7 @@ export default function AllPortfolio() {
               </button>
             </div>
           ) : (
-            /* ====================================================
-               GRID
-            ==================================================== */
+            
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {portfolios.map(
@@ -385,9 +379,7 @@ export default function AllPortfolio() {
                           : "border-gray-200 bg-white/[0.04] hover:border-gray-300 hover:bg-white/[0.07]"
                       }`}
                     >
-                      {/* ==================================================
-                          PREVIEW
-                      ================================================== */}
+                      {}
 
                       <div className={`relative flex h-52 items-center justify-center overflow-hidden ${
                         dark 
@@ -401,7 +393,7 @@ export default function AllPortfolio() {
                           }`}
                         />
 
-                        {/* STATUS */}
+                        {}
                         <div
                           className={`absolute right-4 top-4 rounded-full px-3 py-1 text-xs font-medium ${
                             portfolio.status === "completed"
@@ -419,9 +411,7 @@ export default function AllPortfolio() {
                         </div>
                       </div>
 
-                      {/* ==================================================
-                          CONTENT
-                      ================================================== */}
+                      {}
 
                       <div className="p-6">
                         <h2 className={`truncate text-xl font-bold ${
@@ -436,7 +426,7 @@ export default function AllPortfolio() {
                           {portfolio.slug || "portfolio-website"}
                         </p>
 
-                        {/* DATE */}
+                        {}
                         {portfolio.createdAt && (
                           <p className={`mt-2 text-xs ${
                             dark ? "text-gray-600" : "text-gray-400"
@@ -448,7 +438,7 @@ export default function AllPortfolio() {
                           </p>
                         )}
 
-                        {/* BUTTONS */}
+                        {}
                         <div className="mt-6 flex gap-3">
                           <button
                             type="button"
@@ -509,9 +499,7 @@ export default function AllPortfolio() {
             </div>
           )}
 
-          {/* ======================================================
-              CREATE BUTTON
-          ====================================================== */}
+          {}
 
           {portfolios.length > 0 && (
             <div className="mt-10 flex justify-center">

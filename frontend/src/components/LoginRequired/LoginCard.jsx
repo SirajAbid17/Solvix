@@ -18,9 +18,7 @@ export default function LoginCard({
   return (
     <section className="small-item relative">
 
-      {/* ==========================================
-          OUTER GLOW
-      ========================================== */}
+      {}
 
       <div
         className="
@@ -33,9 +31,7 @@ export default function LoginCard({
         "
       />
 
-      {/* ==========================================
-          LOGIN CARD
-      ========================================== */}
+      {}
 
       <div
         className="
@@ -52,7 +48,7 @@ export default function LoginCard({
         "
       >
 
-        {/* TOP LINE */}
+        {}
 
         <div
           className="
@@ -69,9 +65,7 @@ export default function LoginCard({
           "
         />
 
-        {/* ==========================================
-            ICON
-        ========================================== */}
+        {}
 
         <div
           className="
@@ -93,9 +87,7 @@ export default function LoginCard({
           <FiUserCheck className="text-2xl text-gray-200" />
         </div>
 
-        {/* ==========================================
-            TITLE
-        ========================================== */}
+        {}
 
         <h2
           className="
@@ -121,9 +113,7 @@ export default function LoginCard({
           AI workspace.
         </p>
 
-        {/* ==========================================
-            GOOGLE LOGIN BUTTON
-        ========================================== */}
+        {}
 
         <button
           type="button"
@@ -205,9 +195,7 @@ export default function LoginCard({
           )}
         </button>
 
-        {/* ==========================================
-            DIVIDER
-        ========================================== */}
+        {}
 
         <div className="my-7 flex items-center gap-3">
 
@@ -229,9 +217,7 @@ export default function LoginCard({
 
         </div>
 
-        {/* ==========================================
-            SECURITY
-        ========================================== */}
+        {}
 
         <div
           className="
@@ -251,9 +237,7 @@ export default function LoginCard({
           </span>
         </div>
 
-        {/* ==========================================
-            MINI FEATURES
-        ========================================== */}
+        {}
 
         <div
           className="
@@ -267,7 +251,7 @@ export default function LoginCard({
           "
         >
 
-          {/* Resume */}
+          {}
 
           <div className="flex flex-col items-center gap-2">
             <FiFileText className="text-gray-600" />
@@ -277,7 +261,7 @@ export default function LoginCard({
             </span>
           </div>
 
-          {/* Portfolio */}
+          {}
 
           <div className="flex flex-col items-center gap-2">
             <FiBriefcase className="text-gray-600" />
@@ -287,7 +271,7 @@ export default function LoginCard({
             </span>
           </div>
 
-          {/* AI */}
+          {}
 
           <div className="flex flex-col items-center gap-2">
             <FiCpu className="text-gray-600" />
@@ -301,9 +285,7 @@ export default function LoginCard({
 
       </div>
 
-      {/* ==========================================
-          DECORATIVE CIRCLES
-      ========================================== */}
+      {}
 
       <div
         className="

@@ -16,7 +16,7 @@ export default function UserProfileCard({
       <div className="relative p-6">
         <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 rounded-full bg-indigo-500/[0.05] blur-3xl" />
         <div className="relative flex flex-col gap-6 md:flex-row md:items-center">
-          {/* Avatar */}
+          {}
           <div className="relative shrink-0">
             {userAvatar ? (
               <img
@@ -32,7 +32,7 @@ export default function UserProfileCard({
             <span className="absolute bottom-0 right-0 h-5 w-5 rounded-full border-2 border-black bg-emerald-400 shadow-lg shadow-emerald-400/30" />
           </div>
 
-          {/* Info */}
+          {}
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="truncate text-2xl font-bold text-white">{userName}</h2>

@@ -10,9 +10,9 @@ import toast from "react-hot-toast";
 export default function CodeBlock({ language, code, darkMode }) {
   const [copied, setCopied] = useState(false);
 
-  // ============================================================
-  // ✅ NORMALIZE CODE - Fix line breaks and formatting
-  // ============================================================
+  
+  
+  
 
   const normalizeCode = (code) => {
     if (!code) return "";
@@ -20,19 +20,19 @@ export default function CodeBlock({ language, code, darkMode }) {
     // ✅ If code has escaped newlines (\n), replace them with actual newlines
     let normalized = code.replace(/\\n/g, "\n");
 
-    // ✅ Remove extra backslashes from quotes
+    
     normalized = normalized.replace(/\\"/g, '"');
     normalized = normalized.replace(/\\'/g, "'");
 
-    // ✅ Trim the code
+    
     normalized = normalized.trim();
 
     return normalized;
   };
 
-  // ============================================================
-  // FALLBACK COPY
-  // ============================================================
+  
+  
+  
 
   const fallbackCopyCode = (text) => {
     const textArea = document.createElement("textarea");
@@ -56,9 +56,9 @@ export default function CodeBlock({ language, code, darkMode }) {
     document.body.removeChild(textArea);
   };
 
-  // ============================================================
-  // COPY HANDLER
-  // ============================================================
+  
+  
+  
 
   const handleCopy = () => {
     if (!code) {
@@ -87,9 +87,9 @@ export default function CodeBlock({ language, code, darkMode }) {
     }
   };
 
-  // ============================================================
-  // GET LANGUAGE DISPLAY NAME
-  // ============================================================
+  
+  
+  
 
   const getLanguageDisplay = (lang) => {
     const languageMap = {
@@ -129,9 +129,9 @@ export default function CodeBlock({ language, code, darkMode }) {
     return languageMap[lang?.toLowerCase()] || lang || "Code";
   };
 
-  // ============================================================
-  // GET LANGUAGE FOR SYNTAX HIGHLIGHTER
-  // ============================================================
+  
+  
+  
 
   const getSyntaxLanguage = (lang) => {
     const langMap = {
@@ -148,18 +148,18 @@ export default function CodeBlock({ language, code, darkMode }) {
     return langMap[lang?.toLowerCase()] || lang || "text";
   };
 
-  // ============================================================
-  // RENDER
-  // ============================================================
+  
+  
+  
 
   const displayLanguage = getLanguageDisplay(language);
   const syntaxLanguage = getSyntaxLanguage(language);
   const isDark = darkMode !== undefined ? darkMode : true;
 
-  // ✅ Normalize the code for display
+  
   const displayCode = normalizeCode(code);
 
-  // If no code, show empty state
+  
   if (!displayCode) {
     return (
       <div
@@ -176,7 +176,7 @@ export default function CodeBlock({ language, code, darkMode }) {
 
   return (
     <div className="relative my-3 group/code rounded-xl overflow-hidden border border-white/10">
-      {/* LANGUAGE HEADER */}
+      {}
       <div
         className="
           absolute
@@ -210,7 +210,7 @@ export default function CodeBlock({ language, code, darkMode }) {
         {displayLanguage}
       </div>
 
-      {/* COPY BUTTON */}
+      {}
       <button
         type="button"
         onClick={handleCopy}
@@ -254,7 +254,7 @@ export default function CodeBlock({ language, code, darkMode }) {
         )}
       </button>
 
-      {/* CODE SCROLL AREA */}
+      {}
       <div className="code-scroll-area max-h-[600px] overflow-auto">
         <div
           className="code-wrapper"
@@ -263,7 +263,7 @@ export default function CodeBlock({ language, code, darkMode }) {
             minWidth: "100%",
           }}
         >
-          {/* LINE NUMBERS */}
+          {}
           <div
             className="line-numbers"
             style={{
@@ -297,7 +297,7 @@ export default function CodeBlock({ language, code, darkMode }) {
             ))}
           </div>
 
-          {/* ✅ SYNTAX HIGHLIGHTER - With proper line breaks */}
+          {}
           <div
             style={{
               flex: 1,
@@ -341,7 +341,7 @@ export default function CodeBlock({ language, code, darkMode }) {
         </div>
       </div>
 
-      {/* CODE SCROLLBAR CSS */}
+      {}
       <style>
         {`
           .code-scroll-area {

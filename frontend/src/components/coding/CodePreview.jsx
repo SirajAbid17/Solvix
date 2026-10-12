@@ -32,9 +32,7 @@ export default function CodePreview() {
     (state) => state.conversation.selectedConversation,
   );
 
-  // =========================================================
-  // GET CURRENT CONVERSATION MESSAGES
-  // =========================================================
+
 
   const conversationMessages = useMemo(() => {
     if (!selectedConversation?._id) {
@@ -47,10 +45,7 @@ export default function CodePreview() {
     );
   }, [messages, selectedConversation]);
 
-  // =========================================================
-  // GET MESSAGE CONTENT
-  // =========================================================
-
+  
   const getMessageContent = useCallback((message) => {
     if (!message) {
       return "";
@@ -64,10 +59,7 @@ export default function CodePreview() {
     );
   }, []);
 
-  // =========================================================
-  // EXTRACT ALL CODE BLOCKS
-  // =========================================================
-
+  
   const codeBlocks = useMemo(() => {
     const blocks = [];
 
@@ -111,10 +103,7 @@ export default function CodePreview() {
     getMessageContent,
   ]);
 
-  // =========================================================
-  // NORMALIZE LANGUAGE
-  // =========================================================
-
+  
   const normalizeLanguage = useCallback(
     (language) => {
       const lang = (
@@ -189,9 +178,9 @@ export default function CodePreview() {
     [],
   );
 
-  // =========================================================
-  // GET LATEST SUPPORTED CODE
-  // =========================================================
+  
+  
+  
 
   const latestCode = useMemo(() => {
     if (!codeBlocks.length) {
@@ -235,9 +224,9 @@ export default function CodePreview() {
       }
     });
 
-    // =======================================================
-    // SCROLLBAR STYLES
-    // =======================================================
+    
+    
+    
 
     const scrollbarStyles = `
       <style>
@@ -262,9 +251,9 @@ export default function CodePreview() {
       </style>
     `;
 
-    // =======================================================
-    // HTML + CSS + JS
-    // =======================================================
+    
+    
+    
 
     if (htmlCode) {
       let finalHtml = htmlCode;
@@ -320,9 +309,9 @@ export default function CodePreview() {
       };
     }
 
-    // =======================================================
-    // CSS ONLY
-    // =======================================================
+    
+    
+    
 
     if (cssCode) {
       const cssOnlyHtml =
@@ -366,9 +355,9 @@ export default function CodePreview() {
       };
     }
 
-    // =======================================================
-    // JAVASCRIPT ONLY
-    // =======================================================
+    
+    
+    
 
     if (jsCode) {
       const escapedJsCode =
@@ -508,9 +497,9 @@ export default function CodePreview() {
       };
     }
 
-    // =======================================================
-    // UNSUPPORTED
-    // =======================================================
+    
+    
+    
 
     if (unsupportedLanguage) {
       const readableLanguage =
@@ -631,9 +620,9 @@ export default function CodePreview() {
       };
     }
 
-    // =======================================================
-    // SINGLE HTML-LIKE BLOCK
-    // =======================================================
+    
+    
+    
 
     if (codeBlocks.length === 1) {
       const block = codeBlocks[0];
@@ -671,9 +660,9 @@ export default function CodePreview() {
     normalizeLanguage,
   ]);
 
-  // =========================================================
-  // LOGIC HOOK
-  // =========================================================
+  
+  
+  
 
   const {
     executeCode,
@@ -689,9 +678,9 @@ export default function CodePreview() {
     setCopied,
   });
 
-  // =========================================================
-  // UI
-  // =========================================================
+  
+  
+  
 
   return (
     <CodePreviewUI

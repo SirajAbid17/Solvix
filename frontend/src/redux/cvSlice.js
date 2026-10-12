@@ -1,4 +1,4 @@
-// store/cvSlice.js
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -12,17 +12,17 @@ const cvSlice = createSlice({
   name: "cv",
   initialState,
   reducers: {
-    // Set all CVs
+    
     setCVs: (state, action) => {
       state.cvs = action.payload;
     },
 
-    // Add single CV
+    
     addCV: (state, action) => {
       state.cvs.unshift(action.payload);
     },
 
-    // Update CV
+    
     updateCVInStore: (state, action) => {
       state.cvs = state.cvs.map((cv) =>
         cv._id === action.payload._id ? action.payload : cv
@@ -32,7 +32,7 @@ const cvSlice = createSlice({
       }
     },
 
-    // Remove CV
+    
     removeCV: (state, action) => {
       state.cvs = state.cvs.filter((cv) => cv._id !== action.payload);
       if (state.currentCV?._id === action.payload) {
@@ -40,33 +40,33 @@ const cvSlice = createSlice({
       }
     },
 
-    // Clear all CVs
+    
     clearCVs: (state) => {
       state.cvs = [];
       state.currentCV = null;
     },
 
-    // Set current CV
+    
     setCurrentCV: (state, action) => {
       state.currentCV = action.payload;
     },
 
-    // Clear current CV
+    
     clearCurrentCV: (state) => {
       state.currentCV = null;
     },
 
-    // Loading state
+    
     setLoading: (state, action) => {
       state.isLoading = action.payload;
     },
 
-    // Error state
+    
     setError: (state, action) => {
       state.error = action.payload;
     },
 
-    // Clear error
+    
     clearError: (state) => {
       state.error = null;
     },

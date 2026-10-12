@@ -16,9 +16,9 @@ export default function UserCelebration() {
   const flowerRefs = useRef([]);
   const messageRef = useRef(null);
 
-  // =========================================================
-  // SHOW CELEBRATION WHEN USER LOGS IN
-  // =========================================================
+  
+  
+  
 
   useEffect(() => {
     if (!userdata) {
@@ -35,17 +35,17 @@ export default function UserCelebration() {
     return () => clearTimeout(timer);
   }, [userdata]);
 
-  // =========================================================
-  // GSAP ANIMATION
-  // =========================================================
+  
+  
+  
 
   useEffect(() => {
     if (!show || !userdata) return;
 
     const ctx = gsap.context(() => {
-      // =====================================================
-      // WELCOME MESSAGE
-      // =====================================================
+      
+      
+      
 
       gsap.fromTo(
         messageRef.current,
@@ -64,9 +64,9 @@ export default function UserCelebration() {
         }
       );
 
-      // =====================================================
-      // BALLOONS
-      // =====================================================
+      
+      
+      
 
       balloonRefs.current.forEach((balloon, index) => {
         if (!balloon) return;
@@ -106,7 +106,7 @@ export default function UserCelebration() {
           }
         );
 
-        // Small floating/sway effect
+        
         gsap.to(balloon, {
           x: index % 2 === 0 ? 10 : -10,
           duration: 0.7,
@@ -117,9 +117,9 @@ export default function UserCelebration() {
         });
       });
 
-      // =====================================================
-      // FLOWERS
-      // =====================================================
+      
+      
+      
 
       flowerRefs.current.forEach((flower, index) => {
         if (!flower) return;
@@ -163,17 +163,17 @@ export default function UserCelebration() {
     return () => ctx.revert();
   }, [show, userdata]);
 
-  // =========================================================
-  // NOTHING TO SHOW
-  // =========================================================
+  
+  
+  
 
   if (!show || !userdata) {
     return null;
   }
 
-  // =========================================================
-  // UI
-  // =========================================================
+  
+  
+  
 
   return (
     <div
@@ -186,9 +186,7 @@ export default function UserCelebration() {
         overflow-hidden
       "
     >
-      {/* =====================================================
-          BALLOONS
-      ===================================================== */}
+      {}
 
       {BALLOONS.map((balloon, index) => {
         const positions = [
@@ -233,9 +231,7 @@ export default function UserCelebration() {
         );
       })}
 
-      {/* =====================================================
-          FLOWERS
-      ===================================================== */}
+      {}
 
       {FLOWERS.map((flower, index) => {
         const positions = [
@@ -280,9 +276,7 @@ export default function UserCelebration() {
         );
       })}
 
-      {/* =====================================================
-          WELCOME MESSAGE
-      ===================================================== */}
+      {}
 
       <div
         ref={messageRef}

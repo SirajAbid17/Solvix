@@ -26,9 +26,9 @@ import {
 import WebsiteCodeModal from "../components/Resume/Portfolio/WebsiteCodeModal.jsx";
 
 export default function WebsitePreview() {
-  // ============================================================
-  // ROUTE
-  // ============================================================
+  
+  
+  
 
   const { id: slug } = useParams();
 
@@ -38,18 +38,18 @@ export default function WebsitePreview() {
 
   const iframeRef = useRef(null);
 
-  // ============================================================
-  // REDUX
-  // ============================================================
+  
+  
+  
 
   const currentPortfolio = useSelector(
     (state) =>
       state.portfolio?.currentPortfolio
   );
 
-  // ============================================================
-  // STATE
-  // ============================================================
+  
+  
+  
 
   const [portfolio, setPortfolio] =
     useState(
@@ -141,9 +141,9 @@ export default function WebsitePreview() {
           slug
         );
 
-        // ------------------------------------------------------
-        // API
-        // ------------------------------------------------------
+        
+        
+        
 
         const response =
           await getPortfolioBySlug(
@@ -205,9 +205,9 @@ export default function WebsitePreview() {
     currentPortfolio,
   ]);
 
-  // ============================================================
-  // GENERATED CODE
-  // ============================================================
+  
+  
+  
 
   const generatedCode =
     portfolio?.generatedCode || {};
@@ -338,9 +338,9 @@ ${js}
     }, 30000);
   };
 
-  // ============================================================
-  // LOADING
-  // ============================================================
+  
+  
+  
 
   if (isLoading) {
     return (
@@ -362,9 +362,9 @@ ${js}
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
+  
+  
+  
 
   if (loadError) {
     return (
@@ -397,9 +397,9 @@ ${js}
     );
   }
 
-  // ============================================================
-  // NO PORTFOLIO
-  // ============================================================
+  
+  
+  
 
   if (!portfolio) {
     return (
@@ -429,9 +429,9 @@ ${js}
     );
   }
 
-  // ============================================================
-  // NO GENERATED HTML
-  // ============================================================
+  
+  
+  
 
   if (!html) {
     return (
@@ -466,20 +466,18 @@ ${js}
     );
   }
 
-  // ============================================================
-  // MAIN
-  // ============================================================
+  
+  
+  
 
   return (
     <div className="flex h-screen flex-col bg-neutral-950">
 
-      {/* ======================================================
-          HEADER
-      ====================================================== */}
+      {}
 
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 bg-neutral-950 px-4 sm:px-5">
 
-        {/* LEFT */}
+        {}
 
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
 
@@ -515,7 +513,7 @@ ${js}
           </div>
         </div>
 
-        {/* RIGHT */}
+        {}
 
         <div className="flex items-center gap-2 sm:gap-3">
 
@@ -525,7 +523,7 @@ ${js}
             </span>
           )}
 
-          {/* CODE VIEW */}
+          {}
 
           <button
             type="button"
@@ -541,7 +539,7 @@ ${js}
             </span>
           </button>
 
-          {/* OPEN WEBSITE */}
+          {}
 
           <button
             type="button"
@@ -560,9 +558,7 @@ ${js}
         </div>
       </header>
 
-      {/* ======================================================
-          WEBSITE
-      ====================================================== */}
+      {}
 
       <main className="relative min-h-0 flex-1 overflow-hidden bg-white">
 
@@ -597,9 +593,7 @@ ${js}
 
       </main>
 
-      {/* ======================================================
-          CODE VIEW COMPONENT
-      ====================================================== */}
+      {}
 
       <WebsiteCodeModal
         portfolio={portfolio}

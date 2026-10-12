@@ -23,17 +23,17 @@ export default function LoginRequired() {
 
   const [loading, setLoading] = useState(false);
 
-  // =========================================================
-  // GSAP
-  // =========================================================
+  
+  
+  
 
   useGSAP(
     () => {
       const tl = gsap.timeline();
 
-      // =====================================================
-      // INITIAL STATES
-      // =====================================================
+      
+      
+      
 
       gsap.set(".stairs", {
         height: "100%",
@@ -60,9 +60,9 @@ export default function LoginRequired() {
         y: 10,
       });
 
-      // =====================================================
-      // STAIR REVEAL
-      // =====================================================
+      
+      
+      
 
       tl.to(".stairs", {
         height: 0,
@@ -71,9 +71,9 @@ export default function LoginRequired() {
         ease: "power4.inOut",
       });
 
-      // =====================================================
-      // TOP BUTTON
-      // =====================================================
+      
+      
+      
 
       tl.to(
         ".top-google-btn",
@@ -86,9 +86,9 @@ export default function LoginRequired() {
         "-=0.5"
       );
 
-      // =====================================================
-      // MAIN CONTENT
-      // =====================================================
+      
+      
+      
 
       tl.to(
         ".login-content",
@@ -102,9 +102,9 @@ export default function LoginRequired() {
         "-=0.45"
       );
 
-      // =====================================================
-      // SMALL ITEMS
-      // =====================================================
+      
+      
+      
 
       tl.to(
         ".small-item",
@@ -118,9 +118,9 @@ export default function LoginRequired() {
         "-=0.45"
       );
 
-      // =====================================================
-      // LOGIN BUTTON
-      // =====================================================
+      
+      
+      
 
       tl.to(
         ".login-google-btn",
@@ -133,9 +133,9 @@ export default function LoginRequired() {
         "-=0.25"
       );
 
-      // =====================================================
-      // FLOATING ORB 1
-      // =====================================================
+      
+      
+      
 
       gsap.to(".orb-one", {
         x: 100,
@@ -146,9 +146,9 @@ export default function LoginRequired() {
         ease: "sine.inOut",
       });
 
-      // =====================================================
-      // FLOATING ORB 2
-      // =====================================================
+      
+      
+      
 
       gsap.to(".orb-two", {
         x: -90,
@@ -159,9 +159,9 @@ export default function LoginRequired() {
         ease: "sine.inOut",
       });
 
-      // =====================================================
-      // FLOATING ORB 3
-      // =====================================================
+      
+      
+      
 
       gsap.to(".orb-three", {
         x: 60,
@@ -172,9 +172,9 @@ export default function LoginRequired() {
         ease: "sine.inOut",
       });
 
-      // =====================================================
-      // CARD FLOAT
-      // =====================================================
+      
+      
+      
 
       gsap.to(".login-card", {
         y: -5,
@@ -188,9 +188,9 @@ export default function LoginRequired() {
       scope: container,
   });
 
-  // =========================================================
-  // SEND TOKEN TO BACKEND
-  // =========================================================
+  
+  
+  
 
   const handleData = async (token) => {
     try {
@@ -213,9 +213,9 @@ export default function LoginRequired() {
     }
   };
 
-  // =========================================================
-  // GOOGLE LOGIN
-  // =========================================================
+  
+  
+  
 
   const handleLogin = async () => {
     if (loading) return;
@@ -267,9 +267,7 @@ export default function LoginRequired() {
       "
     >
 
-      {/* =====================================================
-          BACKGROUND GRID
-      ===================================================== */}
+      {}
 
       <div
         className="
@@ -285,9 +283,7 @@ export default function LoginRequired() {
         }}
       />
 
-      {/* =====================================================
-          CENTER RADIAL GLOW
-      ===================================================== */}
+      {}
 
       <div
         className="
@@ -298,9 +294,7 @@ export default function LoginRequired() {
         "
       />
 
-      {/* =====================================================
-          PURPLE ORB
-      ===================================================== */}
+      {}
 
       <div
         className="
@@ -317,9 +311,7 @@ export default function LoginRequired() {
         "
       />
 
-      {/* =====================================================
-          BLUE ORB
-      ===================================================== */}
+      {}
 
       <div
         className="
@@ -336,9 +328,7 @@ export default function LoginRequired() {
         "
       />
 
-      {/* =====================================================
-          PINK ORB
-      ===================================================== */}
+      {}
 
       <div
         className="
@@ -355,9 +345,7 @@ export default function LoginRequired() {
         "
       />
 
-      {/* =====================================================
-          STAIRS
-      ===================================================== */}
+      {}
 
       <div
         className="
@@ -375,9 +363,7 @@ export default function LoginRequired() {
         <div className="stairs h-full w-1/5 bg-white" />
       </div>
 
-      {/* =====================================================
-          NAVBAR
-      ===================================================== */}
+      {}
 
       <header
         className="
@@ -394,7 +380,7 @@ export default function LoginRequired() {
       >
         <div className="flex items-center justify-between">
 
-          {/* LOGO */}
+          {}
 
           <div className="small-item flex items-center gap-3">
 
@@ -422,7 +408,7 @@ export default function LoginRequired() {
 
           </div>
 
-          {/* TOP GOOGLE BUTTON */}
+          {}
 
           <button
             type="button"
@@ -457,7 +443,7 @@ export default function LoginRequired() {
               md:px-5
             "
           >
-            {/* Google icon */}
+            {}
 
             <span
               className="
@@ -495,9 +481,7 @@ export default function LoginRequired() {
         </div>
       </header>
 
-      {/* =====================================================
-          MAIN
-      ===================================================== */}
+      {}
 
       <main
         className="
@@ -522,9 +506,7 @@ export default function LoginRequired() {
           "
         >
 
-          {/* =================================================
-              MAIN CARD
-          ================================================= */}
+          {}
 
           <div
             className="
@@ -544,7 +526,7 @@ export default function LoginRequired() {
             "
           >
 
-            {/* TOP GLOW */}
+            {}
 
             <div
               className="
@@ -561,7 +543,7 @@ export default function LoginRequired() {
               "
             />
 
-            {/* INNER BORDER */}
+            {}
 
             <div
               className="
@@ -575,9 +557,7 @@ export default function LoginRequired() {
               "
             />
 
-            {/* =================================================
-                CONTENT GRID
-            ================================================= */}
+            {}
 
             <div
               className="
@@ -590,11 +570,11 @@ export default function LoginRequired() {
               "
             >
 
-              {/* LEFT */}
+              {}
 
               <LoginHero />
 
-              {/* RIGHT */}
+              {}
 
               <LoginCard
                 handleLogin={handleLogin}
@@ -604,9 +584,7 @@ export default function LoginRequired() {
             </div>
           </div>
 
-          {/* =================================================
-              FOOTER
-          ================================================= */}
+          {}
 
           <div
             className="

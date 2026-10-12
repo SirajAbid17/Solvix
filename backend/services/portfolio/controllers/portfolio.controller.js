@@ -1,5 +1,3 @@
-// controllers/portfolio.controller.js
-
 import { uploadPdf } from "../services/upload.service.js";
 import { extractPdfText } from "../services/pdf.service.js";
 import Portfolio from "../models/portfolio.models.js";
@@ -9,17 +7,9 @@ import redis from "../../../shared/redis/redis.js";
 
 const CACHE_TIME = 60 * 60;
 
-// ============================================================
-// Helper
-// ============================================================
-
 const getUserId = (req) => {
   return req.user?.userId || req.headers["x-user-id"];
 };
-
-// ============================================================
-// 1. UPLOAD PORTFOLIO
-// ============================================================
 
 export const uploadPortfolio = async (req, res) => {
   try {
@@ -39,13 +29,8 @@ export const uploadPortfolio = async (req, res) => {
       });
     }
 
-    console.log("Portfolio PDF:", req.file.originalname);
-    console.log("PDF Size:", req.file.size);
-
-    // ========================================================
-    // Extract PDF
-    // ========================================================
-
+   
+  
     const { text, chunks } = await extractPdfText(req.file.buffer);
 
     if (!text || !text.trim()) {
@@ -55,23 +40,14 @@ export const uploadPortfolio = async (req, res) => {
       });
     }
 
-    console.log("Pages:", chunks?.length || 0);
-    console.log("Characters:", text.length);
-
-    // ========================================================
-    // Upload PDF
-    // ========================================================
-
+  
     const uploadedPdf = await uploadPdf(req.file.buffer);
 
     if (!uploadedPdf) {
       throw new Error("PDF upload failed");
     }
 
-    // ========================================================
-    // Generate Slug
-    // ========================================================
-
+    
     const originalName = req.file.originalname
       .replace(/\.pdf$/i, "")
       .trim();
@@ -83,10 +59,7 @@ export const uploadPortfolio = async (req, res) => {
       .substring(2, 8)}`
       .toLowerCase();
 
-    // ========================================================
-    // Create Portfolio
-    // ========================================================
-
+  
     const portfolio = await Portfolio.create({
       userId,
       title: cleanTitle,
@@ -102,16 +75,10 @@ export const uploadPortfolio = async (req, res) => {
       analysisStatus: "pending",
     });
 
-    // ========================================================
-    // Clear User Cache
-    // ========================================================
-
+    
     await redis.del(`user-portfolios:${userId}`);
 
-    // ========================================================
-    // Response
-    // ========================================================
-
+   
     return res.status(201).json({
       success: true,
       message: "Portfolio uploaded successfully",
@@ -133,18 +100,12 @@ export const uploadPortfolio = async (req, res) => {
   }
 };
 
-// ============================================================
-// 2. ANALYZE PORTFOLIO
-// ============================================================
 
 export const analyzePortfolioController = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = getUserId(req);
 
-    // ========================================================
-    // Validate User
-    // ========================================================
 
     if (!userId) {
       return res.status(401).json({
@@ -153,10 +114,7 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Validate Portfolio ID
-    // ========================================================
-
+   
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -171,10 +129,7 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Find Portfolio
-    // ========================================================
-
+   
     const portfolio = await Portfolio.findOne({
       _id: id,
       userId,
@@ -187,10 +142,7 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Check Extracted Text
-    // ========================================================
-
+    
     if (!portfolio.extractedText || !portfolio.extractedText.trim()) {
       return res.status(400).json({
         success: false,
@@ -198,10 +150,7 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Prevent Duplicate Analysis
-    // ========================================================
-
+    
     if (portfolio.analysisStatus === "processing") {
       return res.status(409).json({
         success: false,
@@ -209,25 +158,16 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Start Analysis
-    // ========================================================
-
+   
     console.log("Starting portfolio analysis:", portfolio._id.toString());
 
     const result = await analyzePortfolio(portfolio._id);
 
-    // ========================================================
-    // Clear Redis Cache
-    // ========================================================
-
+  
     await redis.del(`portfolio:${portfolio.slug}`);
     await redis.del(`user-portfolios:${userId}`);
 
-    // ========================================================
-    // Response
-    // ========================================================
-
+   
     return res.status(200).json({
       success: true,
       message: "Portfolio generated successfully",
@@ -252,9 +192,6 @@ export const analyzePortfolioController = async (req, res) => {
   }
 };
 
-// ============================================================
-// 3. GET PORTFOLIO BY SLUG
-// ============================================================
 
 export const getPortfolioBySlug = async (req, res) => {
   try {
@@ -262,9 +199,6 @@ export const getPortfolioBySlug = async (req, res) => {
     const userId = getUserId(req);
     const cacheKey = `portfolio:${slug}`;
 
-    // ========================================================
-    // Redis Cache
-    // ========================================================
 
     const cached = await redis.get(cacheKey);
 
@@ -297,10 +231,6 @@ export const getPortfolioBySlug = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Database
-    // ========================================================
-
     const portfolio = await Portfolio.findOne({
       slug,
     });
@@ -312,10 +242,7 @@ export const getPortfolioBySlug = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Ownership Check
-    // ========================================================
-
+    
     const isOwner = userId && portfolio.userId.toString() === String(userId);
 
     if (!isOwner && !portfolio.isPublic) {
@@ -325,10 +252,7 @@ export const getPortfolioBySlug = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Cache
-    // ========================================================
-
+   
     await redis.set(
       cacheKey,
       JSON.stringify(portfolio.toObject()),
@@ -336,10 +260,7 @@ export const getPortfolioBySlug = async (req, res) => {
       CACHE_TIME
     );
 
-    // ========================================================
-    // Response
-    // ========================================================
-
+   
     return res.status(200).json({
       success: true,
       fromCache: false,
@@ -366,9 +287,6 @@ export const getPortfolioBySlug = async (req, res) => {
   }
 };
 
-// ============================================================
-// 4. GET ALL USER PORTFOLIOS
-// ============================================================
 
 export const getAllUserPortfolios = async (req, res) => {
   try {
@@ -383,10 +301,7 @@ export const getAllUserPortfolios = async (req, res) => {
 
     const cacheKey = `user-portfolios:${userId}`;
 
-    // ========================================================
-    // Redis Cache
-    // ========================================================
-
+    
     const cached = await redis.get(cacheKey);
 
     if (cached) {
@@ -396,10 +311,7 @@ export const getAllUserPortfolios = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Database
-    // ========================================================
-
+    
     const portfolios = await Portfolio.find({
       userId,
     })
@@ -412,10 +324,7 @@ export const getAllUserPortfolios = async (req, res) => {
 
     console.log(`Found ${portfolios.length} portfolios for user ${userId}`);
 
-    // ========================================================
-    // Response Object
-    // ========================================================
-
+    
     const response = {
       success: true,
       total: portfolios.length,
@@ -437,10 +346,7 @@ export const getAllUserPortfolios = async (req, res) => {
       })),
     };
 
-    // ========================================================
-    // Cache
-    // ========================================================
-
+    
     await redis.set(
       cacheKey,
       JSON.stringify(response),
@@ -462,19 +368,13 @@ export const getAllUserPortfolios = async (req, res) => {
   }
 };
 
-// ============================================================
-// 5. DELETE PORTFOLIO
-// ============================================================
 
 export const deletePortfolio = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = getUserId(req);
 
-    // ========================================================
-    // Validate User
-    // ========================================================
-
+    
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -482,10 +382,7 @@ export const deletePortfolio = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Validate ID
-    // ========================================================
-
+    
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
@@ -493,10 +390,7 @@ export const deletePortfolio = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Find Portfolio
-    // ========================================================
-
+    
     const portfolio = await Portfolio.findOne({
       _id: id,
       userId,
@@ -509,26 +403,17 @@ export const deletePortfolio = async (req, res) => {
       });
     }
 
-    // ========================================================
-    // Delete
-    // ========================================================
-
+    
     await Portfolio.findOneAndDelete({
       _id: id,
       userId,
     });
 
-    // ========================================================
-    // Clear Cache
-    // ========================================================
-
+    
     await redis.del(`portfolio:${portfolio.slug}`);
     await redis.del(`user-portfolios:${userId}`);
 
-    // ========================================================
-    // Response
-    // ========================================================
-
+  
     return res.status(200).json({
       success: true,
       message: "Portfolio deleted successfully",

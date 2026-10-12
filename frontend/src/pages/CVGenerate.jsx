@@ -1,4 +1,4 @@
-// pages/CVGenerate.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -15,11 +15,11 @@ export default function CVGenerate() {
   const { dark } = useTheme();
   const [loading, setLoading] = useState(false);
   
-  // Check if in edit mode
+  
   const editMode = location.state?.editMode || false;
   const existingResume = location.state?.resumeData || null;
 
-  // Form state
+  
   const [personalInfo, setPersonalInfo] = useState({
     fullName: '',
     jobTitle: '',
@@ -225,7 +225,7 @@ export default function CVGenerate() {
       let response;
       
       if (editMode && existingResume) {
-        // Update existing CV
+        
         response = await updateCV(existingResume._id, formData);
         if (response.success) {
           toast.success('CV updated successfully!');
@@ -234,7 +234,7 @@ export default function CVGenerate() {
           }, 1000);
         }
       } else {
-        // Create new CV
+        
         response = await createCV(formData);
         if (response.success) {
           toast.success('CV generated successfully!');
@@ -258,7 +258,7 @@ export default function CVGenerate() {
     }
   };
 
-  // Styles
+  
   const containerClass = dark ? 'bg-black' : 'bg-gray-50';
   const cardClass = dark 
     ? 'bg-white/5 border border-white/10 rounded-md p-6' 
@@ -271,7 +271,7 @@ export default function CVGenerate() {
       <ResumeHeader />
       
       <div className="container mx-auto max-w-6xl px-4 py-8">
-        {/* Header Section */}
+        {}
         <div className={`${cardClass} mb-8`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
@@ -295,9 +295,9 @@ export default function CVGenerate() {
           </div>
         </div>
 
-        {/* Forms */}
+        {}
         <div className="space-y-8">
-          {/* Personal Information */}
+          {}
           <div className={cardClass}>
             <PersonalInformation
               personalInfo={personalInfo}
@@ -308,7 +308,7 @@ export default function CVGenerate() {
             />
           </div>
 
-          {/* Resume Details */}
+          {}
           <div className={cardClass}>
             <ResumeDetailsForm
               resumeDetails={resumeDetails}
@@ -319,7 +319,7 @@ export default function CVGenerate() {
             />
           </div>
 
-          {/* Actions */}
+          {}
           <div className={`${cardClass} flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end bottom-4`}>
             <button
               onClick={() => navigate(editMode ? `/cv/${existingResume?._id}` : '/resume')}

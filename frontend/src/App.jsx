@@ -4,10 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setuserData, setUserLoading } from "./redux/userSlice";
 import GetcurrentUser from "./Features/GetCurrentUser";
 
-// Route Guards
+
 import { ProtectedRoute, PublicRoute, AdminRoute } from "./protectedroute/ProtectedRoute";
 
-// Pages
+
 import Home from "./pages/Home";
 import Page_not_Found from "./pages/Page_not_Found";
 import UserDashboard from "./pages/UserDashboard";
@@ -29,9 +29,9 @@ import Loading from "./components/Loading/Loading";
 import AdminDashboard from "./pages/AdminDashboard";
 import InterviewPractice from "./pages/InterviewPractice";
 
-// ============================================================
-// MAIN APP
-// ============================================================
+
+
+
 
 export default function App() {
   const dispatch = useDispatch();
@@ -61,7 +61,7 @@ export default function App() {
     getuser();
   }, [dispatch]);
 
-  // Show loading while checking auth
+  
   if (loading) {
     return <Loading />;
   }
@@ -69,15 +69,15 @@ export default function App() {
   return (
     <div>
       <Routes>
-        {/* ============================================ */}
-        {/* PUBLIC ROUTES - Always accessible */}
-        {/* ============================================ */}
+        {}
+        {}
+        {}
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/contact" element={<Contact />} />
 
-        {/* ============================================ */}
-        {/* LOGIN REQUIRED - Only if not logged in */}
-        {/* ============================================ */}
+        {}
+        {}
+        {}
         <Route
           path="/login-required"
           element={
@@ -87,11 +87,11 @@ export default function App() {
           }
         />
 
-        {/* ============================================ */}
-        {/* PROTECTED ROUTES - Require login */}
-        {/* ============================================ */}
+        {}
+        {}
+        {}
 
-        {/* HOME */}
+        {}
         <Route
           path="/"
           element={
@@ -101,7 +101,7 @@ export default function App() {
           }
         />
 
-        {/* USER DASHBOARD */}
+        {}
         <Route
           path="/user-dashboard"
           element={
@@ -111,7 +111,7 @@ export default function App() {
           }
         />
 
-        {/* RESUME */}
+        {}
         <Route
           path="/resume"
           element={
@@ -139,7 +139,7 @@ export default function App() {
           }
         />
 
-        {/* CV GENERATOR */}
+        {}
         <Route
           path="/cv-generator"
           element={
@@ -158,7 +158,7 @@ export default function App() {
           }
         />
 
-        {/* PORTFOLIO */}
+        {}
         <Route
           path="/portfolio"
           element={
@@ -195,7 +195,7 @@ export default function App() {
           }
         />
 
-        {/* MOCK INTERVIEW */}
+        {}
         <Route
           path="/mock-interview"
           element={
@@ -214,7 +214,7 @@ export default function App() {
           }
         />
 
-        {/* PRICING */}
+        {}
         <Route
           path="/pricing"
           element={
@@ -224,7 +224,7 @@ export default function App() {
           }
         />
 
-        {/* PAYMENT */}
+        {}
         <Route
           path="/payment/success"
           element={
@@ -234,9 +234,9 @@ export default function App() {
           }
         />
 
-        {/* ============================================ */}
-        {/* ADMIN ROUTES - Require admin privileges */}
-        {/* ============================================ */}
+        {}
+        {}
+        {}
         <Route
           path="/admin-dashboard"
           element={
@@ -246,9 +246,9 @@ export default function App() {
           }
         />
 
-        {/* ============================================ */}
-        {/* 404 - PAGE NOT FOUND */}
-        {/* ============================================ */}
+        {}
+        {}
+        {}
         <Route path="*" element={<Page_not_Found />} />
       </Routes>
     </div>

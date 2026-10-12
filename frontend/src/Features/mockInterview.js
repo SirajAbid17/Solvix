@@ -1,8 +1,8 @@
 import api from "../utlis/axios";
 
-// ============================================================
-// GENERATE MOCK INTERVIEW (PAID - 2 CREDITS)
-// ============================================================
+
+
+
 
 export const generateMockInterview = async (formData) => {
   try {
@@ -20,9 +20,9 @@ export const generateMockInterview = async (formData) => {
   }
 };
 
-// ============================================================
-// GET MY INTERVIEWS (FREE)
-// ============================================================
+
+
+
 
 export const getMyInterviews = async () => {
   try {
@@ -35,9 +35,9 @@ export const getMyInterviews = async () => {
   }
 };
 
-// ============================================================
-// GET INTERVIEW BY ID (FREE)
-// ============================================================
+
+
+
 
 export const getInterviewById = async (id) => {
   try {
@@ -50,9 +50,9 @@ export const getInterviewById = async (id) => {
   }
 };
 
-// ============================================================
-// DELETE INTERVIEW (FREE)
-// ============================================================
+
+
+
 
 export const deleteInterview = async (id) => {
   try {
@@ -65,9 +65,9 @@ export const deleteInterview = async (id) => {
   }
 };
 
-// ============================================================
-// ✅ GENERATE NEXT BATCH (15 MORE QUESTIONS)
-// ============================================================
+
+
+
 
 export const generateNextBatch = async (interviewId) => {
   try {

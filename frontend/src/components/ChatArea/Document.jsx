@@ -18,7 +18,7 @@ export default function Document() {
   const [open, setOpen] = useState(false);
   const popupRef = useRef(null);
 
-  // Close popup when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -63,7 +63,7 @@ export default function Document() {
 
   return (
     <div ref={popupRef} className="relative">
-      {/* Plus Button */}
+      {}
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -77,7 +77,7 @@ export default function Document() {
         <FiPlus size={18} />
       </button>
 
-      {/* Menu */}
+      {}
       {open && (
         <div
           className={`absolute bottom-full left-0 z-50 mb-3.5 w-56 rounded-md border p-2 shadow-2xl ${
@@ -86,7 +86,7 @@ export default function Document() {
               : "border-gray-200 bg-white"
           }`}
         >
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between px-3 py-2">
             <p
               className={`text-xs font-semibold ${
@@ -114,7 +114,7 @@ export default function Document() {
             }`}
           />
 
-          {/* Options */}
+          {}
           <div className="h-53 space-y-1">
             {options.map((item) => {
               const Icon = item.icon;
@@ -130,7 +130,7 @@ export default function Document() {
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
-                  {/* Icon */}
+                  {}
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
                       dark
@@ -141,12 +141,12 @@ export default function Document() {
                     <Icon size={16} />
                   </span>
 
-                  {/* Name */}
+                  {}
                   <span className="truncate text-xs font-medium">
                     {item.name}
                   </span>
 
-                  {/* Paid */}
+                  {}
                   <span
                     className={`ml-auto flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[9px] font-semibold ${
                       dark

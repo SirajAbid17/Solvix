@@ -1,5 +1,3 @@
-// utils/parsers.js
-
 export const parseBody = (body) => {
   if (body.data) {
     try {
@@ -228,7 +226,7 @@ const formatProjectEntry = (formatted) => {
   }
 };
 
-// Volunteering specific parser
+
 export const parseVolunteering = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) {

@@ -16,7 +16,7 @@ const UserSlice = createSlice({
       console.log("📦 setuserData called with:", data);
 
       if (data) {
-        // ✅ CRITICAL FIX: isAdmin ko pehle set karein
+        
         const isAdminValue = data.isAdmin === true;
         
         state.userdata = {
@@ -30,7 +30,7 @@ const UserSlice = createSlice({
           isAdmin: isAdminValue,
         };
         
-        // ✅ state.isAdmin ko bhi set karein
+        
         state.isAdmin = isAdminValue;
         
         console.log("✅ isAdmin set to:", state.isAdmin);
@@ -47,7 +47,7 @@ const UserSlice = createSlice({
       state.loading = action.payload;
     },
     
-    // ✅ Optional: Separate action for admin status
+    
     setAdminStatus: (state, action) => {
       state.isAdmin = action.payload;
       if (state.userdata) {
@@ -60,7 +60,7 @@ const UserSlice = createSlice({
 export const {
   setuserData,
   setUserLoading,
-  setAdminStatus, // Export new action
+  setAdminStatus, 
 } = UserSlice.actions;
 
 export default UserSlice.reducer;

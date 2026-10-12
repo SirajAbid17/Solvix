@@ -120,15 +120,15 @@ const PrivacyHero = ({
 
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] pt-[68px]">
-      {/* Grid */}
+      {}
 
      
 
-      {/* Orb */}
+      {}
 
    
 
-      {/* Header */}
+      {}
 
       <header className="fixed left-0 top-0 z-50 w-full border-b border-white/[0.08] bg-[#0b0c0e]/85 backdrop-blur-2xl">
         <div className="mx-auto flex h-[68px] max-w-[1400px] items-center justify-between px-5 sm:px-8 lg:px-12">
@@ -184,7 +184,7 @@ const PrivacyHero = ({
         </div>
       </header>
 
-      {/* Hero */}
+      {}
 
       <div className="relative mx-auto w-full max-w-[1400px] px-5 py-2 sm:px-8 sm:py-24 lg:px-12 lg:py-8">
         <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
@@ -235,7 +235,7 @@ const PrivacyHero = ({
             <div className="hero-line mt-8 h-px max-w-xl origin-left scale-x-0 bg-white/15" />
           </div>
 
-          {/* Visual */}
+          {}
 
           <div className="privacy-visual w-full">
             <div className="rounded-3xl border border-white/[0.08] bg-[#111214] p-5 shadow-[0_30px_80px_rgba(0,0,0,0.3)] sm:p-6">
@@ -301,7 +301,7 @@ const PrivacyHero = ({
           </div>
         </div>
 
-        {/* Stats */}
+        {}
 
         <div className="mt-16 grid border-t border-white/[0.08] sm:grid-cols-3">
           {[

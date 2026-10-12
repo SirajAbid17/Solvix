@@ -16,7 +16,7 @@ export default function ChatArea() {
     const getMessage = async () => {
       if (selectedConversation) {
         const data = await GetMessages(selectedConversation?._id);
-        // Ensure all messages have images array
+        
         const messagesWithImages = data.map(msg => ({
           ...msg,
           images: msg.images || []

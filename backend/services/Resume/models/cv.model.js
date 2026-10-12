@@ -1,9 +1,7 @@
-// models/cv.model.js
+
 import mongoose from "mongoose";
 
-// ============================================
-// Embedded Sub-Schemas
-// ============================================
+
 
 const socialSchema = new mongoose.Schema({
   linkedin: { type: String, trim: true },
@@ -165,9 +163,7 @@ const customSectionSchema = new mongoose.Schema({
   order: { type: Number, default: 0 },
 }, { _id: false });
 
-// ============================================
-// Main CV/Resume Schema
-// ============================================
+
 
 const cvSchema = new mongoose.Schema({
   userId: {
@@ -422,7 +418,7 @@ const cvSchema = new mongoose.Schema({
   toObject: { virtuals: true },
 });
 
-// Indexes for Performance
+
 cvSchema.index({ userId: 1, createdAt: -1 });
 cvSchema.index({ userId: 1, isPrimary: 1 });
 cvSchema.index({ shareToken: 1 }, { sparse: true });

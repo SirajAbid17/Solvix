@@ -33,11 +33,7 @@ export default function CodePreviewUI({
   const subtitleRef = useRef(null);
   const glowRef = useRef(null);
 
-  /*
-  ============================================================
-  SOLVIX WELCOME SCREEN ANIMATION
-  ============================================================
-  */
+  
 
   useEffect(() => {
     if (latestCode) return;
@@ -49,7 +45,7 @@ export default function CodePreviewUI({
         },
       });
 
-      // Initial states
+      
       gsap.set(titleRef.current, {
         opacity: 0,
         y: 25,
@@ -79,7 +75,7 @@ export default function CodePreviewUI({
         y: 10,
       });
 
-      // Icon entrance
+      
       timeline
         .to(".solvix-icon", {
           opacity: 1,
@@ -89,7 +85,7 @@ export default function CodePreviewUI({
           ease: "back.out(1.7)",
         })
 
-        // Heading
+        
         .to(
           titleRef.current,
           {
@@ -101,7 +97,7 @@ export default function CodePreviewUI({
           "-=0.35",
         )
 
-        // Subtitle
+        
         .to(
           subtitleRef.current,
           {
@@ -113,7 +109,7 @@ export default function CodePreviewUI({
           "-=0.45",
         )
 
-        // Agents
+        
         .to(
           ".solvix-agent",
           {
@@ -127,7 +123,7 @@ export default function CodePreviewUI({
           "-=0.2",
         )
 
-        // Status
+        
         .to(
           ".solvix-status",
           {
@@ -138,11 +134,7 @@ export default function CodePreviewUI({
           "-=0.15",
         );
 
-      /*
-      ==========================================================
-      FLOATING AGENT ANIMATION
-      ==========================================================
-      */
+      
 
       gsap.to(".solvix-agent", {
         y: -3,
@@ -155,11 +147,7 @@ export default function CodePreviewUI({
         ease: "sine.inOut",
       });
 
-      /*
-      ==========================================================
-      BACKGROUND GLOW
-      ==========================================================
-      */
+      
 
       gsap.to(glowRef.current, {
         scale: 1.2,
@@ -174,11 +162,7 @@ export default function CodePreviewUI({
     return () => ctx.revert();
   }, [latestCode]);
 
-  /*
-  ============================================================
-  AGENTS
-  ============================================================
-  */
+  
 
   const agents = [
     "Chat",
@@ -193,11 +177,7 @@ export default function CodePreviewUI({
     "Mock Interview",
   ];
 
-  /*
-  ============================================================
-  WELCOME SCREEN
-  ============================================================
-  */
+  
 
 
 if (!latestCode) {
@@ -216,7 +196,7 @@ if (!latestCode) {
         bg-black
       "
     >
-      {/* Background GIF */}
+      {}
       <img
         src="https://cdn.pixabay.com/animation/2025/08/15/07/22/07-22-21-420_512.gif"
         alt=""
@@ -230,7 +210,7 @@ if (!latestCode) {
         "
       />
 
-      {/* Dark Overlay */}
+    
       <div
         className="
           absolute
@@ -239,7 +219,7 @@ if (!latestCode) {
         "
       />
 
-      {/* Center Glow */}
+     
       <div
         ref={glowRef}
         className="
@@ -257,7 +237,7 @@ if (!latestCode) {
         "
       />
 
-      {/* Content */}
+    
       <div
         className="
           relative
@@ -271,7 +251,7 @@ if (!latestCode) {
           text-center
         "
       >
-        {/* AI Icon */}
+       
         <div
           className="
             solvix-icon
@@ -295,7 +275,7 @@ if (!latestCode) {
           />
         </div>
 
-        {/* Title */}
+        {}
         <h2
           ref={titleRef}
           className="
@@ -326,7 +306,7 @@ if (!latestCode) {
           </span>
         </h2>
 
-        {/* Subtitle */}
+        {}
         <p
           ref={subtitleRef}
           className="
@@ -341,7 +321,7 @@ if (!latestCode) {
           creativity, documents, and career growth.
         </p>
 
-        {/* Agents */}
+        {}
         <div
           className="
             mt-3
@@ -398,7 +378,7 @@ if (!latestCode) {
           ))}
         </div>
 
-        {/* Status */}
+        {}
         <div
           className="
             solvix-status
@@ -445,11 +425,7 @@ if (!latestCode) {
 
 
 
-  /*
-  ============================================================
-  MAIN CODE PREVIEW
-  ============================================================
-  */
+  
 
   return (
     <div
@@ -466,9 +442,7 @@ if (!latestCode) {
         ${dark ? "bg-[#080808]" : "bg-gray-50"}
       `}
     >
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
+      {}
 
       <div
         className={`
@@ -486,9 +460,7 @@ if (!latestCode) {
           }
         `}
       >
-        {/* ===================================================
-            LEFT SIDE
-        ==================================================== */}
+        {}
 
         <div className="flex items-center gap-2">
           <div
@@ -533,12 +505,10 @@ if (!latestCode) {
           </div>
         </div>
 
-        {/* ===================================================
-            ACTIONS
-        ==================================================== */}
+        {}
 
         <div className="flex items-center gap-1">
-          {/* COPY */}
+          {}
 
           <button
             type="button"
@@ -569,7 +539,7 @@ if (!latestCode) {
             )}
           </button>
 
-          {/* REFRESH */}
+          {}
 
           <button
             type="button"
@@ -599,7 +569,7 @@ if (!latestCode) {
             />
           </button>
 
-          {/* FULLSCREEN */}
+        
 
           <button
             type="button"
@@ -637,9 +607,7 @@ if (!latestCode) {
         </div>
       </div>
 
-      {/* =====================================================
-          PREVIEW AREA
-      ====================================================== */}
+      {}
 
       <div
         className={`
@@ -663,9 +631,7 @@ if (!latestCode) {
             }
           `}
         >
-          {/* =================================================
-              ERROR
-          ================================================== */}
+          {}
 
           {error ? (
             <div
@@ -742,9 +708,7 @@ if (!latestCode) {
             />
           )}
 
-          {/* =================================================
-              LOADING
-          ================================================== */}
+          {}
 
           {isLoading && !error && (
             <div
@@ -791,9 +755,7 @@ if (!latestCode) {
         </div>
       </div>
 
-      {/* =====================================================
-          FOOTER
-      ====================================================== */}
+      {}
 
       {!isFullscreen && (
         <div

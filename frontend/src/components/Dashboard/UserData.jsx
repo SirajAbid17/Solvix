@@ -1,4 +1,4 @@
-// src/pages/UserData.jsx
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +36,7 @@ import {
   Area,
 } from "recharts";
 
-// ✅ ALL IMPORTS - CORRECT PATHS
+
 import BgContextBtn from "../BgContextBtn";
 import DashboardHeader from "./DashboardHeader";
 import DashboardTabs from "./DashboardTabs";
@@ -106,9 +106,9 @@ const COLORS = [
   "#3B82F6",
 ];
 
-// ============================================================
-// PAGINATION COMPONENT (inline - same file)
-// ============================================================
+
+
+
 
 const PaginatedList = ({
   items = [],
@@ -119,14 +119,14 @@ const PaginatedList = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ✅ Reset page when list length or resetKey changes
+  
   useEffect(() => {
     setCurrentPage(1);
   }, [resetKey, items.length]);
 
   const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
 
-  // ✅ Agar current page out of range ho jaye to fix karo
+  
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -147,15 +147,15 @@ const PaginatedList = ({
 
   return (
     <div className="space-y-3">
-      {/* ITEMS */}
+      {}
       <div className="space-y-2">
         {paginatedItems.map((item, index) => renderItem(item, index))}
       </div>
 
-      {/* PAGINATION CONTROLS */}
+      {}
       {totalPages > 1 && (
         <div className="flex flex-col items-center justify-between gap-3 border-t border-white/[0.06] pt-4 sm:flex-row">
-          {/* Info */}
+          {}
           <p className="text-xs text-gray-500">
             Showing{" "}
             <span className="font-semibold text-gray-300">
@@ -169,9 +169,9 @@ const PaginatedList = ({
             <span className="font-semibold text-gray-300">{items.length}</span>
           </p>
 
-          {/* Buttons */}
+          {}
           <div className="flex items-center gap-1.5">
-            {/* Prev */}
+            {}
             <button
               type="button"
               onClick={() => goToPage(currentPage - 1)}
@@ -182,7 +182,7 @@ const PaginatedList = ({
               <FiChevronLeft className="text-sm" />
             </button>
 
-            {/* Page numbers with smart ellipsis */}
+            {}
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((page) => {
                 if (totalPages <= 7) return true;
@@ -215,7 +215,7 @@ const PaginatedList = ({
                 );
               })}
 
-            {/* Next */}
+            {}
             <button
               type="button"
               onClick={() => goToPage(currentPage + 1)}
@@ -232,9 +232,9 @@ const PaginatedList = ({
   );
 };
 
-// ============================================================
-// CHARTS SECTION COMPONENT
-// ============================================================
+
+
+
 
 const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
   const dailyChartData = chartData?.length
@@ -273,7 +273,7 @@ const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
 
   return (
     <div className="space-y-6">
-      {/* Daily Chart */}
+      {}
       <Card className="p-6">
         <SectionHeader
           title="Daily Requests"
@@ -299,7 +299,7 @@ const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
         </div>
       </Card>
 
-      {/* Pie Chart */}
+      {}
       <Card className="p-6">
         <SectionHeader
           title="Service Distribution"
@@ -350,9 +350,9 @@ const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
   );
 };
 
-// ============================================================
-// MAIN DASHBOARD
-// ============================================================
+
+
+
 
 export default function UserData() {
   const navigate = useNavigate();
@@ -367,9 +367,9 @@ export default function UserData() {
 
   const dashboardRef = useRef(null);
 
-  // ==========================================================
-  // USER DATA
-  // ==========================================================
+  
+  
+  
 
   const userName = userdata?.name || "User";
   const userEmail = userdata?.email || "user@email.com";
@@ -378,9 +378,7 @@ export default function UserData() {
   const userCredits = getCredits(userdata);
   const initials = useMemo(() => getInitials(userName), [userName]);
 
-  // ==========================================================
-  // FETCH ACTIVITY
-  // ==========================================================
+  
 
   const fetchActivity = useCallback(async () => {
     try {
@@ -418,9 +416,7 @@ export default function UserData() {
     fetchActivity();
   }, [fetchActivity]);
 
-  // ==========================================================
-  // GSAP PAGE ANIMATION
-  // ==========================================================
+ 
 
   useGSAP(
     () => {
@@ -438,9 +434,9 @@ export default function UserData() {
     { scope: dashboardRef }
   );
 
-  // ==========================================================
-  // TAB ANIMATION
-  // ==========================================================
+  
+  
+  
 
   useEffect(() => {
     const content = document.querySelector(".tab-content");
@@ -452,9 +448,9 @@ export default function UserData() {
     );
   }, [activeTab]);
 
-  // ==========================================================
-  // LOGOUT
-  // ==========================================================
+  
+  
+  
 
   const handleLogout = async () => {
     if (loggingOut) return;
@@ -471,9 +467,9 @@ export default function UserData() {
     }
   };
 
-  // ==========================================================
-  // TABS
-  // ==========================================================
+  
+  
+  
 
   const tabs = [
     { id: "overview", label: "Overview", icon: <FiHome /> },
@@ -483,9 +479,9 @@ export default function UserData() {
     { id: "pricing", label: "Pricing", icon: <FiDollarSign /> },
   ];
 
-  // ==========================================================
-  // STATS
-  // ==========================================================
+  
+  
+  
 
   const totalRequests = Number(activityData?.totalRequests) || 0;
   const totalCreditsUsed = Number(activityData?.totalCreditsUsed) || 0;
@@ -517,9 +513,9 @@ export default function UserData() {
     value: Number(value) || 0,
   }));
 
-  // ==========================================================
-  // LOADING
-  // ==========================================================
+  
+  
+  
 
   if (loading) {
     return (
@@ -532,10 +528,10 @@ export default function UserData() {
  
   return (
     <div ref={dashboardRef} className="min-h-screen mt-[2px] bg-black text-white">
-      {/* Background glow */}
+      {}
       <div className="pointer-events-none fixed left-1/2 top-0 z-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-indigo-600/[0.035] blur-[130px]" />
 
-      {/* HEADER */}
+      {}
       <DashboardHeader
         userCredits={userCredits}
         userPlan={userPlan}
@@ -543,16 +539,16 @@ export default function UserData() {
         handleLogout={handleLogout}
       />
 
-      {/* MAIN */}
+      {}
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-8">
         <div className="h-[62px]" />
 
-        {/* TABS */}
+        {}
         <DashboardTabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {/* TAB CONTENT */}
+        {}
         <div className="tab-content">
-          {/* OVERVIEW TAB */}
+          {}
           {activeTab === "overview" && (
             <>
               <UserProfileCard
@@ -579,12 +575,12 @@ export default function UserData() {
 
               <AgentUsageGrid serviceUsage={activityData?.serviceUsage || {}} />
 
-              {/* Pricing Section */}
+              {}
               <PricingSection />
             </>
           )}
 
-          {/* ANALYTICS TAB */}
+          {}
           {activeTab === "analytics" && (
             <ChartsSection
               chartData={activityData?.dailyData || []}
@@ -593,7 +589,7 @@ export default function UserData() {
             />
           )}
 
-          {/* CREDITS TAB */}
+          {}
           {activeTab === "credits" && (
             <div className="space-y-6">
               <Card className="relative overflow-hidden p-8 text-center">
@@ -619,7 +615,7 @@ export default function UserData() {
                 </button>
               </Card>
 
-              {/* Credit history with pagination */}
+              {}
               <Card className="p-6">
                 <SectionHeader
                   title="Credit Usage History"
@@ -666,10 +662,10 @@ export default function UserData() {
             </div>
           )}
 
-          {/* ACTIVITY TAB */}
+          {}
           {activeTab === "activity" && (
             <div className="space-y-6">
-              {/* Activity stats */}
+              {}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard
                   icon={<FiActivity />}
@@ -733,7 +729,7 @@ export default function UserData() {
                 </div>
               </Card>
 
-              {/* Activity log with pagination */}
+              {}
               <Card className="p-6">
                 <SectionHeader
                   title="Recent Activity Log"
@@ -785,7 +781,7 @@ export default function UserData() {
             </div>
           )}
 
-          {/* PRICING TAB */}
+          {}
           {activeTab === "pricing" && <PricingSection full />}
         </div>
       </main>

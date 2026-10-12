@@ -1,4 +1,3 @@
-// services/cv.service.js
 import Groq from "groq-sdk";
 import { CVPrompt } from "../prompt/cv.prompt.js";
 

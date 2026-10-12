@@ -10,11 +10,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5004;
 connectDB()
-// Middleware
+
 app.use(express.json());
 app.use('/resume',Resumerouter)
 app.use("/cv", CVrouter); 
-// Route
+
 app.get("/", (req, res) => {
   res.send("Express Server is Running ");
 });

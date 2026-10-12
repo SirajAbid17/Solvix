@@ -25,9 +25,9 @@ export default function UploadInterviewPdf() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState(null);
 
-  // -----------------------------
-  // Handle File
-  // -----------------------------
+  
+  
+  
   const handleFile = (file) => {
     if (!file) return;
 
@@ -40,7 +40,7 @@ export default function UploadInterviewPdf() {
       return;
     }
 
-    // 10MB limit
+    
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File size must be less than 10MB.");
       return;
@@ -50,9 +50,9 @@ export default function UploadInterviewPdf() {
     setError(null);
   };
 
-  // -----------------------------
-  // File Input
-  // -----------------------------
+  
+  
+  
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -60,9 +60,9 @@ export default function UploadInterviewPdf() {
     }
   };
 
-  // -----------------------------
-  // Drag Events
-  // -----------------------------
+  
+  
+  
   const handleDragOver = (event) => {
     event.preventDefault();
     setIsDragging(true);
@@ -83,9 +83,9 @@ export default function UploadInterviewPdf() {
     }
   };
 
-  // -----------------------------
-  // Remove File
-  // -----------------------------
+  
+  
+  
   const removeFile = (event) => {
     event.stopPropagation();
     setSelectedFile(null);
@@ -114,7 +114,7 @@ export default function UploadInterviewPdf() {
       const formData = new FormData();
       formData.append("resume", selectedFile);
 
-      // Simulate progress
+      
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 90) {
@@ -135,7 +135,7 @@ export default function UploadInterviewPdf() {
       if (response.success) {
         toast.success("🎉 Mock interview generated successfully!");
 
-        // Navigate to interview practice with the data
+        
         navigate(`/interview-practice/${response.data._id}`, {
           state: {
             interview: response.data,
@@ -160,16 +160,16 @@ export default function UploadInterviewPdf() {
     }
   };
 
-  // -----------------------------
-  // Render
-  // -----------------------------
+  
+  
+  
   return (
     <div
       className={`p-8 transition-colors duration-300 ${
         dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
       }`}
     >
-      {/* Header */}
+      {}
       <div>
         <h2
           className={`text-2xl font-bold ${
@@ -189,7 +189,7 @@ export default function UploadInterviewPdf() {
         </p>
       </div>
 
-      {/* Upload Area */}
+      {}
       <div
         onClick={() => !loading && inputRef.current?.click()}
         onDragOver={handleDragOver}
@@ -205,7 +205,7 @@ export default function UploadInterviewPdf() {
             : "border-gray-300 bg-white hover:border-black hover:bg-gray-100"
         } ${loading ? "cursor-not-allowed opacity-70" : ""}`}
       >
-        {/* Upload Icon */}
+        {}
         <div
           className={`mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full transition-transform duration-300 ${
             isDragging ? "scale-110" : ""
@@ -226,7 +226,7 @@ export default function UploadInterviewPdf() {
           )}
         </div>
 
-        {/* Title */}
+        {}
         <h3
           className={`text-xl font-semibold ${
             dark ? "text-white" : "text-black"
@@ -239,7 +239,7 @@ export default function UploadInterviewPdf() {
             : "Upload Resume PDF"}
         </h3>
 
-        {/* Loading Progress */}
+        {}
         {loading && (
           <div className="mt-4">
             <div className="h-2 w-full max-w-md mx-auto overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
@@ -254,7 +254,7 @@ export default function UploadInterviewPdf() {
           </div>
         )}
 
-        {/* Description */}
+        {}
         {!loading && !selectedFile && (
           <p className={`mt-3 ${dark ? "text-gray-400" : "text-gray-500"}`}>
             Click here or drag & drop your PDF file.
@@ -271,12 +271,12 @@ export default function UploadInterviewPdf() {
           </p>
         )}
 
-        {/* Error Message */}
+        {}
         {error && !loading && (
           <p className="mt-3 text-sm text-red-500">{error}</p>
         )}
 
-        {/* File Type / Selected File */}
+        {}
         {!loading && selectedFile ? (
           <div
             onClick={(event) => event.stopPropagation()}
@@ -337,7 +337,7 @@ export default function UploadInterviewPdf() {
           </div>
         )}
 
-        {/* Hidden Input */}
+        {}
         <input
           ref={inputRef}
           type="file"
@@ -348,7 +348,7 @@ export default function UploadInterviewPdf() {
         />
       </div>
 
-      {/* Bottom Action */}
+      {}
       <div className="mt-8 flex justify-end">
         <button
           type="button"

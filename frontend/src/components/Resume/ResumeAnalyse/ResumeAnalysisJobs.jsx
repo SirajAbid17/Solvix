@@ -1,4 +1,4 @@
-// ResumeAnalysisJobs.jsx
+
 import React, { useState } from "react";
 import {
   FaSearch,
@@ -8,7 +8,7 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 
-// Job Card Component
+
 function JobCard({ job, dark }) {
   const handleApply = () => {
     if (job.url) {

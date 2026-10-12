@@ -1,4 +1,4 @@
-// src/components/Dashboard/AgentUsageGrid.jsx
+
 
 import React from "react";
 import {
@@ -15,7 +15,7 @@ import {
   EmptyState,
 } from "./shared";
 
-// ✅ SIRF PAID SERVICES KE ICONS
+
 const agentMap = {
   "Resume Upload": {
     icon: <FiFileText />,
@@ -39,7 +39,7 @@ const agentMap = {
   },
 };
 
-// ✅ PAID SERVICES LIST
+
 const PAID_SERVICES = [
   'Resume Upload',
   'Resume Analyzer',
@@ -49,7 +49,7 @@ const PAID_SERVICES = [
 ];
 
 export default function AgentUsageGrid({ serviceUsage }) {
-  // ✅ SIRF PAID SERVICES FILTER KAREIN
+  
   const entries = Object.entries(serviceUsage || {})
     .filter(([name]) => PAID_SERVICES.some(service => name.includes(service)));
 
@@ -68,7 +68,7 @@ export default function AgentUsageGrid({ serviceUsage }) {
         dark:bg-[#0d0f12]
       "
     >
-      {/* Header */}
+      {}
       <div
         className="
           flex flex-col gap-4
@@ -108,7 +108,7 @@ export default function AgentUsageGrid({ serviceUsage }) {
         )}
       </div>
 
-      {/* Content */}
+      {}
       <div className="p-4 sm:p-5 lg:p-6">
         {hasData ? (
           <div

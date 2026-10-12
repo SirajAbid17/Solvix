@@ -1,4 +1,4 @@
-// mockInterview.service.js
+
 import { ChatGroq } from "@langchain/groq";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
@@ -9,18 +9,14 @@ const model = new ChatGroq({
   maxTokens: 16000,
 });
 
-// ============================================================
-// HELPERS
-// ============================================================
+
 const cleanString = (v, fb = "") => (v == null ? fb : String(v).trim());
 const cleanStringArray = (v) =>
   Array.isArray(v)
     ? v.filter((i) => i != null).map((i) => String(i).trim()).filter(Boolean)
     : [];
 
-// ============================================================
-// DETECT LANGUAGES FROM RESUME
-// ============================================================
+
 export const detectLanguages = (resumeText) => {
   const t = String(resumeText || "").toLowerCase();
 
@@ -43,13 +39,11 @@ export const detectLanguages = (resumeText) => {
     detected[key] = patterns[key].test(t);
   });
 
-  console.log("🔍 Detected languages:", detected);
+ 
   return detected;
 };
 
-// ============================================================
-// PARSE AI RESPONSE
-// ============================================================
+
 const parseAIResponse = (content) => {
   if (!content) throw new Error("AI returned empty response.");
 
@@ -83,9 +77,7 @@ const parseAIResponse = (content) => {
   }
 };
 
-// ============================================================
-// NORMALIZERS
-// ============================================================
+
 const normalizeDSAQuestion = (item) => {
   if (typeof item === "string") {
     const q = cleanString(item);
@@ -233,13 +225,11 @@ const normalizeHR = (item) => {
   };
 };
 
-// ============================================================
-// BUILD BATCH PROMPT (with detected languages)
-// ============================================================
+
 const buildBatchPrompt = (resumeText, batchNumber, previousTopics = []) => {
   const langs = detectLanguages(resumeText);
 
-  // Only include languages that exist in the CV
+  
   const availableLanguages = [];
   if (langs.javascript) availableLanguages.push("JavaScript");
   if (langs.python) availableLanguages.push("Python");
@@ -250,20 +240,20 @@ const buildBatchPrompt = (resumeText, batchNumber, previousTopics = []) => {
   if (langs.rust) availableLanguages.push("Rust");
   if (langs.php) availableLanguages.push("PHP");
 
-  // ✅ Main language for solutions
+ 
   const primaryLang = langs.javascript
     ? "javascript"
     : langs.python
     ? "python"
     : langs.java
     ? "java"
-    : "javascript"; // default
+    : "javascript";
 
-  // ✅ Decide which language solutions to include
-  const includeJs = langs.javascript || !langs.python; // default to JS if nothing else
+
+  const includeJs = langs.javascript || !langs.python; 
   const includePy = langs.python;
 
-  // Build solution instructions
+  
   let solutionRules = "";
   if (includeJs && includePy) {
     solutionRules = `
@@ -406,9 +396,7 @@ ${resumeText}
 `;
 };
 
-// ============================================================
-// NORMALIZE FULL RESULT
-// ============================================================
+
 const normalizeInterviewResult = (data) => {
   const dsaQuestions = Array.isArray(data.dsaQuestions)
     ? data.dsaQuestions.map(normalizeDSAQuestion).filter(Boolean).slice(0, 5)
@@ -451,9 +439,7 @@ const normalizeInterviewResult = (data) => {
   };
 };
 
-// ============================================================
-// VALIDATE
-// ============================================================
+
 const validateInterviewResult = (result) => {
   const required = {
     dsaQuestions: 5,
@@ -474,9 +460,7 @@ const validateInterviewResult = (result) => {
   return true;
 };
 
-// ============================================================
-// GENERATE MOCK INTERVIEW (main function)
-// ============================================================
+
 export const generateMockInterview = async (resumeText, options = {}) => {
   try {
     if (!resumeText || !resumeText.trim()) {
@@ -487,7 +471,7 @@ export const generateMockInterview = async (resumeText, options = {}) => {
     const previousTopics = options.previousTopics || [];
 
     console.log(
-      `🤖 Generating batch #${batchNumber} (previous topics: ${previousTopics.length})`
+      `Generating batch #${batchNumber} (previous topics: ${previousTopics.length})`
     );
 
     const prompt = buildBatchPrompt(resumeText, batchNumber, previousTopics);
@@ -504,7 +488,7 @@ export const generateMockInterview = async (resumeText, options = {}) => {
 
     validateInterviewResult(result);
 
-    console.log("✅ Batch generated:", {
+    console.log("Batch generated:", {
       total: result.totalQuestions,
       detectedSkills: result.detectedSkills.length,
       batch: batchNumber,
@@ -512,7 +496,7 @@ export const generateMockInterview = async (resumeText, options = {}) => {
 
     return result;
   } catch (error) {
-    console.error("❌ Groq AI Error:", error);
+    console.error("Groq AI Error:", error);
     throw new Error(`Failed to generate mock interview: ${error.message}`);
   }
 };

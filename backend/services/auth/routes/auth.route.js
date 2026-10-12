@@ -21,7 +21,7 @@ import { authRateLimit } from "../../../shared/authRateLimit.js";
 
 const Router = express.Router();
 
-// Public routes
+
 Router.post(
   "/login",
   authRateLimit,
@@ -30,7 +30,7 @@ Router.post(
 
 Router.post("/logout", Logout);
 
-// Protected routes
+
 Router.post("/update-plan", UpdateUserPayment);
 
 Router.get(
@@ -43,7 +43,7 @@ Router.post(
   DeductCredits
 );
 
-// Admin Routes
+
 Router.get("/admin/users/stats", getAdminUsersStats);
 Router.get("/admin/users", getAdminUsersList);
 Router.get("/admin/user/:id", getUserById);

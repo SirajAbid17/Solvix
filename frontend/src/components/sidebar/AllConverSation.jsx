@@ -27,17 +27,9 @@ export default function AllConverSation() {
   const [editTitle, setEditTitle] = useState("");
   const [titleLoading, setTitleLoading] = useState(false);
 
-  // ============================================================
-  // GSAP REFS
-  // ============================================================
-
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
   const emptyStateRef = useRef(null);
-
-  // ============================================================
-  // GSAP - CONVERSATION ENTRANCE
-  // ============================================================
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -46,7 +38,6 @@ export default function AllConverSation() {
 
     if (!cards.length) return;
 
-    // Initial state
     gsap.set(cards, {
       opacity: 0,
       y: 18,
@@ -54,7 +45,6 @@ export default function AllConverSation() {
       filter: "blur(4px)",
     });
 
-    // Slow premium entrance
     gsap.to(cards, {
       opacity: 1,
       y: 0,
@@ -70,10 +60,6 @@ export default function AllConverSation() {
       gsap.killTweensOf(cards);
     };
   }, [conversations]);
-
-  // ============================================================
-  // GSAP - EMPTY STATE
-  // ============================================================
 
   useEffect(() => {
     if (!emptyStateRef.current || conversations.length > 0) return;
@@ -100,10 +86,6 @@ export default function AllConverSation() {
     };
   }, [conversations.length]);
 
-  // ============================================================
-  // LOG CONVERSATIONS
-  // ============================================================
-
   useEffect(() => {
     console.log(
       "Conversations updated:",
@@ -114,17 +96,9 @@ export default function AllConverSation() {
     );
   }, [conversations]);
 
-  // ============================================================
-  // LOG SELECTED CONVERSATION
-  // ============================================================
-
   useEffect(() => {
     console.log("Selected conversation:", selectedConversation?.title);
   }, [selectedConversation]);
-
-  // ============================================================
-  // SELECT CONVERSATION
-  // ============================================================
 
   const handleSelectConversation = (conversation) => {
     console.log("Selecting conversation:", conversation.title);
@@ -132,20 +106,12 @@ export default function AllConverSation() {
     dispatch(setSelectedConversation(conversation));
   };
 
-  // ============================================================
-  // START EDIT
-  // ============================================================
-
   const handleStartEdit = (e, conversation) => {
     e.stopPropagation();
 
     setEditingId(conversation._id);
     setEditTitle(conversation.title || "New Conversation");
   };
-
-  // ============================================================
-  // SAVE TITLE
-  // ============================================================
 
   const handleSaveTitle = async (e, conversationId) => {
     e.stopPropagation();
@@ -194,19 +160,11 @@ export default function AllConverSation() {
     }
   };
 
-  // ============================================================
-  // CANCEL EDIT
-  // ============================================================
-
   const handleCancelEdit = (e) => {
     e.stopPropagation();
 
     setEditingId(null);
   };
-
-  // ============================================================
-  // KEYBOARD EVENTS
-  // ============================================================
 
   const handleKeyDown = (e, conversationId) => {
     if (e.key === "Enter") {
@@ -219,10 +177,6 @@ export default function AllConverSation() {
       handleCancelEdit(e);
     }
   };
-
-  // ============================================================
-  // CARD HOVER ANIMATION
-  // ============================================================
 
   const handleCardEnter = (element) => {
     if (!element) return;
@@ -245,10 +199,6 @@ export default function AllConverSation() {
       ease: "power3.out",
     });
   };
-
-  // ============================================================
-  // FORMAT TIME
-  // ============================================================
 
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
@@ -277,10 +227,6 @@ export default function AllConverSation() {
     return date.toLocaleDateString();
   };
 
-  // ============================================================
-  // GET TITLE
-  // ============================================================
-
   const getConversationTitle = (conversation) => {
     if (conversation.title && conversation.title !== "New Conversation") {
       return conversation.title;
@@ -288,10 +234,6 @@ export default function AllConverSation() {
 
     return "New Conversation";
   };
-
-  // ============================================================
-  // UI
-  // ============================================================
 
   return (
     <div
@@ -329,9 +271,7 @@ export default function AllConverSation() {
         }
       `}
     >
-      {/* ======================================================
-          CONVERSATIONS
-      ====================================================== */}
+      {}
 
       {conversations.length > 0 ? (
         conversations.map((item, index) => {
@@ -418,9 +358,7 @@ export default function AllConverSation() {
                 }
               `}
             >
-              {/* ==================================================
-                  SUBTLE SHINE
-              ================================================== */}
+              {}
 
               <div
                 className={`
@@ -442,9 +380,7 @@ export default function AllConverSation() {
                 `}
               />
 
-              {/* ==================================================
-                  SELECTED LEFT INDICATOR
-              ================================================== */}
+              {}
 
               <div
                 className={`
@@ -471,9 +407,7 @@ export default function AllConverSation() {
                 `}
               />
 
-              {/* ==================================================
-                  MESSAGE ICON
-              ================================================== */}
+              {}
 
               <div
                 className={`
@@ -529,7 +463,7 @@ export default function AllConverSation() {
               >
                 <FiMessageSquare size={15} strokeWidth={2} />
 
-                {/* Selected dot */}
+                {}
 
                 {isSelected && (
                   <span
@@ -555,12 +489,10 @@ export default function AllConverSation() {
                 )}
               </div>
 
-              {/* ==================================================
-                  CONTENT
-              ================================================== */}
+              {}
 
               <div className="min-w-0 flex-1 relative z-10">
-                {/* Time Row */}
+                {}
 
                 <div
                   className="
@@ -603,7 +535,7 @@ export default function AllConverSation() {
                     {formatTime(item.updatedAt || item.createdAt)}
                   </span>
 
-                  {/* Active indicator */}
+                  {}
 
                   {isSelected && !isEditing && (
                     <span
@@ -623,9 +555,7 @@ export default function AllConverSation() {
                   )}
                 </div>
 
-                {/* ==================================================
-                    EDIT MODE
-                ================================================== */}
+                {}
 
                 {isEditing ? (
                   <div
@@ -692,7 +622,7 @@ export default function AllConverSation() {
                       placeholder="Enter title..."
                     />
 
-                    {/* Save */}
+                    {}
 
                     <button
                       onClick={(e) => handleSaveTitle(e, item._id)}
@@ -738,7 +668,7 @@ export default function AllConverSation() {
                       <FiCheck size={13} />
                     </button>
 
-                    {/* Cancel */}
+                    {}
 
                     <button
                       onClick={handleCancelEdit}
@@ -782,10 +712,6 @@ export default function AllConverSation() {
                     </button>
                   </div>
                 ) : (
-                  /* ==================================================
-                     NORMAL TITLE
-                  ================================================== */
-
                   <div
                     className="
                       flex
@@ -840,9 +766,7 @@ export default function AllConverSation() {
                       {displayTitle}
                     </h1>
 
-                    {/* ==================================================
-                        EDIT BUTTON
-                    ================================================== */}
+                    {}
 
                     <button
                       onClick={(e) => handleStartEdit(e, item)}
@@ -907,10 +831,6 @@ export default function AllConverSation() {
           );
         })
       ) : (
-        /* ============================================================
-           EMPTY STATE
-        ============================================================ */
-
         <div
           ref={emptyStateRef}
           className="
@@ -924,7 +844,7 @@ export default function AllConverSation() {
           "
         >
           <div className="text-center">
-            {/* Icon */}
+            {}
 
             <div
               data-empty-animation
@@ -962,7 +882,7 @@ export default function AllConverSation() {
               <RiMessageAi3Fill size={23} />
             </div>
 
-            {/* Heading */}
+            {}
 
             <p
               data-empty-animation
@@ -978,7 +898,7 @@ export default function AllConverSation() {
               No conversations yet
             </p>
 
-            {/* Description */}
+            {}
 
             <p
               data-empty-animation

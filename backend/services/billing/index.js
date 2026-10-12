@@ -32,5 +32,5 @@ app.get("/health", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`💰 Billing Service running on http://localhost:${PORT}`);
+  console.log(`Billing Service running on http://localhost:${PORT}`);
 });

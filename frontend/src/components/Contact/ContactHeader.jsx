@@ -8,7 +8,7 @@ const ContactHeader = () => {
   return (
     <header className="contact-header fixed inset-x-0 top-0 z-50 border-b border-white/[0.07] bg-[#08090b]/80 backdrop-blur-2xl">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 sm:px-8 lg:px-12">
-        {/* Brand */}
+        {}
         <button
           type="button"
           onClick={() => navigate("/")}
@@ -35,14 +35,14 @@ const ContactHeader = () => {
           </div>
         </button>
 
-        {/* Center title */}
+        {}
         <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
           <div className="text-[9px] font-medium uppercase tracking-[0.25em] text-white/30">
             Support / Contact
           </div>
         </div>
 
-        {/* Back button */}
+        {}
         <button
           type="button"
           onClick={() => navigate("/")}

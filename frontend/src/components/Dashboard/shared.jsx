@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 
-// Card
+
 export const Card = ({ children, className = "" }) => {
   return (
     <div
@@ -20,7 +20,7 @@ export const Card = ({ children, className = "" }) => {
   );
 };
 
-// SectionHeader
+
 export const SectionHeader = ({ icon, title, description }) => {
   return (
     <div className="mb-6 flex items-start justify-between gap-4">
@@ -37,7 +37,7 @@ export const SectionHeader = ({ icon, title, description }) => {
   );
 };
 
-// StatCard
+
 export const StatCard = ({ icon, label, value, subtext, delay = 0 }) => {
   const cardRef = useRef(null);
 
@@ -78,7 +78,7 @@ export const StatCard = ({ icon, label, value, subtext, delay = 0 }) => {
   );
 };
 
-// AgentUsageCard
+
 export const AgentUsageCard = ({ name, count, icon, color = "blue" }) => {
   const colors = {
     blue: "border-blue-500/20 bg-blue-500/10 text-blue-400",
@@ -106,7 +106,7 @@ export const AgentUsageCard = ({ name, count, icon, color = "blue" }) => {
   );
 };
 
-// EmptyState
+
 export const EmptyState = ({ icon, title, description }) => {
   return (
     <div className="py-10 text-center">

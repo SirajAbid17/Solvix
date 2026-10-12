@@ -1,4 +1,4 @@
-// components/Resume/CV-Generate/sections/ProfessionalSections.jsx
+
 import React from "react";
 import {
   FaBriefcase,
@@ -104,7 +104,7 @@ export default function ProfessionalSections({
 
   return (
     <>
-      {/* Work Experience */}
+      {}
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -269,7 +269,7 @@ export default function ProfessionalSections({
         </div>
       </div>
 
-      {/* Education */}
+      {}
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -364,7 +364,7 @@ export default function ProfessionalSections({
         </div>
       </div>
 
-      {/* Projects */}
+      {}
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>

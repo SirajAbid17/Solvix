@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// ============================================================
-// Initial State
-// ============================================================
+
+
+
 
 const initialState = {
   portfolios: [],
@@ -15,9 +15,9 @@ const initialState = {
   analysisError: null,
 };
 
-// ============================================================
-// Helper
-// ============================================================
+
+
+
 
 const getPortfolioId = (portfolio) => {
   if (!portfolio) return null;
@@ -39,17 +39,17 @@ const portfolioSlice = createSlice({
   initialState,
 
   reducers: {
-    // ========================================================
-    // Set All Portfolios
-    // ========================================================
+    
+    
+    
 
     setPortfolios: (state, action) => {
       state.portfolios = action.payload || [];
     },
 
-    // ========================================================
-    // Add Portfolio
-    // ========================================================
+    
+    
+    
 
     addPortfolio: (state, action) => {
       const newPortfolio = action.payload;
@@ -59,7 +59,7 @@ const portfolioSlice = createSlice({
       const newId =
         getPortfolioId(newPortfolio);
 
-      // Prevent duplicate portfolio
+      
       const exists = state.portfolios.some(
         (portfolio) =>
           getPortfolioId(portfolio) === newId
@@ -85,9 +85,9 @@ const portfolioSlice = createSlice({
       );
     },
 
-    // ========================================================
-    // Update Portfolio
-    // ========================================================
+    
+    
+    
 
     updatePortfolioInStore: (
       state,
@@ -128,9 +128,9 @@ const portfolioSlice = createSlice({
       }
     },
 
-    // ========================================================
-    // Remove Portfolio
-    // ========================================================
+    
+    
+    
 
     removePortfolio: (
       state,
@@ -158,18 +158,18 @@ const portfolioSlice = createSlice({
       }
     },
 
-    // ========================================================
-    // Clear All Portfolios
-    // ========================================================
+    
+    
+    
 
     clearPortfolios: (state) => {
       state.portfolios = [];
       state.currentPortfolio = null;
     },
 
-    // ========================================================
-    // Set Current Portfolio
-    // ========================================================
+    
+    
+    
 
     setCurrentPortfolio: (
       state,
@@ -179,9 +179,9 @@ const portfolioSlice = createSlice({
         action.payload;
     },
 
-    // ========================================================
-    // Clear Current Portfolio
-    // ========================================================
+    
+    
+    
 
     clearCurrentPortfolio: (
       state
@@ -189,9 +189,9 @@ const portfolioSlice = createSlice({
       state.currentPortfolio = null;
     },
 
-    // ========================================================
-    // Loading
-    // ========================================================
+    
+    
+    
 
     setPortfolioLoading: (
       state,
@@ -201,9 +201,9 @@ const portfolioSlice = createSlice({
         action.payload;
     },
 
-    // ========================================================
-    // Analysis Loading
-    // ========================================================
+    
+    
+    
 
     setPortfolioAnalyzing: (
       state,
@@ -213,9 +213,9 @@ const portfolioSlice = createSlice({
         action.payload;
     },
 
-    // ========================================================
-    // Error
-    // ========================================================
+    
+    
+    
 
     setPortfolioError: (
       state,
@@ -225,9 +225,9 @@ const portfolioSlice = createSlice({
         action.payload;
     },
 
-    // ========================================================
-    // Analysis Error
-    // ========================================================
+    
+    
+    
 
     setPortfolioAnalysisError: (
       state,
@@ -237,9 +237,9 @@ const portfolioSlice = createSlice({
         action.payload;
     },
 
-    // ========================================================
-    // Clear Error
-    // ========================================================
+    
+    
+    
 
     clearPortfolioError: (
       state
@@ -247,9 +247,9 @@ const portfolioSlice = createSlice({
       state.error = null;
     },
 
-    // ========================================================
-    // Clear Analysis Error
-    // ========================================================
+    
+    
+    
 
     clearPortfolioAnalysisError: (
       state
@@ -257,9 +257,9 @@ const portfolioSlice = createSlice({
       state.analysisError = null;
     },
 
-    // ========================================================
-    // Update Analysis Result
-    // ========================================================
+    
+    
+    
 
     updatePortfolioAnalysis: (
       state,
@@ -278,7 +278,7 @@ const portfolioSlice = createSlice({
         ...state.currentPortfolio,
         ...action.payload,
 
-        // Preserve generated code
+        
         generatedCode:
           action.payload
             ?.generatedCode ||
@@ -300,9 +300,9 @@ const portfolioSlice = createSlice({
         );
     },
 
-    // ========================================================
-    // Set Generated Code
-    // ========================================================
+    
+    
+    
 
     setGeneratedCode: (
       state,
@@ -347,9 +347,9 @@ const portfolioSlice = createSlice({
         );
     },
 
-    // ========================================================
-    // Set Analysis
-    // ========================================================
+    
+    
+    
 
     setPortfolioAnalysis: (
       state,
@@ -382,9 +382,9 @@ const portfolioSlice = createSlice({
         );
     },
 
-    // ========================================================
-    // Reset State
-    // ========================================================
+    
+    
+    
 
     resetPortfolioState: () => {
       return initialState;
@@ -392,9 +392,9 @@ const portfolioSlice = createSlice({
   },
 });
 
-// ============================================================
-// Actions
-// ============================================================
+
+
+
 
 export const {
   setPortfolios,
@@ -423,8 +423,8 @@ export const {
   resetPortfolioState,
 } = portfolioSlice.actions;
 
-// ============================================================
-// Reducer
-// ============================================================
+
+
+
 
 export default portfolioSlice.reducer;

@@ -1,4 +1,3 @@
-// controllers/cv.controller.js
 import cvModel from "../models/cv.model.js";
 import { CacheService } from "../services/cache.service.js";
 import { CVBuilder } from "../services/cvBuilder.service.js";
@@ -48,7 +47,7 @@ export const createCV = async (req, res) => {
       });
     }
 
-    // Parse all data
+   
     const parsedData = {
       skills: parseSkills(body.skills),
       workExperience: parseStructuredData(body.workExperience, "workExperience"),
@@ -66,7 +65,7 @@ export const createCV = async (req, res) => {
       volunteering: parseStructuredData(body.volunteering, "volunteering"),
     };
 
-    // Handle profile image
+    
     let profileImage = null;
     if (req.file) {
       profileImage = await CVBuilder.handleProfileImageUpload(
@@ -76,13 +75,13 @@ export const createCV = async (req, res) => {
       );
     }
 
-    // Generate AI resume
+    
     const aiResume = await CVBuilder.generateAIResume({
       ...body,
       ...parsedData,
     });
 
-    // Build CV data
+    
     const cvData = CVBuilder.buildCVData(
       { ...body, ...parsedData },
       userId,
@@ -163,7 +162,7 @@ export const getCVById = async (req, res) => {
       });
     }
 
-    // Update analytics
+    
     cv.analytics = cv.analytics || {};
     cv.analytics.views = (cv.analytics.views || 0) + 1;
     cv.analytics.lastViewed = new Date();
@@ -197,7 +196,7 @@ export const updateCV = async (req, res) => {
       });
     }
 
-    // Parse all data
+    
     const parsedData = {
       skills: parseSkills(body.skills),
       workExperience: parseStructuredData(body.workExperience, "workExperience"),
@@ -215,7 +214,7 @@ export const updateCV = async (req, res) => {
       volunteering: parseStructuredData(body.volunteering, "volunteering"),
     };
 
-    // Handle profile image
+    
     let profileImage = existingCV.profileImage;
     if (req.file) {
       if (existingCV.profileImage?.publicId) {
@@ -243,7 +242,7 @@ export const updateCV = async (req, res) => {
       profileImage = null;
     }
 
-    // Generate AI resume if content changed
+  
     let aiResume = null;
     const contentChanged = !!(body.fullName || body.skills || body.workExperience || body.summary || body.objective);
 
@@ -255,7 +254,7 @@ export const updateCV = async (req, res) => {
       });
     }
 
-    // Build update data
+   
     let updateData = CVBuilder.buildUpdateData(
       { ...body, ...parsedData },
       existingCV,
@@ -263,7 +262,7 @@ export const updateCV = async (req, res) => {
       aiResume
     );
 
-    // Handle versioning
+ 
     updateData = await CVBuilder.handleVersioning(
       existingCV, 
       updateData, 

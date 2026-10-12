@@ -8,7 +8,7 @@ import {
   FiDollarSign,
   FiStar,
   FiAward,
-  FiTrendingUp,  // ✅ REPLACED FiRocket WITH FiTrendingUp
+  FiTrendingUp,  
 } from "react-icons/fi";
 import { Card } from "./shared";
 
@@ -39,7 +39,7 @@ const plans = [
     speed: "Fast Speed",
     description: "More credits for regular AI usage.",
     gradient: "from-blue-600 via-indigo-600 to-black",
-    icon: <FiTrendingUp className="text-4xl text-blue-400" />,  // ✅ REPLACED
+    icon: <FiTrendingUp className="text-4xl text-blue-400" />,  
     features: [
       "All AI Tools",
       "Resume Analyzer",
@@ -74,11 +74,11 @@ const plans = [
 export default function PricingSection({ full = false }) {
   const navigate = useNavigate();
 
-  // If full view (pricing tab)
+  
   if (full) {
     return (
       <div className="space-y-8">
-        {/* Heading */}
+        {}
         <div className="text-center">
           <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-indigo-400">
             <FiDollarSign /> Solvix Pricing
@@ -89,7 +89,7 @@ export default function PricingSection({ full = false }) {
           </p>
         </div>
 
-        {/* Plans */}
+        {}
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {plans.map((plan) => {
             return (
@@ -167,7 +167,7 @@ export default function PricingSection({ full = false }) {
     );
   }
 
-  // Compact view (overview tab)
+  
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">

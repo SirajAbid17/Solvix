@@ -2,17 +2,8 @@ import axios from "axios";
 import { getAllAgentStats, getAgentUsageFromRedis } from "../../shared/middlewares/activity.middleware.js";
 import redis from "../../shared/redis/redis.js";
 
-
-// ============================================================
-// SERVICE URLs
-// ============================================================
-
 const AUTH_SERVICE = process.env.Auth_Services || "http://localhost:5001";
 const BILLING_SERVICE = process.env.BILLING_SERVICES || "http://localhost:5006";
-
-// ============================================================
-// HELPERS
-// ============================================================
 
 const fetchFromService = async (url, options = {}) => {
   try {
@@ -28,14 +19,11 @@ const fetchFromService = async (url, options = {}) => {
     });
     return response.data;
   } catch (error) {
-    console.error(`❌ Service fetch error (${url}):`, error.message);
+    console.error(`Service fetch error (${url}):`, error.message);
     return null;
   }
 };
 
-// ============================================================
-// 1. GET ADMIN STATS
-// ============================================================
 
 export const getAdminStats = async (req, res) => {
   try {

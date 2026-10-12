@@ -6,15 +6,15 @@ export const authRateLimit = async (req, res, next) => {
 
     const key = `auth-rate-limit:${userId}`;
 
-    // Request count increase
+    
     const current = await redis.incr(key);
 
-    // 15 minutes ka window
+   
     if (current === 1) {
       await redis.expire(key, 15 * 60);
     }
 
-    // 10 authentication attempts / 15 minutes
+    
     if (current > 10) {
       const ttl = await redis.ttl(key);
 
@@ -29,7 +29,7 @@ export const authRateLimit = async (req, res, next) => {
   } catch (error) {
     console.error("Auth Rate Limit Error:", error);
 
-    // Redis fail ho to request block nahi hogi
+   
     next();
   }
 };

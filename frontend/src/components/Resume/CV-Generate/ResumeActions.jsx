@@ -1,4 +1,4 @@
-// components/Resume/CV-Generate/components/ResumeActions.jsx
+
 import { FaEdit, FaPrint, FaDownload, FaImage, FaTrash, FaSpinner } from "react-icons/fa";
 
 export default function ResumeActions({ 

@@ -32,11 +32,11 @@ export default function ResumeData() {
     >
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
 
-        {/* ================= LEFT SIDE ================= */}
+        {}
 
         <div className="flex flex-col justify-center">
 
-          {/* Small Badge */}
+          {}
           <div
             className={`
               mb-3 inline-flex w-fit items-center gap-2
@@ -53,7 +53,7 @@ export default function ResumeData() {
             AI-Powered Career Intelligence
           </div>
 
-          {/* Main Heading */}
+          {}
           <h1 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
             Land more interviews with{" "}
             <span
@@ -66,7 +66,7 @@ export default function ResumeData() {
             resume insights.
           </h1>
 
-          {/* Description */}
+          {}
           <div
             className={`
               mt-4 max-w-xl space-y-4
@@ -79,7 +79,7 @@ export default function ResumeData() {
             `}
           >
 
-            {/* 1 */}
+            {}
             <p>
               <span
                 className={
@@ -94,7 +94,7 @@ export default function ResumeData() {
 
             </p>
 
-            {/* 2 */}
+            {}
             <p>
               <span
                 className={
@@ -108,7 +108,7 @@ export default function ResumeData() {
               Get your resume score, discover skill gaps, and receive personalized recommendations to improve your profile and become a stronger candidate.
 .
             </p>
-            {/* 3 */}
+            {}
 <p>
   <span
     className={
@@ -124,7 +124,7 @@ export default function ResumeData() {
 
           </div>
 
-          {/* Features */}
+          {}
           <div className="mt-5 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
 
             <Feature
@@ -157,7 +157,7 @@ export default function ResumeData() {
 
         </div>
 
-        {/* ================= RIGHT SIDE ================= */}
+        {}
 
         <div className="flex items-center justify-center">
           <img
@@ -173,7 +173,7 @@ export default function ResumeData() {
 }
 
 
-/* ================= FEATURE COMPONENT ================= */
+
 
 function Feature({ icon, title, text }) {
   return (

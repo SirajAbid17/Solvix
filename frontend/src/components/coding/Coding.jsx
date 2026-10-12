@@ -22,7 +22,7 @@ export default function Coding() {
         ${dark ? "bg-black text-white" : "bg-white text-black"}
       `}
     >
-      {/* Theme Button */}
+      {}
       <div
         className={`
           fixed
@@ -40,7 +40,7 @@ export default function Coding() {
         <BgContextBtn />
       </div>
 
-      {/* Heading */}
+      {}
       <div className="w-56 shrink-0 p-2.5">
         <div className="relative">
           <p
@@ -69,7 +69,7 @@ export default function Coding() {
         </div>
       </div>
 
-      {/* Heading Border */}
+      {}
       <div
         className={`
           w-full
@@ -79,7 +79,7 @@ export default function Coding() {
         `}
       />
 
-      {/* Code Preview Area */}
+      {}
       <div
         className="
           min-h-0
@@ -90,7 +90,7 @@ export default function Coding() {
         <CodePreview />
       </div>
 
-      {/* Bottom Website Information */}
+      {}
       <div className="mt-auto w-full shrink-0">
         <WebsiteInformation />
       </div>

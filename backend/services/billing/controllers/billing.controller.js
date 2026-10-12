@@ -3,12 +3,6 @@ import { plans } from "../plans/plan.js";
 import Payment from "../models/payment.model.js";
 import axios from "axios";
 
-/*
-====================================================
-UPDATE USER PLAN
-====================================================
-*/
-
 const updateUserPlan = async (userId, plan, credits) => {
   try {
     const authServiceUrl = process.env.AUTH_SERVICES_URL || "http://localhost:5001";
@@ -48,23 +42,12 @@ const updateUserPlan = async (userId, plan, credits) => {
   }
 };
 
-/*
-====================================================
-CREATE ORDER
-====================================================
-*/
 
 export const createOrder = async (req, res) => {
   try {
     const { planType } = req.body;
     const userId = req.headers["x-user-id"];
 
-    console.log("");
-    console.log("========================================");
-    console.log("📥 CREATE ORDER");
-    console.log("========================================");
-    console.log("👤 User ID:", userId);
-    console.log("📦 Plan:", planType);
 
     if (!userId) {
       return res.status(401).json({
@@ -82,7 +65,7 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // FREE PLAN
+    
     if (Number(selectedPlan.price) === 0) {
       const result = await updateUserPlan(userId, planType, selectedPlan.credits);
 
@@ -105,9 +88,7 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // STRIPE CHECKOUT
-    console.log("💳 Creating Stripe Checkout...");
-
+  
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -144,16 +125,7 @@ export const createOrder = async (req, res) => {
       creditsAdded: false,
     });
 
-    console.log("");
-    console.log("========================================");
-    console.log("✅ STRIPE CHECKOUT CREATED");
-    console.log("Session:", session.id);
-    console.log("User:", userId);
-    console.log("Plan:", planType);
-    console.log("Credits:", selectedPlan.credits);
-    console.log("Amount:", selectedPlan.price);
-    console.log("========================================");
-
+   
     return res.status(200).json({
       success: true,
       sessionUrl: session.url,
@@ -169,23 +141,11 @@ export const createOrder = async (req, res) => {
   }
 };
 
-/*
-====================================================
-VERIFY STRIPE PAYMENT
-====================================================
-*/
-
 export const getPaymentStatus = async (req, res) => {
   try {
     const { sessionId } = req.params;
     const userId = req.headers["x-user-id"];
 
-    console.log("");
-    console.log("========================================");
-    console.log("🔍 VERIFY PAYMENT");
-    console.log("========================================");
-    console.log("Session ID:", sessionId);
-    console.log("User ID:", userId);
 
     if (!userId) {
       return res.status(401).json({
@@ -214,7 +174,7 @@ export const getPaymentStatus = async (req, res) => {
     }
 
     if (payment.creditsAdded) {
-      console.log("⚠️ Credits already added");
+      console.log("Credits already added");
       return res.status(200).json({
         success: true,
         message: "Payment already processed",
@@ -268,7 +228,7 @@ export const getPaymentStatus = async (req, res) => {
       });
     }
 
-    console.log("💳 Adding credits...");
+  
     const result = await updateUserPlan(userId, stripePlan, stripeCredits);
 
     payment.status = "Paid";
@@ -276,14 +236,7 @@ export const getPaymentStatus = async (req, res) => {
     payment.creditsAdded = true;
     await payment.save();
 
-    console.log("");
-    console.log("========================================");
-    console.log("🎉 PAYMENT COMPLETED");
-    console.log("User:", userId);
-    console.log("Plan:", stripePlan);
-    console.log("Credits Added:", stripeCredits);
-    console.log("========================================");
-
+    
     return res.status(200).json({
       success: true,
       message: "Payment verified and credits added",
@@ -291,7 +244,7 @@ export const getPaymentStatus = async (req, res) => {
       user: result.data?.user || null,
     });
   } catch (error) {
-    console.error("❌ Payment Verification Error:", error);
+    console.error("Payment Verification Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message || "Payment verification failed",
@@ -299,11 +252,6 @@ export const getPaymentStatus = async (req, res) => {
   }
 };
 
-/*
-====================================================
-GET PAYMENT HISTORY
-====================================================
-*/
 
 export const getPaymentHistory = async (req, res) => {
   try {
@@ -327,17 +275,13 @@ export const getPaymentHistory = async (req, res) => {
       payments,
     });
   } catch (error) {
-    console.error("❌ Payment History Error:", error);
+    console.error("Payment History Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
-
-// ============================================================
-// ADMIN: GET BILLING STATS
-// ============================================================
 
 export const getAdminBillingStats = async (req, res) => {
   try {
@@ -368,10 +312,6 @@ export const getAdminBillingStats = async (req, res) => {
     });
   }
 };
-
-// ============================================================
-// ADMIN: GET TRANSACTIONS
-// ============================================================
 
 export const getAdminTransactions = async (req, res) => {
   try {

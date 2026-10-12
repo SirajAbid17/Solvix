@@ -31,9 +31,9 @@ export default function InterviewHero() {
   const { dark } = useTheme();
   const navigate = useNavigate();
 
-  // ============================================================
-  // STATE
-  // ============================================================
+  
+  
+  
 
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,9 +41,9 @@ export default function InterviewHero() {
   const [error, setError] = useState(null);
   const [showCount, setShowCount] = useState(2);
 
-  // ============================================================
-  // FETCH INTERVIEWS
-  // ============================================================
+  
+  
+  
 
   const fetchInterviews = async () => {
     try {
@@ -72,9 +72,9 @@ export default function InterviewHero() {
     fetchInterviews();
   }, []);
 
-  // ============================================================
-  // DELETE INTERVIEW
-  // ============================================================
+  
+  
+  
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this interview?")) {
@@ -105,9 +105,9 @@ export default function InterviewHero() {
     }
   };
 
-  // ============================================================
-  // NAVIGATION
-  // ============================================================
+  
+  
+  
 
   const handleViewInterview = (id) => {
     navigate(`/interview-practice/${id}`);
@@ -121,9 +121,9 @@ export default function InterviewHero() {
     navigate("/mock-interview");
   };
 
-  // ============================================================
-  // SHOW MORE / LESS
-  // ============================================================
+  
+  
+  
 
   const handleShowMore = () => {
     setShowCount((prev) => prev + 4);
@@ -138,9 +138,9 @@ export default function InterviewHero() {
     }
   };
 
-  // ============================================================
-  // FORMAT DATE
-  // ============================================================
+  
+  
+  
 
   const formatDate = (dateString) => {
     if (!dateString) return "Recently";
@@ -166,9 +166,9 @@ export default function InterviewHero() {
     }
   };
 
-  // ============================================================
-  // GET PDF NAME
-  // ============================================================
+  
+  
+  
 
   const getPdfName = (interview) => {
     if (interview?.pdf?.originalName) {
@@ -177,25 +177,25 @@ export default function InterviewHero() {
     return "Resume.pdf";
   };
 
-  // ============================================================
-  // ✅ GET BATCH COUNT (each batch = 15 questions)
-  // ============================================================
+  
+  
+  
 
   const getBatchCount = (interview) => {
     const total = interview?.totalQuestions || 0;
     return Math.max(1, Math.ceil(total / 15));
   };
 
-  // ============================================================
-  // DISPLAY DATA
-  // ============================================================
+  
+  
+  
 
   const displayedInterviews = interviews.slice(0, showCount);
   const hasMore = interviews.length > showCount;
 
-  // ============================================================
-  // THEME CLASSES
-  // ============================================================
+  
+  
+  
 
   const pageBackground = dark
     ? "bg-[#080808] text-white"
@@ -207,18 +207,16 @@ export default function InterviewHero() {
 
   const mutedText = dark ? "text-white/50" : "text-black/50";
 
-  // ============================================================
-  // RENDER
-  // ============================================================
+  
+  
+  
 
   return (
     <div
       className={`min-h-screen px-4 py-8 transition-colors duration-300 sm:px-6 lg:px-8 ${pageBackground}`}
     >
       <div className="mx-auto max-w-7xl">
-        {/* ======================================================
-            HERO SECTION
-        ======================================================= */}
+        {}
 
         <section
           className={`relative overflow-hidden rounded-[28px] border px-6 py-12 shadow-sm sm:px-10 lg:px-14 lg:py-16 ${cardBackground}`}
@@ -236,7 +234,7 @@ export default function InterviewHero() {
           />
 
           <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
-            {/* HERO ICON */}
+            {}
             <div
               className={`mb-7 flex h-20 w-20 items-center justify-center rounded-[24px] border shadow-xl ${
                 dark
@@ -247,7 +245,7 @@ export default function InterviewHero() {
               <FaUserTie size={32} />
             </div>
 
-            {/* BADGE */}
+            {}
             <div
               className={`mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider ${
                 dark
@@ -259,7 +257,7 @@ export default function InterviewHero() {
               <span>AI Mock Interview Generator</span>
             </div>
 
-            {/* TITLE */}
+            {}
             <h1 className="max-w-3xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
               Prepare Smarter.
               <br />
@@ -268,7 +266,7 @@ export default function InterviewHero() {
               </span>
             </h1>
 
-            {/* DESCRIPTION */}
+            {}
             <p
               className={`mt-6 max-w-3xl text-sm leading-7 sm:text-base sm:leading-8 ${mutedText}`}
             >
@@ -278,7 +276,7 @@ export default function InterviewHero() {
               questions tailored specifically to your profile.
             </p>
 
-            {/* FEATURE PILLS */}
+            {}
             <div className="mt-8 flex flex-wrap justify-center gap-2.5">
               <span
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 ${
@@ -338,12 +336,10 @@ export default function InterviewHero() {
           </div>
         </section>
 
-        {/* ======================================================
-            INTERVIEW HISTORY
-        ======================================================= */}
+        {}
 
         <section id="interviews-section" className="mt-14">
-          {/* HEADER */}
+          {}
           <div className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="mb-3 flex items-center gap-3">
@@ -389,7 +385,7 @@ export default function InterviewHero() {
             </div>
           </div>
 
-          {/* LOADING */}
+          {}
           {loading && (
             <div
               className={`flex flex-col items-center justify-center rounded-3xl border py-24 ${cardBackground}`}
@@ -410,7 +406,7 @@ export default function InterviewHero() {
             </div>
           )}
 
-          {/* ERROR */}
+          {}
           {error && !loading && (
             <div className={`rounded-3xl border p-10 text-center ${cardBackground}`}>
               <div
@@ -438,7 +434,7 @@ export default function InterviewHero() {
             </div>
           )}
 
-          {/* INTERVIEW CARDS */}
+          {}
           {!loading && !error && interviews.length > 0 ? (
             <>
               <div className="grid gap-5 lg:grid-cols-2">
@@ -454,17 +450,17 @@ export default function InterviewHero() {
                           : "border-black/[0.08] bg-white hover:border-black/[0.15]"
                       }`}
                     >
-                      {/* TOP LINE */}
+                      {}
                       <div
                         className={`absolute left-0 right-0 top-0 h-px ${
                           dark ? "bg-white/20" : "bg-black/20"
                         }`}
                       />
 
-                      {/* CARD HEADER */}
+                      {}
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex min-w-0 items-center gap-4">
-                          {/* PDF ICON */}
+                          {}
                           <div
                             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${
                               dark
@@ -481,7 +477,7 @@ export default function InterviewHero() {
                                 {interview.title || "Mock Interview"}
                               </h3>
 
-                              {/* STATUS */}
+                              {}
                               <span
                                 className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-wider ${
                                   dark
@@ -500,7 +496,7 @@ export default function InterviewHero() {
                           </div>
                         </div>
 
-                        {/* DELETE */}
+                        {}
                         <button
                           onClick={() => handleDelete(interview._id)}
                           disabled={deleting === interview._id}
@@ -521,7 +517,7 @@ export default function InterviewHero() {
                         </button>
                       </div>
 
-                      {/* PDF NAME */}
+                      {}
                       <div
                         className={`mt-5 flex items-center gap-3 rounded-xl border p-3.5 ${
                           dark
@@ -550,7 +546,7 @@ export default function InterviewHero() {
                         </span>
                       </div>
 
-                      {/* ✅ BATCH INDICATOR */}
+                      {}
                       <div
                         className={`mt-4 flex items-center gap-3 rounded-xl border p-3.5 ${
                           dark
@@ -585,7 +581,7 @@ export default function InterviewHero() {
                         </div>
                       </div>
 
-                      {/* STATS */}
+                      {}
                       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                        
 
@@ -595,7 +591,7 @@ export default function InterviewHero() {
                       
                       </div>
 
-                      {/* DATE */}
+                      {}
                       <div
                         className={`mt-5 flex items-center gap-2 text-xs ${mutedText}`}
                       >
@@ -605,7 +601,7 @@ export default function InterviewHero() {
                         </span>
                       </div>
 
-                      {/* ACTIONS */}
+                      {}
                       <div
                         className={`mt-5 flex gap-3 border-t pt-5 ${
                           dark ? "border-white/[0.08]" : "border-black/[0.07]"
@@ -628,7 +624,7 @@ export default function InterviewHero() {
                 })}
               </div>
 
-              {/* SHOW MORE / LESS */}
+              {}
               <div className="mt-9 flex justify-center">
                 {hasMore ? (
                   <button
@@ -674,7 +670,7 @@ export default function InterviewHero() {
               )}
             </>
           ) : !loading && !error && interviews.length === 0 ? (
-            /* EMPTY STATE */
+            
             <div
               className={`rounded-3xl border border-dashed p-12 text-center ${cardBackground}`}
             >
@@ -711,7 +707,7 @@ export default function InterviewHero() {
             </div>
           ) : null}
 
-          {/* INFO BOX */}
+          {}
           <div
             className={`mt-8 flex gap-4 rounded-2xl border p-5 ${
               dark

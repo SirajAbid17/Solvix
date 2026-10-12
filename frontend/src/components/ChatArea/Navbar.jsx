@@ -61,7 +61,7 @@ const ResumeHendle=()=>{
             </p>
           </div>
 
-          {/* Right Side */}
+          {}
           <div className="flex items-center gap-3">
             <span
               className={`
@@ -106,7 +106,7 @@ const ResumeHendle=()=>{
       ) : (
         <div className="flex items-center justify-between">
           
-          {/* Left Side */}
+          {}
           <div>
             <h1
               className={`

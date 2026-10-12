@@ -1,14 +1,6 @@
 import { ChatGroq } from "@langchain/groq";
 import { TavilySearch } from "@langchain/tavily";
 
-
-
-/*
-=========================
-Groq Model
-=========================
-*/
-
 const model = new ChatGroq({
 
     apiKey: process.env.GROQ_API_KEY,
@@ -19,15 +11,6 @@ const model = new ChatGroq({
 });
 
 
-
-
-
-/*
-=========================
-Tavily Job Search
-=========================
-*/
-
 const tavily = new TavilySearch({
 
     apiKey: process.env.TAVILY_API_KEY,
@@ -36,15 +19,6 @@ const tavily = new TavilySearch({
 
 });
 
-
-
-
-
-/*
-=========================
-Resume Analysis
-=========================
-*/
 
 
 export const analyzeResume = async (resumeText) => {

@@ -1,5 +1,5 @@
 
-// Home.jsx
+
 import React from "react";
 import Sidebar from "../components/sidebar/Sidebar";
 import ChatArea from "../components/ChatArea/ChatArea";
@@ -20,17 +20,13 @@ export default function Home() {
         ${dark ? "bg-black text-white" : "bg-white text-black"}
       `}
     >
-      {/* ============================================
-          SIDEBAR
-      ============================================ */}
+      {}
 
       <div className="h-screen shrink-0">
         <Sidebar />
       </div>
 
-      {/* ============================================
-          CHAT AREA
-      ============================================ */}
+      {}
 
       <div
         className={`
@@ -52,9 +48,7 @@ export default function Home() {
         <ChatArea />
       </div>
 
-      {/* ============================================
-          CODING / PREVIEW AREA
-      ============================================ */}
+      {}
 
       <div
         className={`

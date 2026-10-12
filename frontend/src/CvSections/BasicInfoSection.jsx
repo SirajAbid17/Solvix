@@ -1,4 +1,4 @@
-// components/Resume/CV-Generate/sections/BasicInfoSection.jsx
+
 import React from "react";
 import {
   FaMagic,
@@ -38,7 +38,7 @@ export default function BasicInfoSection({
 }) {
   return (
     <>
-      {/* Professional Summary */}
+      {}
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -59,7 +59,7 @@ export default function BasicInfoSection({
         />
       </div>
 
-      {/* Skills */}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -110,7 +110,7 @@ export default function BasicInfoSection({
         </div>
       </div>
 
-      {/* Certifications */}
+      {}
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -161,7 +161,7 @@ export default function BasicInfoSection({
         </div>
       </div>
 
-      {/* Languages */}
+      {}
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>

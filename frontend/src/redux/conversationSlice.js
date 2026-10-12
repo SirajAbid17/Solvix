@@ -1,4 +1,4 @@
-// conversationSlice.js
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const ConversationSlice = createSlice({
@@ -34,7 +34,7 @@ const ConversationSlice = createSlice({
       const { id, title } = action.payload;
       console.log("Updating conversation title:", { id, title });
       
-      // Update in conversations list
+      
       const conversationIndex = state.conversations.findIndex(
         (conv) => conv._id === id
       );
@@ -48,7 +48,7 @@ const ConversationSlice = createSlice({
         console.log("Conversation not found in list");
       }
       
-      // Update selected conversation if it's the same
+      
       if (state.selectedConversation?._id === id) {
         state.selectedConversation = {
           ...state.selectedConversation,

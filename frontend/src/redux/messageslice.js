@@ -12,7 +12,7 @@ const messageSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload.map(msg => ({
         ...msg,
-        // ✅ Ensure images array exists and has valid URLs
+        
         images: Array.isArray(msg.images) ? msg.images : [],
         pdf: msg.pdf || null,
         pdfUrl: msg.pdfUrl || null,
@@ -26,7 +26,7 @@ const messageSlice = createSlice({
     },
 
     addMessage: (state, action) => {
-      // ✅ Ensure images are properly stored
+      
       const images = Array.isArray(action.payload.images) ? action.payload.images : [];
       
       const message = {

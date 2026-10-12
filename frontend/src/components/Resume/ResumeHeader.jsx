@@ -23,10 +23,10 @@ export default function ResumeHeader() {
     >
       <div className="mx-auto flex min-h-[72px]  items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
 
-        {/* Left Section */}
+        {}
         <div className="flex min-w-0 items-center gap-3">
 
-          {/* Back Button */}
+          {}
           <button
             onClick={() => navigate("/")}
             className={`
@@ -45,7 +45,7 @@ export default function ResumeHeader() {
             <FaArrowLeft className="text-sm" />
           </button>
 
-          {/* Solvix Brand */}
+          {}
           <div className="flex min-w-0 items-center gap-3">
             
 
@@ -66,7 +66,7 @@ export default function ResumeHeader() {
           </div>
         </div>
 
-      {/* Center Navigation */}
+      {}
 <div className="hidden md:block text-center">
   <div className="flex items-center justify-center gap-6 text-sm font-medium">
     <Link
@@ -99,7 +99,7 @@ export default function ResumeHeader() {
   </div>
 </div>
 
-        {/* Right Section */}
+        {}
         <div className="flex shrink-0 items-center">
          
             <div

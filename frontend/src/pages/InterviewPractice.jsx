@@ -28,9 +28,9 @@ import {
   generateNextBatch,
 } from "../Features/mockInterview";
 
-// ============================================================
-// STYLES
-// ============================================================
+
+
+
 
 const styles = {
   container: (dark) => `
@@ -72,9 +72,9 @@ const styles = {
   },
 };
 
-// ============================================================
-// MAIN COMPONENT
-// ============================================================
+
+
+
 
 export default function InterviewPractice() {
   const { id } = useParams();
@@ -82,9 +82,9 @@ export default function InterviewPractice() {
   const location = useLocation();
   const { dark } = useTheme();
 
-  // ============================================================
-  // STATE
-  // ============================================================
+  
+  
+  
 
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -95,9 +95,9 @@ export default function InterviewPractice() {
   const [language, setLanguage] = useState("javascript");
   const [generatingNext, setGeneratingNext] = useState(false);
 
-  // ============================================================
-  // LOAD INTERVIEW
-  // ============================================================
+  
+  
+  
 
   useEffect(() => {
     const loadInterview = async () => {
@@ -134,9 +134,9 @@ export default function InterviewPractice() {
     loadInterview();
   }, [id, location.state]);
 
-  // ============================================================
-  // HELPERS
-  // ============================================================
+  
+  
+  
 
   const getAllQuestions = () => {
     if (!interview) return [];
@@ -229,9 +229,9 @@ export default function InterviewPractice() {
     toast.success("PDF download coming soon!");
   };
 
-  // ============================================================
-  // ✅ GENERATE NEXT 15 QUESTIONS
-  // ============================================================
+  
+  
+  
 
   const handleGenerateNext = async () => {
     if (!interview?._id) return;
@@ -252,7 +252,7 @@ export default function InterviewPractice() {
           id: "next-batch",
         });
 
-        // Jump to first new question
+        
         const prevLength = allQuestions.length;
         setTimeout(() => {
           setCurrentQuestionIndex(prevLength);
@@ -278,9 +278,9 @@ export default function InterviewPractice() {
     }
   };
 
-  // ============================================================
-  // LOADING
-  // ============================================================
+  
+  
+  
 
   if (loading) {
     return (
@@ -315,9 +315,9 @@ export default function InterviewPractice() {
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
+  
+  
+  
 
   if (error || !interview) {
     return (
@@ -364,9 +364,9 @@ export default function InterviewPractice() {
     );
   }
 
-  // ============================================================
-  // NO QUESTIONS
-  // ============================================================
+  
+  
+  
 
   if (allQuestions.length === 0) {
     return (
@@ -404,13 +404,13 @@ export default function InterviewPractice() {
     );
   }
 
-  // ============================================================
-  // MAIN RENDER
-  // ============================================================
+  
+  
+  
 
   return (
     <div className={styles.container(dark)}>
-      {/* ==================== HEADER ==================== */}
+      {}
       <header
         className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
           dark
@@ -460,9 +460,9 @@ export default function InterviewPractice() {
         </div>
       </header>
 
-      {/* ==================== MAIN ==================== */}
+      {}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* ==================== HERO ==================== */}
+        {}
         <section
           className={`relative overflow-hidden rounded-3xl border p-6 sm:p-8 lg:p-10 ${
             dark
@@ -510,7 +510,7 @@ export default function InterviewPractice() {
                 complexity, and language-specific solutions.
               </p>
 
-              {/* DYNAMIC LANGUAGE PILLS - only if present in CV */}
+              {}
               <div className="mt-6 flex flex-wrap gap-2.5">
                 <div
                   className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
@@ -523,7 +523,7 @@ export default function InterviewPractice() {
                   {allQuestions.length} Problems
                 </div>
 
-                {/* Show JS pill only if any DSA question has JS code */}
+                {}
                 {interview?.dsaQuestions?.some((q) => q.javascript) && (
                   <div
                     className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
@@ -537,7 +537,7 @@ export default function InterviewPractice() {
                   </div>
                 )}
 
-                {/* Show Python pill only if any DSA question has Python code */}
+                {}
                 {interview?.dsaQuestions?.some((q) => q.python) && (
                   <div
                     className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
@@ -553,7 +553,7 @@ export default function InterviewPractice() {
               </div>
             </div>
 
-            {/* PROGRESS CARD */}
+            {}
             <div
               className={`rounded-2xl border p-5 shadow-sm ${
                 dark
@@ -629,7 +629,7 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {/* ==================== NAVIGATOR ==================== */}
+        {}
         <section className="mt-8">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
@@ -678,10 +678,10 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {/* ==================== QUESTION CARD ==================== */}
+        {}
         <section className="mt-8">
           <div className={styles.card(dark)}>
-            {/* HEADER */}
+            {}
             <div
               className={`border-b p-5 sm:p-7 ${
                 dark ? "border-white/[0.08]" : "border-black/[0.07]"
@@ -764,7 +764,7 @@ export default function InterviewPractice() {
               </div>
             </div>
 
-            {/* BODY */}
+            {}
             <div className="p-5 sm:p-7 lg:p-9">
               <div className="max-w-4xl">
                 <p
@@ -823,11 +823,11 @@ export default function InterviewPractice() {
                   )}
               </div>
 
-              {/* DSA CODE */}
+              {}
               {currentQuestion?.type === "dsa" && (
                 <div className="mt-8">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                    {/* LANGUAGE SWITCHER - only show buttons for available langs */}
+                    {}
                     <div
                       className={`inline-flex rounded-xl border p-1 ${
                         dark
@@ -899,7 +899,7 @@ export default function InterviewPractice() {
                     />
                   )}
 
-                  {/* If no code at all */}
+                  {}
                   {!currentQuestion?.javascript && !currentQuestion?.python && (
                     <div
                       className={`rounded-xl border border-dashed p-6 text-center text-sm ${
@@ -914,7 +914,7 @@ export default function InterviewPractice() {
                 </div>
               )}
 
-              {/* FOLLOW UPS */}
+              {}
               {currentQuestion?.followUps &&
                 currentQuestion.followUps.length > 0 && (
                   <div className="mt-7">
@@ -937,7 +937,7 @@ export default function InterviewPractice() {
                   </div>
                 )}
 
-              {/* TIP */}
+              {}
               <div
                 className={`mt-7 rounded-2xl border p-5 ${
                   dark
@@ -980,7 +980,7 @@ export default function InterviewPractice() {
                 </div>
               </div>
 
-              {/* TEST CASES */}
+              {}
               {currentQuestion?.type === "dsa" &&
                 currentQuestion?.testCases &&
                 currentQuestion.testCases.length > 0 && (

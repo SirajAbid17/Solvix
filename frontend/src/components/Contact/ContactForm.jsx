@@ -145,7 +145,7 @@ const ContactForm = ({ onSuccess }) => {
 
   return (
     <div className="contact-form-card flex w-full max-w-[500px] flex-col rounded-[24px] border border-white/[0.08] bg-[#0b0c0f]/75 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-      {/* Header */}
+      {}
       <div className="flex items-start justify-between gap-5">
         <div>
           <p className="text-[8px] font-medium uppercase tracking-[0.22em] text-white/25">
@@ -167,15 +167,15 @@ const ContactForm = ({ onSuccess }) => {
         </div>
       </div>
 
-      {/* Form */}
+      {}
       <form
         onSubmit={handleSubmit}
         className="mt-5 flex flex-1 flex-col"
         noValidate
       >
-        {/* Name + Email */}
+        {}
         <div className="grid gap-3.5 sm:grid-cols-2">
-          {/* Name */}
+          {}
           <div>
             <label
               htmlFor="from_name"
@@ -208,7 +208,7 @@ const ContactForm = ({ onSuccess }) => {
             {renderError("from_name")}
           </div>
 
-          {/* Email */}
+          {}
           <div>
             <label
               htmlFor="from_email"
@@ -242,7 +242,7 @@ const ContactForm = ({ onSuccess }) => {
           </div>
         </div>
 
-        {/* Subject */}
+        {}
         <div className="mt-3.5">
           <label
             htmlFor="subject"
@@ -264,7 +264,7 @@ const ContactForm = ({ onSuccess }) => {
           {renderError("subject")}
         </div>
 
-        {/* Message */}
+        {}
         <div className="mt-3.5">
           <div className="mb-1.5 flex items-center justify-between">
             <label
@@ -295,7 +295,7 @@ const ContactForm = ({ onSuccess }) => {
           {renderError("message")}
         </div>
 
-        {/* General error */}
+        {}
         {status === "error" && Object.keys(errors).length === 0 && (
           <div className="mt-3.5 flex items-start gap-2.5 rounded-lg border border-red-500/15 bg-red-500/[0.05] px-3 py-2.5">
             <FiXCircle
@@ -310,7 +310,7 @@ const ContactForm = ({ onSuccess }) => {
           </div>
         )}
 
-        {/* Submit */}
+        {}
         <div className="mt-4">
           <button
             type="submit"

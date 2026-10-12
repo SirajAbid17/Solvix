@@ -1,4 +1,3 @@
-// services/cvBuilder.service.js
 import { generateResume } from "./cv.service.js";
 import {
   uploadProfileImage,

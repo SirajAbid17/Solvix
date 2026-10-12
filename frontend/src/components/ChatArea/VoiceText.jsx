@@ -16,22 +16,22 @@ export default function VoiceText({
   const restartTimeoutRef = useRef(null);
 
   useEffect(() => {
-    // Check if browser supports Speech Recognition
+   
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       return;
     }
 
-    // Initialize Speech Recognition
+    
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
     
-    // Configure recognition for continuous listening
+    
     recognitionRef.current.continuous = true;
     recognitionRef.current.interimResults = true;
     recognitionRef.current.lang = 'en-US';
     recognitionRef.current.maxAlternatives = 1;
 
-    // Handle results
+    
     recognitionRef.current.onresult = (event) => {
       let interimTranscript = '';
       let finalTranscript = '';
@@ -76,7 +76,7 @@ export default function VoiceText({
       }
     };
 
-    // Handle errors
+   
     recognitionRef.current.onerror = (event) => {
       if (event.error === 'aborted' || event.error === 'no-speech') {
         return;
@@ -108,7 +108,7 @@ export default function VoiceText({
       }
     };
 
-    // Cleanup
+    
     return () => {
       if (restartTimeoutRef.current) {
         clearTimeout(restartTimeoutRef.current);
@@ -117,7 +117,7 @@ export default function VoiceText({
         try {
           recognitionRef.current.abort();
         } catch (error) {
-          // Ignore
+          
         }
       }
       finalTranscriptRef.current = '';
@@ -215,7 +215,7 @@ export default function VoiceText({
     }
   };
 
-  // Clean up when loading changes
+  
   useEffect(() => {
     if (loading && isListening) {
       stopListening();
@@ -253,7 +253,7 @@ export default function VoiceText({
     >
       <FiMic size={19} />
       
-      {/* Recording indicator dot */}
+      {}
       {isListening && (
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>

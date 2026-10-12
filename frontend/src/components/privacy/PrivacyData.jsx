@@ -107,7 +107,7 @@ const PrivacyData = () => {
       ref={pageRef}
       className="min-h-screen overflow-hidden bg-[#0b0c0e] text-[#e9e7e2] antialiased"
     >
-      {/* Progress */}
+      {}
 
       <div className="fixed left-0 top-0 z-[100] h-[2px] w-full bg-white/[0.06]">
         <div

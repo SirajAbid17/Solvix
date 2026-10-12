@@ -39,26 +39,26 @@ export default function UploadPortfolioPdf() {
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
-  // ============================================================
-  // Select File
-  // ============================================================
+  
+  
+  
 
   const handleFileSelect = (file) => {
     if (!file) return;
 
-    // File type
+    
     if (file.type !== "application/pdf") {
       toast.error("Please select a PDF file only.");
       return;
     }
 
-    // Extension
+    
     if (!file.name.toLowerCase().endsWith(".pdf")) {
       toast.error("Only PDF files are supported.");
       return;
     }
 
-    // 10 MB limit
+    
     const maxSize = 10 * 1024 * 1024;
 
     if (file.size > maxSize) {
@@ -69,9 +69,9 @@ export default function UploadPortfolioPdf() {
     setSelectedFile(file);
   };
 
-  // ============================================================
-  // Input Change
-  // ============================================================
+  
+  
+  
 
   const handleInputChange = (event) => {
     const file = event.target.files?.[0];
@@ -79,27 +79,27 @@ export default function UploadPortfolioPdf() {
     handleFileSelect(file);
   };
 
-  // ============================================================
-  // Drag Over
-  // ============================================================
+  
+  
+  
 
   const handleDragOver = (event) => {
     event.preventDefault();
     setIsDragging(true);
   };
 
-  // ============================================================
-  // Drag Leave
-  // ============================================================
+  
+  
+  
 
   const handleDragLeave = (event) => {
     event.preventDefault();
     setIsDragging(false);
   };
 
-  // ============================================================
-  // Drop
-  // ============================================================
+  
+  
+  
 
   const handleDrop = (event) => {
     event.preventDefault();
@@ -111,9 +111,9 @@ export default function UploadPortfolioPdf() {
     handleFileSelect(file);
   };
 
-  // ============================================================
-  // Remove File
-  // ============================================================
+  
+  
+  
 
   const removeFile = () => {
     if (isProcessing) return;
@@ -161,9 +161,9 @@ export default function UploadPortfolioPdf() {
         selectedFile.name
       );
 
-      // ========================================================
-      // 3. UPLOAD PDF
-      // ========================================================
+      
+      
+      
 
       const uploadResponse = await uploadPortfolio(formData);
 
@@ -172,9 +172,9 @@ export default function UploadPortfolioPdf() {
         uploadResponse
       );
 
-      // ========================================================
-      // Validate Upload
-      // ========================================================
+      
+      
+      
 
       if (!uploadResponse?.success) {
         throw new Error(
@@ -183,9 +183,9 @@ export default function UploadPortfolioPdf() {
         );
       }
 
-      // ========================================================
-      // Get Portfolio ID
-      // ========================================================
+      
+      
+      
 
       portfolioId =
         uploadResponse?.portfolioId ||
@@ -206,9 +206,9 @@ export default function UploadPortfolioPdf() {
 
       console.log("Portfolio ID:", portfolioId);
 
-      // ========================================================
-      // 4. CREATE UPLOADED PORTFOLIO
-      // ========================================================
+      
+      
+      
 
       const uploadedPortfolio = {
         _id: portfolioId,
@@ -291,9 +291,9 @@ export default function UploadPortfolioPdf() {
         }
       );
 
-      // ========================================================
-      // 8. ANALYZE PORTFOLIO
-      // ========================================================
+      
+      
+      
 
       console.log(
         "Analyzing Portfolio:",
@@ -308,9 +308,9 @@ export default function UploadPortfolioPdf() {
         analysisResponse
       );
 
-      // ========================================================
-      // Validate Analysis
-      // ========================================================
+      
+      
+      
 
       if (!analysisResponse?.success) {
         throw new Error(
@@ -319,9 +319,9 @@ export default function UploadPortfolioPdf() {
         );
       }
 
-      // ========================================================
-      // 9. CREATE ANALYZED PORTFOLIO
-      // ========================================================
+      
+      
+      
 
       const analyzedPortfolio = {
         _id:
@@ -419,9 +419,9 @@ export default function UploadPortfolioPdf() {
         analyzedPortfolio
       );
 
-      // ========================================================
-      // 14. CLEAR FILE
-      // ========================================================
+      
+      
+      
 
       setSelectedFile(null);
 
@@ -479,16 +479,16 @@ export default function UploadPortfolioPdf() {
     }
   };
 
-  // ============================================================
-  // Loading State
-  // ============================================================
+  
+  
+  
 
   const isProcessing =
     uploading || analyzing;
 
-  // ============================================================
-  // Render
-  // ============================================================
+  
+  
+  
 
   return (
     <div
@@ -498,9 +498,7 @@ export default function UploadPortfolioPdf() {
           : "border-gray-200 bg-gray-50"
       }`}
     >
-      {/* ======================================================
-          Header
-      ====================================================== */}
+      {}
 
       <h3
         className={`mb-2 text-2xl font-bold ${
@@ -523,9 +521,7 @@ export default function UploadPortfolioPdf() {
         design.
       </p>
 
-      {/* ======================================================
-          Upload Area
-      ====================================================== */}
+      {}
 
       <div
         onClick={() =>
@@ -558,7 +554,7 @@ export default function UploadPortfolioPdf() {
           }
         `}
       >
-        {/* Upload Icon */}
+        {}
 
         <div
           className={`mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full ${
@@ -579,7 +575,7 @@ export default function UploadPortfolioPdf() {
           )}
         </div>
 
-        {/* Title */}
+        {}
 
         <h4
           className={`text-xl font-semibold ${
@@ -593,7 +589,7 @@ export default function UploadPortfolioPdf() {
             : "Upload Resume PDF"}
         </h4>
 
-        {/* Description */}
+        {}
 
         <p
           className={`mt-2 ${
@@ -605,7 +601,7 @@ export default function UploadPortfolioPdf() {
           Click here or drag & drop your resume.
         </p>
 
-        {/* PDF Badge */}
+        {}
 
         <div
           className={`mx-auto mt-8 flex w-fit items-center gap-3 rounded-xl px-5 py-3 ${
@@ -621,7 +617,7 @@ export default function UploadPortfolioPdf() {
           </span>
         </div>
 
-        {/* Hidden Input */}
+        {}
 
         <input
           ref={inputRef}
@@ -633,9 +629,7 @@ export default function UploadPortfolioPdf() {
         />
       </div>
 
-      {/* ======================================================
-          Selected File
-      ====================================================== */}
+      {}
 
       {selectedFile && (
         <div
@@ -699,9 +693,7 @@ export default function UploadPortfolioPdf() {
         </div>
       )}
 
-      {/* ======================================================
-          Uploading Status
-      ====================================================== */}
+      {}
 
       {uploading && (
         <div
@@ -742,9 +734,7 @@ export default function UploadPortfolioPdf() {
         </div>
       )}
 
-      {/* ======================================================
-          AI Analysis Status
-      ====================================================== */}
+      {}
 
       {analyzing && (
         <div
@@ -785,9 +775,7 @@ export default function UploadPortfolioPdf() {
         </div>
       )}
 
-      {/* ======================================================
-          Ready Status
-      ====================================================== */}
+      {}
 
       {!isProcessing &&
         selectedFile && (
@@ -800,9 +788,7 @@ export default function UploadPortfolioPdf() {
           </div>
         )}
 
-      {/* ======================================================
-          Generate Button
-      ====================================================== */}
+      {}
 
       <div className="mt-8 flex justify-end">
         <button

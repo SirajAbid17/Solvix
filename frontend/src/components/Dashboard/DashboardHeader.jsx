@@ -16,7 +16,7 @@ export default function DashboardHeader({
     <header className="dashboard-header  fixed left-0 right-0 top-0 z-50 border-b border-white/[0.08] bg-black/90 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between gap-3">
-          {/* Left */}
+          {}
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
@@ -39,7 +39,7 @@ export default function DashboardHeader({
             </div>
           </div>
 
-          {/* Right */}
+          {}
           <div className="flex shrink-0 items-center gap-2">
             <div className="hidden items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.02] px-3 py-1.5 text-xs sm:flex">
               <FiCreditCard className="text-amber-400" />

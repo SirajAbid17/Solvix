@@ -47,7 +47,7 @@ export const GetConversions = async (req, res) => {
   }
 };
 
-// chat/controllers/chat.controller.js
+
 export const SaveMessage = async (req, res) => {
   try {
     const { 
@@ -105,7 +105,7 @@ export const GetMessages = async (req, res) => {
       conversationId: req.params.conversationId
     }).sort({ updatedAt: 1 });
     
-    // ✅ Ensure all fields are returned
+  
     const messagesWithFields = messages.map(msg => ({
       ...msg.toObject(),
       images: msg.images || [],

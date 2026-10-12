@@ -33,9 +33,6 @@ import {
 import api from "../../utlis/axios";
 import { useTheme } from "../../BgContext/ThemeContext";
 
-// ============================================================
-// STAT CARD
-// ============================================================
 
 const StatCard = ({ icon: Icon, label, value, dark, accent }) => {
   return (
@@ -85,9 +82,6 @@ const StatCard = ({ icon: Icon, label, value, dark, accent }) => {
   );
 };
 
-// ============================================================
-// SECTION CARD
-// ============================================================
 
 const SectionCard = ({ children, dark, className = "" }) => {
   return (
@@ -101,9 +95,6 @@ const SectionCard = ({ children, dark, className = "" }) => {
   );
 };
 
-// ============================================================
-// EMPTY STATE
-// ============================================================
 
 const EmptyState = ({ message, dark, icon: Icon = FiBarChart2 }) => {
   return (
@@ -127,9 +118,6 @@ const EmptyState = ({ message, dark, icon: Icon = FiBarChart2 }) => {
   );
 };
 
-// ============================================================
-// ✅ AGENT ICON MAPPER
-// ============================================================
 
 const getAgentIcon = (agentName) => {
   const name = String(agentName || "").toLowerCase();
@@ -146,9 +134,6 @@ const getAgentIcon = (agentName) => {
   return FiCpu;
 };
 
-// ============================================================
-// AGENT CARD (With React Icons - No Emojis)
-// ============================================================
 
 const AgentCard = ({ agent, dark }) => {
   const isPaid = agent.type === "paid";
@@ -191,7 +176,7 @@ const AgentCard = ({ agent, dark }) => {
               {agent.name}
             </p>
 
-            {/* ✅ React Icons instead of emojis */}
+         
             <div
               className={`mt-0.5 flex items-center gap-1.5 text-[11px] ${
                 isPaid
@@ -236,7 +221,7 @@ const AgentCard = ({ agent, dark }) => {
         />
       </div>
 
-      {/* ✅ Multiagent breakdown with icons */}
+    
       {isMultiagent && agent.agents && agent.agents.length > 0 ? (
         <div className="mt-3 space-y-2">
           {agent.agents
@@ -319,9 +304,6 @@ const AgentCard = ({ agent, dark }) => {
   );
 };
 
-// ============================================================
-// MAIN ADMIN DATA COMPONENT
-// ============================================================
 
 export default function AdminData() {
   const navigate = useNavigate();
@@ -337,7 +319,7 @@ export default function AdminData() {
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // Data states
+  
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalCreditsUsed: 0,
@@ -349,18 +331,14 @@ export default function AdminData() {
   const [transactions, setTransactions] = useState([]);
   const [agentUsage, setAgentUsage] = useState([]);
 
-  // ============================================================
-  // TOAST HELPER
-  // ============================================================
+ 
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  // ============================================================
-  // API CALLS
-  // ============================================================
+  
 
   const fetchStats = async () => {
     try {
@@ -442,9 +420,7 @@ export default function AdminData() {
     fetchAllData();
   }, [fetchAllData]);
 
-  // ============================================================
-  // USER ACTIONS
-  // ============================================================
+ 
 
   const handleUpdateCredits = async (userId, newCredits) => {
     try {
@@ -538,9 +514,7 @@ export default function AdminData() {
     }
   };
 
-  // ============================================================
-  // HELPERS
-  // ============================================================
+  
 
   const getPlanColor = (plan) => {
     const value = String(plan || "").toLowerCase();
@@ -608,15 +582,13 @@ export default function AdminData() {
     );
   });
 
-  // ============================================================
-  // ✅ PAID AGENTS - Individual
-  // ============================================================
+  
 
   const paidAgents = agentUsage.filter((a) => a.type === "paid");
 
-  // ============================================================
-  // ✅ FREE AGENTS - Combined as "Free Multiagent Models"
-  // ============================================================
+  
+  
+  
 
   const freeAgentsRaw = agentUsage.filter((a) => a.type === "free");
 
@@ -635,15 +607,15 @@ export default function AdminData() {
 
   const freeAgents = [freeMultiagent];
 
-  // ============================================================
-  // ✅ COMBINED LIST - For Overview Tab
-  // ============================================================
+  
+  
+  
 
   const combinedAgentUsage = [...paidAgents, ...freeAgents];
 
-  // ============================================================
-  // STAT CARDS
-  // ============================================================
+  
+  
+  
 
   const statCards = [
     {
@@ -678,9 +650,9 @@ export default function AdminData() {
     },
   ];
 
-  // ============================================================
-  // LOADING
-  // ============================================================
+  
+  
+  
 
   if (loading) {
     return (
@@ -708,9 +680,9 @@ export default function AdminData() {
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
+  
+  
+  
 
   if (error) {
     return (
@@ -737,9 +709,9 @@ export default function AdminData() {
     );
   }
 
-  // ============================================================
-  // UI
-  // ============================================================
+  
+  
+  
 
   return (
     <div
@@ -747,7 +719,7 @@ export default function AdminData() {
         dark ? "bg-black text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
-      {/* TOAST */}
+      {}
       {toast && (
         <div
           className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 rounded-xl border px-5 py-3 shadow-2xl transition-all ${
@@ -761,7 +733,7 @@ export default function AdminData() {
         </div>
       )}
 
-      {/* HEADER */}
+      {}
       <header
         className={`fixed left-0 top-0 z-50 w-full border-b backdrop-blur-2xl ${
           dark ? "border-white/[0.07] bg-black/85" : "border-gray-200 bg-white/85"
@@ -828,9 +800,9 @@ export default function AdminData() {
         </div>
       </header>
 
-      {/* MAIN */}
+      {}
       <main className="mx-auto max-w-[1400px] px-4 pb-12 pt-[100px] sm:px-6 lg:px-8">
-        {/* PAGE TITLE */}
+        {}
         <div className="mb-7">
           <p
             className={`mb-1 text-xs uppercase tracking-[0.2em] ${
@@ -842,7 +814,7 @@ export default function AdminData() {
           <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Overview</h2>
         </div>
 
-        {/* TABS */}
+        {}
         <div
           className={`mb-7 flex gap-1 overflow-x-auto rounded-2xl border p-1 ${
             dark ? "border-white/[0.07] bg-white/[0.025]" : "border-gray-200 bg-white"
@@ -877,20 +849,18 @@ export default function AdminData() {
           })}
         </div>
 
-        {/* ====================================================
-            OVERVIEW TAB
-        ==================================================== */}
+        {}
 
         {activeTab === "overview" && (
           <div className="space-y-6">
-            {/* STATS */}
+            {}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {statCards.map((stat) => (
                 <StatCard key={stat.label} {...stat} dark={dark} />
               ))}
             </div>
 
-            {/* AGENT USAGE - Combined (Paid + Free Multiagent) */}
+            {}
             <SectionCard dark={dark} className="overflow-hidden">
               <div
                 className={`border-b px-5 py-4 ${
@@ -921,9 +891,7 @@ export default function AdminData() {
           </div>
         )}
 
-        {/* ====================================================
-            USERS TAB
-        ==================================================== */}
+        {}
 
         {activeTab === "users" && (
           <div>
@@ -1100,13 +1068,11 @@ export default function AdminData() {
           </div>
         )}
 
-        {/* ====================================================
-            AGENTS TAB
-        ==================================================== */}
+        {}
 
         {activeTab === "agents" && (
           <div className="space-y-6">
-            {/* PAID SERVICES */}
+            {}
             <SectionCard dark={dark} className="overflow-hidden">
               <div
                 className={`border-b px-5 py-4 ${
@@ -1158,7 +1124,7 @@ export default function AdminData() {
               )}
             </SectionCard>
 
-            {/* FREE SERVICES - Multiagent Combined */}
+            {}
             <SectionCard dark={dark} className="overflow-hidden">
               <div
                 className={`border-b px-5 py-4 ${
@@ -1212,9 +1178,7 @@ export default function AdminData() {
           </div>
         )}
 
-        {/* ====================================================
-            TRANSACTIONS TAB
-        ==================================================== */}
+        {}
 
         {activeTab === "transactions" && (
           <SectionCard dark={dark} className="overflow-hidden">
@@ -1313,9 +1277,7 @@ export default function AdminData() {
         )}
       </main>
 
-      {/* ======================================================
-          USER MODAL - FULL MANAGEMENT
-      ====================================================== */}
+      {}
 
       {showUserModal && selectedUser && (
         <div
@@ -1328,7 +1290,7 @@ export default function AdminData() {
               dark ? "border-white/[0.1] bg-[#0a0a0a]" : "border-gray-200 bg-white"
             }`}
           >
-            {/* MODAL HEADER */}
+            {}
             <div
               className={`flex items-center justify-between border-b px-6 py-5 ${
                 dark ? "border-white/[0.07]" : "border-gray-200"
@@ -1353,7 +1315,7 @@ export default function AdminData() {
               </button>
             </div>
 
-            {/* USER INFO */}
+            {}
             <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
               <div className="mb-6 flex items-center gap-3">
                 <div
@@ -1377,7 +1339,7 @@ export default function AdminData() {
                 </div>
               </div>
 
-              {/* DETAILS */}
+              {}
               <div
                 className={`divide-y rounded-xl border ${
                   dark
@@ -1435,7 +1397,7 @@ export default function AdminData() {
                 </div>
               </div>
 
-              {/* ACTION: UPDATE CREDITS */}
+              {}
               <div className="mt-5">
                 <label
                   className={`mb-2 block text-xs font-medium ${
@@ -1476,7 +1438,7 @@ export default function AdminData() {
                 </div>
               </div>
 
-              {/* ACTION: UPDATE PLAN */}
+              {}
               <div className="mt-4">
                 <label
                   className={`mb-2 block text-xs font-medium ${
@@ -1509,7 +1471,7 @@ export default function AdminData() {
                 </div>
               </div>
 
-              {/* ACTION: STATUS */}
+              {}
               <div className="mt-4">
                 <label
                   className={`mb-2 block text-xs font-medium ${
@@ -1573,7 +1535,7 @@ export default function AdminData() {
                 </div>
               </div>
 
-              {/* ACTION: DELETE */}
+              {}
               {!selectedUser.isAdmin && (
                 <div className="mt-5 border-t pt-4" style={{ borderColor: dark ? "rgba(255,255,255,0.06)" : "#f3f4f6" }}>
                   <button
@@ -1593,7 +1555,7 @@ export default function AdminData() {
                 </div>
               )}
 
-              {/* CLOSE */}
+              {}
               <button
                 onClick={() => setShowUserModal(false)}
                 disabled={actionLoading}

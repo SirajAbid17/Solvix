@@ -1,8 +1,6 @@
-// services/cloudinary.service.js
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 
-// Upload PDF (existing)
 export const uploadPDFToCloudinary = (buffer, fileName) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -21,7 +19,7 @@ export const uploadPDFToCloudinary = (buffer, fileName) => {
   });
 };
 
-// Upload Profile Image (NEW)
+
 export const uploadProfileImage = (buffer, fileName, userId) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -34,7 +32,7 @@ export const uploadProfileImage = (buffer, fileName, userId) => {
           { quality: "auto" },
           { fetch_format: "auto" },
         ],
-        // Add a default avatar placeholder
+        
         placeholder: true,
       },
       (error, result) => {
@@ -47,7 +45,7 @@ export const uploadProfileImage = (buffer, fileName, userId) => {
   });
 };
 
-// Delete Image from Cloudinary (FIXED)
+
 export const deleteImage = (publicId) => {
   return new Promise((resolve, reject) => {
     if (!publicId) {
@@ -64,7 +62,7 @@ export const deleteImage = (publicId) => {
   });
 };
 
-// Upload any image (generic)
+
 export const uploadImage = (buffer, fileName, folder = "images") => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -87,7 +85,7 @@ export const uploadImage = (buffer, fileName, folder = "images") => {
   });
 };
 
-// Delete multiple images
+
 export const deleteMultipleImages = (publicIds) => {
   return new Promise((resolve, reject) => {
     if (!publicIds || publicIds.length === 0) {
@@ -104,7 +102,7 @@ export const deleteMultipleImages = (publicIds) => {
   });
 };
 
-// Get image URL with transformations
+
 export const getOptimizedImageUrl = (publicId, options = {}) => {
   const { width, height, crop = "limit", quality = "auto" } = options;
   

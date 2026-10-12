@@ -4,17 +4,9 @@ import { uploadPDFToCloudinary } from "../services/cloudinary.service.js";
 import { generateMockInterview } from "../services/mockInterview.service.js";
 import redis from "../../../shared/redis/redis.js";
 
-
-
-// ============================================
-// Generate Interview (PAID)
-// ============================================
-
 export const generateInterview = async (req, res) => {
   try {
-    console.log("========== MOCK INTERVIEW START ==========");
-
-    // ??? Get userId from headers (passed by gateway)
+   
     const userId = req.headers["x-user-id"];
 
     if (!userId) {
@@ -31,26 +23,18 @@ export const generateInterview = async (req, res) => {
       });
     }
 
-    console.log("1?????? PDF received:", req.file.originalname);
-    console.log("2?????? PDF size:", req.file.size);
-
-    console.log("3?????? Starting PDF extraction...");
+   
 
     const extractedText = await extractTextFromPDF(req.file.buffer);
 
-    console.log("4?????? PDF extraction completed. Text length:", extractedText.length);
-
-    console.log("5?????? Starting Cloudinary upload...");
 
     const uploadedPDF = await uploadPDFToCloudinary(req.file.buffer, req.file.originalname);
 
-    console.log("6?????? Cloudinary upload completed:", uploadedPDF.secure_url);
-
-    console.log("7?????? Starting LangChain/Groq...");
+    
 
     const interview = await generateMockInterview(extractedText);
 
-    console.log("8?????? AI generation completed");
+   
 
     const totalQuestions =
       interview.dsaQuestions.length +
@@ -59,9 +43,7 @@ export const generateInterview = async (req, res) => {
       interview.behavioralQuestions.length +
       interview.hrQuestions.length;
 
-    console.log("9?????? Total questions:", totalQuestions);
-
-    // ??? Store with userId
+  
     const savedInterview = await MockInterview.create({
       userId: userId,
       title: interview.title || "AI Mock Interview",
@@ -82,18 +64,16 @@ export const generateInterview = async (req, res) => {
       status: "generated",
     });
 
-    console.log("???? MongoDB save completed");
-
-    // ??? Cache the interview in Redis
+    
     const cacheKey = `mock-interview:${savedInterview._id}`;
     await redis.set(
       cacheKey,
       JSON.stringify(savedInterview.toObject()),
       "EX",
-      60 * 60 * 24 // 24 hours cache
+      60 * 60 * 24 
     );
 
-    // ??? Clear user's interviews cache
+    
     await redis.del(`mock-interviews:${userId}`);
 
     return res.status(201).json({
@@ -112,9 +92,6 @@ export const generateInterview = async (req, res) => {
   }
 };
 
-// ============================================
-// Get My Interviews
-// ============================================
 
 export const getMyInterviews = async (req, res) => {
   try {
@@ -129,7 +106,7 @@ export const getMyInterviews = async (req, res) => {
 
     const cacheKey = `mock-interviews:${userId}`;
 
-    // Check Redis cache
+    
     const cached = await redis.get(cacheKey);
 
     if (cached) {
@@ -152,7 +129,7 @@ export const getMyInterviews = async (req, res) => {
       data: interviews,
     };
 
-    // Cache for 5 minutes
+   
     await redis.set(cacheKey, JSON.stringify(response), "EX", 300);
 
     return res.status(200).json(response);
@@ -165,9 +142,6 @@ export const getMyInterviews = async (req, res) => {
   }
 };
 
-// ============================================
-// Get Single Interview
-// ============================================
 
 export const getInterviewById = async (req, res) => {
   try {
@@ -183,13 +157,13 @@ export const getInterviewById = async (req, res) => {
 
     const cacheKey = `mock-interview:${id}`;
 
-    // Check Redis cache
+    
     const cached = await redis.get(cacheKey);
 
     if (cached) {
       const interview = JSON.parse(cached);
 
-      // ??? Verify ownership
+      
       if (String(interview.userId) !== String(userId)) {
         return res.status(403).json({
           success: false,
@@ -213,7 +187,7 @@ export const getInterviewById = async (req, res) => {
       });
     }
 
-    // ??? Verify ownership
+  
     if (String(interview.userId) !== String(userId)) {
       return res.status(403).json({
         success: false,
@@ -221,7 +195,7 @@ export const getInterviewById = async (req, res) => {
       });
     }
 
-    // Cache the interview
+    
     await redis.set(cacheKey, JSON.stringify(interview.toObject()), "EX", 3600);
 
     return res.status(200).json({
@@ -238,9 +212,6 @@ export const getInterviewById = async (req, res) => {
   }
 };
 
-// ============================================
-// Delete Interview
-// ============================================
 
 export const deleteInterview = async (req, res) => {
   try {
@@ -263,7 +234,7 @@ export const deleteInterview = async (req, res) => {
       });
     }
 
-    // ??? Verify ownership
+  
     if (String(interview.userId) !== String(userId)) {
       return res.status(403).json({
         success: false,
@@ -273,7 +244,7 @@ export const deleteInterview = async (req, res) => {
 
     await MockInterview.findByIdAndDelete(id);
 
-    // ??? Clear caches
+    
     await redis.del(`mock-interview:${id}`);
     await redis.del(`mock-interviews:${userId}`);
 
@@ -290,9 +261,7 @@ export const deleteInterview = async (req, res) => {
   }
 };
 
-// ============================================================
-// Generate NEXT BATCH (15 more questions)
-// ============================================================
+
 export const generateNextBatch = async (req, res) => {
   try {
     const userId = req.headers["x-user-id"];
@@ -306,7 +275,7 @@ export const generateNextBatch = async (req, res) => {
 
     const { id } = req.params;
 
-    // Find existing interview
+    
     const existing = await MockInterview.findById(id);
 
     if (!existing) {
@@ -323,10 +292,10 @@ export const generateNextBatch = async (req, res) => {
       });
     }
 
-    // Re-extract text from stored PDF
+  
     console.log("???? Fetching resume PDF for next batch...");
 
-    // Fetch PDF from Cloudinary
+  
     const pdfResponse = await fetch(existing.pdf.url);
     const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
 
@@ -335,7 +304,7 @@ export const generateNextBatch = async (req, res) => {
     );
     const extractedText = await extractTextFromPDF(pdfBuffer);
 
-    // Collect previous question topics/questions to avoid repeats
+   
     const previousTopics = [
       ...existing.dsaQuestions.map((q) => `DSA: ${q.question}`),
       ...existing.technicalQuestions.map((q) => `Tech: ${q.question}`),
@@ -344,12 +313,12 @@ export const generateNextBatch = async (req, res) => {
       ...existing.hrQuestions.map((q) => `HR: ${q.question}`),
     ];
 
-    // Count existing batches
+    
     const currentBatch = Math.floor(previousTopics.length / 15) + 1;
 
     console.log(`???? Generating batch #${currentBatch + 1}...`);
 
-    // Generate NEW batch
+
     const { generateMockInterview } = await import(
       "../services/mockInterview.service.js"
     );
@@ -359,7 +328,7 @@ export const generateNextBatch = async (req, res) => {
       previousTopics,
     });
 
-    // ??? Append new questions to existing interview
+    
     existing.dsaQuestions.push(...newBatch.dsaQuestions);
     existing.technicalQuestions.push(...newBatch.technicalQuestions);
     existing.projectQuestions.push(...newBatch.projectQuestions);
@@ -375,7 +344,7 @@ export const generateNextBatch = async (req, res) => {
 
     await existing.save();
 
-    // Clear cache
+    
     await redis.del(`mock-interview:${id}`);
     await redis.del(`mock-interviews:${userId}`);
 

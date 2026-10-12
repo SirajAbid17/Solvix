@@ -15,9 +15,9 @@ export default function Fileloaded({
 
   const [file, setFile] = useState(null);
 
-  // ---------------------------------------------
-  // FILE SELECT
-  // ---------------------------------------------
+  
+  
+  
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files?.[0];
@@ -27,9 +27,9 @@ export default function Fileloaded({
     setFile(selectedFile);
   };
 
-  // ---------------------------------------------
-  // DRAG & DROP
-  // ---------------------------------------------
+  
+  
+  
 
   const handleDrop = (event) => {
     event.preventDefault();
@@ -41,9 +41,9 @@ export default function Fileloaded({
     setFile(droppedFile);
   };
 
-  // ---------------------------------------------
-  // ADD FILE
-  // ---------------------------------------------
+  
+  
+  
 
   const handleAddFile = () => {
     if (!file) return;
@@ -59,9 +59,7 @@ export default function Fileloaded({
     }
   };
 
-  // ---------------------------------------------
-  // CLOSE
-  // ---------------------------------------------
+ 
 
   const handleClose = () => {
     setFile(null);
@@ -90,9 +88,7 @@ export default function Fileloaded({
             : "border-gray-200 bg-white text-gray-900"
         }`}
       >
-        {/* =====================================
-            HEADER
-        ===================================== */}
+        {}
 
         <div className="mb-5 flex items-center justify-between">
           <div>
@@ -124,9 +120,7 @@ export default function Fileloaded({
           </button>
         </div>
 
-        {/* =====================================
-            UPLOAD AREA
-        ===================================== */}
+        {}
 
         <div
           onDragOver={(event) =>
@@ -185,9 +179,7 @@ export default function Fileloaded({
           </p>
         </div>
 
-        {/* =====================================
-            SELECTED FILE
-        ===================================== */}
+        {}
 
         {file && (
           <div
@@ -233,9 +225,7 @@ export default function Fileloaded({
           </div>
         )}
 
-        {/* =====================================
-            FOOTER
-        ===================================== */}
+        {}
 
         <div className="mt-5 flex justify-end gap-2">
           <button
