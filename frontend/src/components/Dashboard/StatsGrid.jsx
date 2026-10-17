@@ -1,7 +1,10 @@
-
-
 import React from "react";
-import { FiBarChart2, FiCreditCard, FiTag, FiZap } from "react-icons/fi";
+import {
+  FiActivity,
+  FiCreditCard,
+  FiAward,
+  FiZap,
+} from "react-icons/fi";
 import { StatCard } from "./shared";
 
 export default function StatsGrid({
@@ -13,7 +16,7 @@ export default function StatsGrid({
   return (
     <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
-        icon={<FiBarChart2 />}
+        icon={<FiActivity />}
         label="Paid Requests"
         value={totalRequests.toLocaleString()}
         subtext="paid services used"
@@ -27,7 +30,7 @@ export default function StatsGrid({
         delay={1}
       />
       <StatCard
-        icon={<FiTag />}
+        icon={<FiAward />}
         label="Current Plan"
         value={userPlan}
         subtext="active subscription"

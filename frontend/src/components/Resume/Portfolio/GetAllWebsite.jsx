@@ -1,4 +1,5 @@
 import React from "react";
+import { FiArrowRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 export default function GetAllWebsite() {
@@ -33,15 +34,10 @@ export default function GetAllWebsite() {
       >
         <span>View All Websites</span>
 
-        <span
-          className="
-            ml-2
-            transition-transform duration-300
-            group-hover:translate-x-1
-          "
-        >
-          →
-        </span>
+       <FiArrowRight
+  size={16}
+  className="ml-2 transition-transform duration-300 group-hover:translate-x-1"
+/>
       </button>
     </div>
   );

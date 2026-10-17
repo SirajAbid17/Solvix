@@ -1,4 +1,3 @@
-// backend/services/agent/utlis/GeneratePdf.js
 import PDFDocument from "pdfkit";
 
 const generatePdf = async (data) => {
@@ -27,9 +26,7 @@ const generatePdf = async (data) => {
       });
       doc.on("error", (error) => reject(error));
 
-      // ============================================
-      // COLORS
-      // ============================================
+      
       const COLORS = {
         primary: "#2563EB",
         primaryDark: "#1D4ED8",
@@ -54,21 +51,19 @@ const generatePdf = async (data) => {
       const MARGIN = 35;
       const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
-      // ============================================
-      // PAGE 1 HEADER (Title block)
-      // ============================================
+      
       const drawMainHeader = () => {
-        // Blue header band
+       
         doc
           .rect(0, 0, PAGE_WIDTH, 90)
           .fill(COLORS.primary);
 
-        // Top accent
+       
         doc
           .rect(0, 0, PAGE_WIDTH, 6)
           .fill(COLORS.accent);
 
-        // Title
+        
         doc
           .fillColor(COLORS.white)
           .fontSize(20)
@@ -81,7 +76,6 @@ const generatePdf = async (data) => {
             height: 30,
           });
 
-        // Subtitle
         if (subtitle) {
           doc
             .fillColor(COLORS.subtitle)
@@ -96,7 +90,7 @@ const generatePdf = async (data) => {
             });
         }
 
-        // "Solvix" tag on right
+       
         doc
           .fillColor(COLORS.white)
           .fontSize(9)
@@ -109,9 +103,7 @@ const generatePdf = async (data) => {
         doc.y = 110;
       };
 
-      // ============================================
-      // PAGE 2 HEADER (compact)
-      // ============================================
+      
       const drawCompactHeader = () => {
         doc
           .fillColor(COLORS.primary)
@@ -142,18 +134,15 @@ const generatePdf = async (data) => {
         doc.y = 45;
       };
 
-      // ============================================
-      // SECTION HEADING (compact)
-      // ============================================
+      
       const drawHeading = (heading, index) => {
-        // Page break check
+      
         if (doc.y > PAGE_HEIGHT - 120) {
           addPage2();
         }
 
         const startY = doc.y;
 
-        // Number badge
         doc
           .fillColor(COLORS.primary)
           .fontSize(10)
@@ -165,7 +154,7 @@ const generatePdf = async (data) => {
             { width: 22, align: "left" }
           );
 
-        // Heading
+       
         doc
           .fillColor(COLORS.heading)
           .fontSize(13)
@@ -178,7 +167,7 @@ const generatePdf = async (data) => {
             height: 20,
           });
 
-        // underline
+        
         doc
           .strokeColor(COLORS.primary)
           .lineWidth(1.5)
@@ -189,9 +178,7 @@ const generatePdf = async (data) => {
         doc.y += 8;
       };
 
-      // ============================================
-      // PARAGRAPH (compact, no box)
-      // ============================================
+      
       const drawParagraph = (content) => {
         const para = String(content)
           .replace(/\n+/g, " ")
@@ -223,9 +210,7 @@ const generatePdf = async (data) => {
         doc.y += 6;
       };
 
-      // ============================================
-      // BULLET POINTS (compact 2-column style)
-      // ============================================
+      
       const drawBullets = (points) => {
         points.forEach((point) => {
           const clean = String(point)
@@ -250,12 +235,12 @@ const generatePdf = async (data) => {
 
           const rowY = doc.y;
 
-          // blue dot
+       
           doc
             .circle(MARGIN + 5, rowY + 6, 2.2)
             .fill(COLORS.primary);
 
-          // text
+          
           doc
             .fillColor(COLORS.text)
             .fontSize(10)
@@ -272,9 +257,7 @@ const generatePdf = async (data) => {
         doc.y += 4;
       };
 
-      // ============================================
-      // DIVIDER
-      // ============================================
+     
       const drawDivider = () => {
         if (doc.y > PAGE_HEIGHT - 70) return;
         doc
@@ -286,9 +269,7 @@ const generatePdf = async (data) => {
         doc.y += 8;
       };
 
-      // ============================================
-      // ADD PAGE 2 (if needed)
-      // ============================================
+    
       let page2Added = false;
       const addPage2 = () => {
         if (page2Added) return;
@@ -297,11 +278,7 @@ const generatePdf = async (data) => {
         page2Added = true;
       };
 
-      // ============================================
-      // BUILD PDF
-      // ============================================
-
-      // Page 1 — main header
+     
       drawMainHeader();
 
       sections.forEach((section, index) => {
@@ -309,26 +286,25 @@ const generatePdf = async (data) => {
         const content = section?.content || "";
         const points = Array.isArray(section?.points) ? section.points : [];
 
-        // heading
+       
         drawHeading(heading, index);
 
-        // paragraph
         if (content && String(content).trim()) {
           drawParagraph(content);
         }
 
-        // bullets
+        
         if (points.length > 0) {
           drawBullets(points);
         }
 
-        // divider
+       
         if (index < sections.length - 1) {
           drawDivider();
         }
       });
 
-      // Empty state
+      
       if (sections.length === 0) {
         doc
           .fillColor(COLORS.text)
@@ -339,9 +315,7 @@ const generatePdf = async (data) => {
           });
       }
 
-      // ============================================
-      // FOOTERS
-      // ============================================
+      
       const pageRange = doc.bufferedPageRange();
       const totalPages = pageRange.count;
 

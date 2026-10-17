@@ -1,5 +1,3 @@
-
-
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../BgContext/ThemeContext";
@@ -169,7 +167,6 @@ export default function Page_not_Found() {
 
         button.addEventListener("mouseleave", handleMouseLeave);
 
-        
         return () => {
           button.removeEventListener("mouseenter", handleMouseEnter);
 

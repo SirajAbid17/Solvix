@@ -1,5 +1,3 @@
-// backend/services/agent/utlis/jsonParser.js
-
 export const safeParseJSON = (text) => {
   if (!text) return null;
 
@@ -9,12 +7,12 @@ export const safeParseJSON = (text) => {
     .replace(/```\s*$/i, "")
     .trim();
 
-  // Try 1: direct parse
+
   try {
     return JSON.parse(cleaned);
   } catch (e) {}
 
-  // Try 2: extract first {...}
+  
   const objStart = cleaned.indexOf("{");
   const objEnd = cleaned.lastIndexOf("}");
   if (objStart !== -1 && objEnd > objStart) {
@@ -23,7 +21,6 @@ export const safeParseJSON = (text) => {
     } catch (e) {}
   }
 
-  // Try 3: extract first [...]
   const arrStart = cleaned.indexOf("[");
   const arrEnd = cleaned.lastIndexOf("]");
   if (arrStart !== -1 && arrEnd > arrStart) {
@@ -32,14 +29,14 @@ export const safeParseJSON = (text) => {
     } catch (e) {}
   }
 
-  // Try 4: fix trailing commas + retry
+  
   try {
     const fixed = cleaned
-      .replace(/,(\s*[}\]])/g, "$1")  // remove trailing commas
-      .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":'); // quote bare keys
+      .replace(/,(\s*[}\]])/g, "$1")  
+      .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":'); 
     return JSON.parse(fixed);
   } catch (e) {}
 
-  console.warn("⚠️ safeParseJSON failed for text:", cleaned.slice(0, 200));
+  console.warn(" safeParseJSON failed for text:", cleaned.slice(0, 200));
   return null;
 };

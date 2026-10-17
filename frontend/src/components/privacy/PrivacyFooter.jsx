@@ -5,6 +5,9 @@ const PrivacyFooter = ({
   onHome,
   onTerms,
 }) => {
+  
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="border-t border-white/[0.08]">
       <div className="mx-auto max-w-[1400px] px-5 py-8 sm:px-8 lg:px-12">
@@ -47,7 +50,7 @@ const PrivacyFooter = ({
 
         <div className="mt-5 flex flex-col justify-between gap-2 text-[10px] text-white/25 sm:flex-row">
           <span>
-            © 2026 Solvix AI. All rights reserved.
+            © {currentYear} Solvix AI. All rights reserved.
           </span>
 
           <span className="inline-flex items-center gap-1.5">

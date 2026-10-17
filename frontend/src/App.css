@@ -183,7 +183,7 @@
   }
 }
 
-/* Add to your index.css or global styles */
+
 
 @keyframes fadeInUp {
   from {
@@ -228,12 +228,12 @@
   animation: scaleIn 0.3s ease-out;
 }
 
-/* Smooth scrolling for the entire app */
+
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar for webkit browsers */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

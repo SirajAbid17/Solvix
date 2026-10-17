@@ -11,13 +11,9 @@ import {
   FiUserCheck,
 } from "react-icons/fi";
 
-export default function LoginCard({
-  handleLogin,
-  loading,
-}) {
+export default function LoginCard({ handleLogin, loading }) {
   return (
     <section className="small-item relative">
-
       {}
 
       <div
@@ -47,7 +43,6 @@ export default function LoginCard({
           sm:p-8
         "
       >
-
         {}
 
         <div
@@ -109,8 +104,7 @@ export default function LoginCard({
             text-gray-600
           "
         >
-          Sign in to continue to your personalized
-          AI workspace.
+          Sign in to continue to your personalized AI workspace.
         </p>
 
         {}
@@ -163,9 +157,7 @@ export default function LoginCard({
                 "
               />
 
-              <span>
-                Signing in...
-              </span>
+              <span>Signing in...</span>
             </>
           ) : (
             <>
@@ -178,9 +170,7 @@ export default function LoginCard({
                 "
               />
 
-              <span>
-                Continue with Google
-              </span>
+              <span>Continue with Google</span>
 
               <FiArrowRight
                 className="
@@ -198,7 +188,6 @@ export default function LoginCard({
         {}
 
         <div className="my-7 flex items-center gap-3">
-
           <div className="h-px flex-1 bg-white/10" />
 
           <span
@@ -214,7 +203,6 @@ export default function LoginCard({
           </span>
 
           <div className="h-px flex-1 bg-white/10" />
-
         </div>
 
         {}
@@ -232,9 +220,7 @@ export default function LoginCard({
         >
           <FiLock className="text-green-500/70" />
 
-          <span>
-            Secure authentication powered by Google
-          </span>
+          <span>Secure authentication powered by Google</span>
         </div>
 
         {}
@@ -250,15 +236,12 @@ export default function LoginCard({
             pt-6
           "
         >
-
           {}
 
           <div className="flex flex-col items-center gap-2">
             <FiFileText className="text-gray-600" />
 
-            <span className="text-[10px] text-gray-700">
-              Resume
-            </span>
+            <span className="text-[10px] text-gray-700">Resume</span>
           </div>
 
           {}
@@ -266,9 +249,7 @@ export default function LoginCard({
           <div className="flex flex-col items-center gap-2">
             <FiBriefcase className="text-gray-600" />
 
-            <span className="text-[10px] text-gray-700">
-              Portfolio
-            </span>
+            <span className="text-[10px] text-gray-700">Portfolio</span>
           </div>
 
           {}
@@ -276,13 +257,9 @@ export default function LoginCard({
           <div className="flex flex-col items-center gap-2">
             <FiCpu className="text-gray-600" />
 
-            <span className="text-[10px] text-gray-700">
-              AI Agents
-            </span>
+            <span className="text-[10px] text-gray-700">AI Agents</span>
           </div>
-
         </div>
-
       </div>
 
       {}
@@ -314,7 +291,6 @@ export default function LoginCard({
           border-white/10
         "
       />
-
     </section>
   );
 }

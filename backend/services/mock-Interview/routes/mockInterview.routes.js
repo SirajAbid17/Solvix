@@ -11,31 +11,20 @@ import {
 } from "../controllers/mockInterview.controller.js";
 import { uploadRateLimit } from "../../../shared/rateLimit.js";
 
-
-
 const router = express.Router();
-
 
 router.post(
   "/generate",
   uploadRateLimit,
   uploadPDF.single("resume"),
-  generateInterview
+  generateInterview,
 );
 
-
-router.post(
-  "/:id/next-batch",
-  uploadRateLimit,
-  generateNextBatch
-);
-
+router.post("/:id/next-batch", uploadRateLimit, generateNextBatch);
 
 router.get("/my-interviews", getMyInterviews);
 
-
 router.get("/:id", getInterviewById);
-
 
 router.delete("/:id", deleteInterview);
 

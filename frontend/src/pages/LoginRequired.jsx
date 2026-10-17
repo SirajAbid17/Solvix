@@ -12,6 +12,11 @@ import { useNavigate } from "react-router-dom";
 
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+
+
+import { FcGoogle } from "react-icons/fc";
+import { FiArrowRight } from "react-icons/fi";
+
 import LoginHero from "../components/LoginRequired/LoginHero";
 import LoginCard from "../components/LoginRequired/LoginCard";
 
@@ -23,17 +28,12 @@ export default function LoginRequired() {
 
   const [loading, setLoading] = useState(false);
 
-  
-  
-  
+ 
+  const currentYear = new Date().getFullYear();
 
   useGSAP(
     () => {
       const tl = gsap.timeline();
-
-      
-      
-      
 
       gsap.set(".stairs", {
         height: "100%",
@@ -60,20 +60,12 @@ export default function LoginRequired() {
         y: 10,
       });
 
-      
-      
-      
-
       tl.to(".stairs", {
         height: 0,
         duration: 1.25,
         stagger: 0.1,
         ease: "power4.inOut",
       });
-
-      
-      
-      
 
       tl.to(
         ".top-google-btn",
@@ -83,12 +75,8 @@ export default function LoginRequired() {
           duration: 0.7,
           ease: "power3.out",
         },
-        "-=0.5"
+        "-=0.5",
       );
-
-      
-      
-      
 
       tl.to(
         ".login-content",
@@ -99,12 +87,8 @@ export default function LoginRequired() {
           duration: 0.9,
           ease: "power4.out",
         },
-        "-=0.45"
+        "-=0.45",
       );
-
-      
-      
-      
 
       tl.to(
         ".small-item",
@@ -115,12 +99,8 @@ export default function LoginRequired() {
           stagger: 0.08,
           ease: "power3.out",
         },
-        "-=0.45"
+        "-=0.45",
       );
-
-      
-      
-      
 
       tl.to(
         ".login-google-btn",
@@ -130,12 +110,8 @@ export default function LoginRequired() {
           duration: 0.6,
           ease: "power3.out",
         },
-        "-=0.25"
+        "-=0.25",
       );
-
-      
-      
-      
 
       gsap.to(".orb-one", {
         x: 100,
@@ -146,10 +122,6 @@ export default function LoginRequired() {
         ease: "sine.inOut",
       });
 
-      
-      
-      
-
       gsap.to(".orb-two", {
         x: -90,
         y: -60,
@@ -159,10 +131,6 @@ export default function LoginRequired() {
         ease: "sine.inOut",
       });
 
-      
-      
-      
-
       gsap.to(".orb-three", {
         x: 60,
         y: -50,
@@ -171,10 +139,6 @@ export default function LoginRequired() {
         yoyo: true,
         ease: "sine.inOut",
       });
-
-      
-      
-      
 
       gsap.to(".login-card", {
         y: -5,
@@ -186,11 +150,8 @@ export default function LoginRequired() {
     },
     {
       scope: container,
-  });
-
-  
-  
-  
+    },
+  );
 
   const handleData = async (token) => {
     try {
@@ -205,17 +166,11 @@ export default function LoginRequired() {
       console.error("Login API Error:", error);
 
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Login failed";
+        error?.response?.data?.message || error?.message || "Login failed";
 
       console.error(message);
     }
   };
-
-  
-  
-  
 
   const handleLogin = async () => {
     if (loading) return;
@@ -223,31 +178,21 @@ export default function LoginRequired() {
     try {
       setLoading(true);
 
-      const result = await signInWithPopup(
-        auth,
-        googleProvider
-      );
+      const result = await signInWithPopup(auth, googleProvider);
 
       if (!result?.user) {
-        throw new Error(
-          "Google authentication failed."
-        );
+        throw new Error("Google authentication failed.");
       }
 
       const token = await result.user.getIdToken();
 
       if (!token) {
-        throw new Error(
-          "Firebase token was not generated."
-        );
+        throw new Error("Firebase token was not generated.");
       }
 
       await handleData(token);
     } catch (error) {
-      console.error(
-        "Google Login Error:",
-        error
-      );
+      console.error("Google Login Error:", error);
     } finally {
       setLoading(false);
     }
@@ -266,8 +211,7 @@ export default function LoginRequired() {
         selection:text-black
       "
     >
-
-      {}
+      
 
       <div
         className="
@@ -283,7 +227,7 @@ export default function LoginRequired() {
         }}
       />
 
-      {}
+     
 
       <div
         className="
@@ -294,7 +238,7 @@ export default function LoginRequired() {
         "
       />
 
-      {}
+      
 
       <div
         className="
@@ -311,8 +255,6 @@ export default function LoginRequired() {
         "
       />
 
-      {}
-
       <div
         className="
           orb-two
@@ -327,8 +269,6 @@ export default function LoginRequired() {
           blur-[130px]
         "
       />
-
-      {}
 
       <div
         className="
@@ -345,7 +285,7 @@ export default function LoginRequired() {
         "
       />
 
-      {}
+    
 
       <div
         className="
@@ -363,7 +303,7 @@ export default function LoginRequired() {
         <div className="stairs h-full w-1/5 bg-white" />
       </div>
 
-      {}
+      
 
       <header
         className="
@@ -379,11 +319,9 @@ export default function LoginRequired() {
         "
       >
         <div className="flex items-center justify-between">
-
-          {}
+        
 
           <div className="small-item flex items-center gap-3">
-
             <div>
               <p
                 className="
@@ -405,10 +343,9 @@ export default function LoginRequired() {
                 AI WORKSPACE
               </p>
             </div>
-
           </div>
 
-          {}
+         
 
           <button
             type="button"
@@ -443,7 +380,7 @@ export default function LoginRequired() {
               md:px-5
             "
           >
-            {}
+           
 
             <span
               className="
@@ -456,16 +393,15 @@ export default function LoginRequired() {
                 bg-white
               "
             >
-              G
+              <FcGoogle size={16} />
             </span>
 
             <span className="hidden sm:block">
-              {loading
-                ? "Signing in..."
-                : "Continue with Google"}
+              {loading ? "Signing in..." : "Continue with Google"}
             </span>
 
-            <span
+            <FiArrowRight
+              size={14}
               className="
                 text-gray-500
                 transition-all
@@ -473,16 +409,12 @@ export default function LoginRequired() {
                 group-hover:translate-x-1
                 group-hover:text-black
               "
-            >
-              →
-            </span>
+            />
           </button>
-
         </div>
       </header>
 
-      {}
-
+    
       <main
         className="
           relative
@@ -505,8 +437,7 @@ export default function LoginRequired() {
             max-w-6xl
           "
         >
-
-          {}
+       
 
           <div
             className="
@@ -525,8 +456,7 @@ export default function LoginRequired() {
               md:p-10
             "
           >
-
-            {}
+          
 
             <div
               className="
@@ -543,7 +473,7 @@ export default function LoginRequired() {
               "
             />
 
-            {}
+          
 
             <div
               className="
@@ -557,7 +487,7 @@ export default function LoginRequired() {
               "
             />
 
-            {}
+          
 
             <div
               className="
@@ -569,22 +499,13 @@ export default function LoginRequired() {
                 md:gap-14
               "
             >
-
-              {}
-
               <LoginHero />
 
-              {}
-
-              <LoginCard
-                handleLogin={handleLogin}
-                loading={loading}
-              />
-
+              <LoginCard handleLogin={handleLogin} loading={loading} />
             </div>
           </div>
 
-          {}
+         
 
           <div
             className="
@@ -600,19 +521,12 @@ export default function LoginRequired() {
               sm:flex-row
             "
           >
-            <span>
-              © 2026 Solvix AI
-            </span>
+            <span>© {currentYear} Solvix AI</span>
 
-            <span className="hidden sm:block">
-              •
-            </span>
+            <span className="hidden sm:block">•</span>
 
-            <span>
-              AI powered workspace
-            </span>
+            <span>AI powered workspace</span>
           </div>
-
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 import { GetModels } from "../config/aimodels.js";
 
 export const routerAgent = async (state) => {
-  // If agent is explicitly set and not "Auto", use it directly
+
   if (state.agent && state.agent !== "Auto" && state.agent !== "auto") {
     return {
       ...state,
@@ -9,7 +9,7 @@ export const routerAgent = async (state) => {
     };
   }
 
-  // Otherwise, use the LLM to route the query
+
   const llm = await GetModels("router");
   
   const prompt = `You are a Router Agent. Your job is to analyze the user's query and route it to the most appropriate agent.
@@ -40,7 +40,7 @@ export const routerAgent = async (state) => {
   const response = await llm.invoke(prompt);
   const agentChoice = response.content.trim().toLowerCase();
   
-  // Validate the agent choice
+  
   const validAgents = ["chat", "search", "coding", "pdf", "ppt", "image", "resume"];
   const finalAgent = validAgents.includes(agentChoice) ? agentChoice : "chat";
   

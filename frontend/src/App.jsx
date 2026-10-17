@@ -4,9 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setuserData, setUserLoading } from "./redux/userSlice";
 import GetcurrentUser from "./Features/GetCurrentUser";
 
-
-import { ProtectedRoute, PublicRoute, AdminRoute } from "./protectedroute/ProtectedRoute";
-
+import {
+  ProtectedRoute,
+  PublicRoute,
+  AdminRoute,
+} from "./protectedroute/ProtectedRoute";
 
 import Home from "./pages/Home";
 import Page_not_Found from "./pages/Page_not_Found";
@@ -29,10 +31,6 @@ import Loading from "./components/Loading/Loading";
 import AdminDashboard from "./pages/AdminDashboard";
 import InterviewPractice from "./pages/InterviewPractice";
 
-
-
-
-
 export default function App() {
   const dispatch = useDispatch();
 
@@ -45,7 +43,7 @@ export default function App() {
 
         const data = await GetcurrentUser();
 
-        console.log("🔥 CURRENT USER FROM APP:", data);
+        console.log("CURRENT USER FROM APP:", data);
 
         if (data) {
           dispatch(setuserData(data));
@@ -53,7 +51,7 @@ export default function App() {
           dispatch(setuserData(null));
         }
       } catch (error) {
-        console.error("❌ Error in getuser:", error);
+        console.error(" Error in getuser:", error);
         dispatch(setuserData(null));
       }
     };
@@ -61,7 +59,6 @@ export default function App() {
     getuser();
   }, [dispatch]);
 
-  
   if (loading) {
     return <Loading />;
   }
@@ -69,15 +66,9 @@ export default function App() {
   return (
     <div>
       <Routes>
-        {}
-        {}
-        {}
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/contact" element={<Contact />} />
 
-        {}
-        {}
-        {}
         <Route
           path="/login-required"
           element={
@@ -87,11 +78,6 @@ export default function App() {
           }
         />
 
-        {}
-        {}
-        {}
-
-        {}
         <Route
           path="/"
           element={
@@ -101,7 +87,6 @@ export default function App() {
           }
         />
 
-        {}
         <Route
           path="/user-dashboard"
           element={
@@ -111,7 +96,6 @@ export default function App() {
           }
         />
 
-        {}
         <Route
           path="/resume"
           element={
@@ -139,7 +123,6 @@ export default function App() {
           }
         />
 
-        {}
         <Route
           path="/cv-generator"
           element={
@@ -158,7 +141,6 @@ export default function App() {
           }
         />
 
-        {}
         <Route
           path="/portfolio"
           element={
@@ -195,7 +177,6 @@ export default function App() {
           }
         />
 
-        {}
         <Route
           path="/mock-interview"
           element={
@@ -214,7 +195,6 @@ export default function App() {
           }
         />
 
-        {}
         <Route
           path="/pricing"
           element={
@@ -224,7 +204,6 @@ export default function App() {
           }
         />
 
-        {}
         <Route
           path="/payment/success"
           element={
@@ -234,9 +213,6 @@ export default function App() {
           }
         />
 
-        {}
-        {}
-        {}
         <Route
           path="/admin-dashboard"
           element={
@@ -246,9 +222,6 @@ export default function App() {
           }
         />
 
-        {}
-        {}
-        {}
         <Route path="*" element={<Page_not_Found />} />
       </Routes>
     </div>

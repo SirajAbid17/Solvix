@@ -1,4 +1,3 @@
-// backend/services/agent/utlis/UploadFile.js
 import cloudinary from "../config/cloudinary.js";
 
 export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
@@ -13,7 +12,7 @@ export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
     if (folder === "pdf") {
       mimeType = "application/pdf";
       format = "pdf";
-      // ✅ CRITICAL FIX: PDF ko "image" resource type use karo
+     
       resourceType = "image";
     } else if (folder === "images" || folder === "image") {
       mimeType = "image/png";
@@ -23,7 +22,7 @@ export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
 
     const dataUri = `data:${mimeType};base64,${base64String}`;
 
-    // ✅ Clean public_id (no dots, no Date.now() weirdness)
+  
     const cleanId = String(fileName || `${folder}_${Date.now()}`)
       .replace(/\.(pdf|pptx|png|jpg|jpeg)$/i, "")
       .replace(/[^a-z0-9_\-]/gi, "_");
@@ -33,12 +32,12 @@ export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
       resource_type: resourceType,
       public_id: cleanId,
       format: format,
-      // ✅ PDFs ke liye inline render allow
+      
       type: "upload",
       access_mode: "public",
     });
 
-    console.log(`✅ Uploaded ${folder} to Cloudinary:`, result.secure_url);
+    console.log(` Uploaded ${folder} to Cloudinary:`, result.secure_url);
 
     return {
       success: true,
@@ -46,7 +45,7 @@ export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
       publicId: result.public_id,
     };
   } catch (error) {
-    console.error(`❌ Cloudinary ${folder} upload failed:`, error);
+    console.error(` Cloudinary ${folder} upload failed:`, error);
     return {
       success: false,
       error: error.message,
@@ -54,7 +53,7 @@ export const uploadToCloudinary = async (buffer, folder = "ppt", fileName) => {
   }
 };
 
-// ✅ Image upload with optimization (unchanged)
+
 export const uploadImageToCloudinary = async (buffer, fileName) => {
   try {
     const cloudinary = (await import("../config/cloudinary.js")).default;
@@ -88,7 +87,7 @@ export const uploadImageToCloudinary = async (buffer, fileName) => {
       ).end(buffer);
     });
   } catch (error) {
-    console.error("❌ Image upload failed:", error);
+    console.error(" Image upload failed:", error);
     return {
       success: false,
       error: error.message,

@@ -871,7 +871,7 @@ export function CertificationsSection({
   setNewCertification,
   dark,
   inputStyle,
-  cardStyle, 
+  cardStyle,
 }) {
   const addCertification = () => {
     if (newCertification.trim()) {
@@ -942,9 +942,8 @@ export function LanguagesSection({
   setNewLanguage,
   dark,
   inputStyle,
-  cardStyle, 
+  cardStyle,
 }) {
-  
   const addLanguage = () => {
     if (newLanguage.trim()) {
       setLanguages([...languages, newLanguage.trim()]);
@@ -1014,9 +1013,8 @@ export function InterestsSection({
   setNewInterest,
   dark,
   inputStyle,
-  cardStyle, 
+  cardStyle,
 }) {
-  
   const addInterest = () => {
     if (newInterest.trim()) {
       setInterests([...interests, newInterest.trim()]);

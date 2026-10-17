@@ -57,10 +57,7 @@ ${state.prompt}
 
     console.log("AI RESPONSE:", res);
 
-    // ------------------------------------------
-    // GET AI CONTENT
-    // ------------------------------------------
-
+    
     let content = res?.content;
 
     if (Array.isArray(content)) {
@@ -77,10 +74,7 @@ ${state.prompt}
       throw new Error("PPT AI returned empty content");
     }
 
-    // ------------------------------------------
-    // CLEAN JSON
-    // ------------------------------------------
-
+   
     content = content
       .replace(/```json/gi, "")
       .replace(/```/g, "")
@@ -98,18 +92,12 @@ ${state.prompt}
       jsonEnd + 1
     );
 
-    // ------------------------------------------
-    // PARSE PPT DATA
-    // ------------------------------------------
-
+   
     const data = JSON.parse(content);
 
     console.log("PPT DATA:", data);
 
-    // ------------------------------------------
-    // VALIDATION
-    // ------------------------------------------
-
+    
     if (!data.title) {
       throw new Error("PPT title missing");
     }
@@ -138,20 +126,14 @@ ${state.prompt}
       }
     });
 
-    // ------------------------------------------
-    // GENERATE PPT
-    // ------------------------------------------
-
+    
     const ppt = await Generateppt(data);
 
     if (!ppt) {
       throw new Error("Generateppt() returned nothing");
     }
 
-    // ------------------------------------------
-    // CREATE BUFFER
-    // ------------------------------------------
-
+   
     const buffer = await ppt.write({
       outputType: "nodebuffer",
     });
@@ -170,16 +152,13 @@ ${state.prompt}
       "bytes"
     );
 
-    // ✅ Generate proper filename
+
     const fileName = `${data.title || "solvix-presentation"}`
       .replace(/[^a-z0-9]/gi, "_")
       .replace(/_+/g, "_")
       .toLowerCase() + ".pptx";
 
-    // ------------------------------------------
-    // ✅ UPLOAD PPT TO CLOUDINARY
-    // ------------------------------------------
-
+    
     let pptUrl = null;
     let pptBase64 = null;
 
@@ -193,42 +172,39 @@ ${state.prompt}
       if (uploadResult.success) {
         pptUrl = uploadResult.url;
         pptBase64 = pptBuffer.toString("base64");
-        console.log("✅ PPT uploaded to Cloudinary:", pptUrl);
+        console.log(" PPT uploaded to Cloudinary:", pptUrl);
       } else {
-        console.log("⚠️ Cloudinary upload failed, using base64 fallback");
+        console.log(" Cloudinary upload failed, using base64 fallback");
         pptBase64 = pptBuffer.toString("base64");
       }
     } catch (uploadError) {
-      console.error("❌ Cloudinary upload error:", uploadError);
+      console.error(" Cloudinary upload error:", uploadError);
       pptBase64 = pptBuffer.toString("base64");
     }
 
-    // ------------------------------------------
-    // RETURN GRAPH STATE
-    // ------------------------------------------
-
+   
     return {
       ...state,
 
-      // ✅ PPT data object (for display/reference)
+     
       ppt: data,
 
-      // ✅ PPT buffer (for download)
+    
       pptBuffer,
 
-      // ✅ Flag indicating PPT was generated
+     
       pptGenerated: true,
 
-      // ✅ File name for download
+     
       pptFileName: fileName,
 
-      // ✅ PPT data stored separately for frontend
+    
       pptData: data,
 
-      // ✅ Cloudinary URL
+      
       pptUrl: pptUrl,
 
-      // ✅ Base64 fallback
+     
       pptBase64: pptBase64,
 
       aiResponse: `Your PowerPoint presentation has been generated successfully.

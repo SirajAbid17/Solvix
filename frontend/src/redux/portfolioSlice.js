@@ -1,9 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-
-
-
-
 const initialState = {
   portfolios: [],
   currentPortfolio: null,
@@ -15,23 +11,12 @@ const initialState = {
   analysisError: null,
 };
 
-
-
-
-
 const getPortfolioId = (portfolio) => {
   if (!portfolio) return null;
 
-  return String(
-    portfolio._id ||
-      portfolio.id ||
-      ""
-  );
+  return String(portfolio._id || portfolio.id || "");
 };
 
-// ============================================================
-// Portfolio Slice
-// ============================================================
 
 const portfolioSlice = createSlice({
   name: "portfolio",
@@ -39,87 +24,56 @@ const portfolioSlice = createSlice({
   initialState,
 
   reducers: {
-    
-    
-    
-
     setPortfolios: (state, action) => {
       state.portfolios = action.payload || [];
     },
-
-    
-    
-    
 
     addPortfolio: (state, action) => {
       const newPortfolio = action.payload;
 
       if (!newPortfolio) return;
 
-      const newId =
-        getPortfolioId(newPortfolio);
+      const newId = getPortfolioId(newPortfolio);
 
-      
       const exists = state.portfolios.some(
-        (portfolio) =>
-          getPortfolioId(portfolio) === newId
+        (portfolio) => getPortfolioId(portfolio) === newId,
       );
 
       if (exists) {
-        state.portfolios =
-          state.portfolios.map(
-            (portfolio) =>
-              getPortfolioId(portfolio) === newId
-                ? {
-                    ...portfolio,
-                    ...newPortfolio,
-                  }
-                : portfolio
-          );
+        state.portfolios = state.portfolios.map((portfolio) =>
+          getPortfolioId(portfolio) === newId
+            ? {
+                ...portfolio,
+                ...newPortfolio,
+              }
+            : portfolio,
+        );
 
         return;
       }
 
-      state.portfolios.unshift(
-        newPortfolio
-      );
+      state.portfolios.unshift(newPortfolio);
     },
 
-    
-    
-    
-
-    updatePortfolioInStore: (
-      state,
-      action
-    ) => {
-      const updatedPortfolio =
-        action.payload;
+    updatePortfolioInStore: (state, action) => {
+      const updatedPortfolio = action.payload;
 
       if (!updatedPortfolio) return;
 
-      const updatedId =
-        getPortfolioId(
-          updatedPortfolio
-        );
+      const updatedId = getPortfolioId(updatedPortfolio);
 
-      state.portfolios =
-        state.portfolios.map(
-          (portfolio) =>
-            getPortfolioId(portfolio) ===
-            updatedId
-              ? {
-                  ...portfolio,
-                  ...updatedPortfolio,
-                }
-              : portfolio
-        );
+      state.portfolios = state.portfolios.map((portfolio) =>
+        getPortfolioId(portfolio) === updatedId
+          ? {
+              ...portfolio,
+              ...updatedPortfolio,
+            }
+          : portfolio,
+      );
 
       if (
         state.currentPortfolio &&
-        getPortfolioId(
-          state.currentPortfolio
-        ) === updatedId
+        getPortfolioId(state.currentPortfolio) === updatedId
       ) {
         state.currentPortfolio = {
           ...state.currentPortfolio,
@@ -128,273 +82,131 @@ const portfolioSlice = createSlice({
       }
     },
 
-    
-    
-    
+    removePortfolio: (state, action) => {
+      const id = String(action.payload);
 
-    removePortfolio: (
-      state,
-      action
-    ) => {
-      const id = String(
-        action.payload
+      state.portfolios = state.portfolios.filter(
+        (portfolio) => getPortfolioId(portfolio) !== id,
       );
-
-      state.portfolios =
-        state.portfolios.filter(
-          (portfolio) =>
-            getPortfolioId(
-              portfolio
-            ) !== id
-        );
 
       if (
         state.currentPortfolio &&
-        getPortfolioId(
-          state.currentPortfolio
-        ) === id
+        getPortfolioId(state.currentPortfolio) === id
       ) {
         state.currentPortfolio = null;
       }
     },
-
-    
-    
-    
 
     clearPortfolios: (state) => {
       state.portfolios = [];
       state.currentPortfolio = null;
     },
 
-    
-    
-    
-
-    setCurrentPortfolio: (
-      state,
-      action
-    ) => {
-      state.currentPortfolio =
-        action.payload;
+    setCurrentPortfolio: (state, action) => {
+      state.currentPortfolio = action.payload;
     },
 
-    
-    
-    
-
-    clearCurrentPortfolio: (
-      state
-    ) => {
+    clearCurrentPortfolio: (state) => {
       state.currentPortfolio = null;
     },
 
-    
-    
-    
-
-    setPortfolioLoading: (
-      state,
-      action
-    ) => {
-      state.isLoading =
-        action.payload;
+    setPortfolioLoading: (state, action) => {
+      state.isLoading = action.payload;
     },
 
-    
-    
-    
-
-    setPortfolioAnalyzing: (
-      state,
-      action
-    ) => {
-      state.isAnalyzing =
-        action.payload;
+    setPortfolioAnalyzing: (state, action) => {
+      state.isAnalyzing = action.payload;
     },
 
-    
-    
-    
-
-    setPortfolioError: (
-      state,
-      action
-    ) => {
-      state.error =
-        action.payload;
+    setPortfolioError: (state, action) => {
+      state.error = action.payload;
     },
 
-    
-    
-    
-
-    setPortfolioAnalysisError: (
-      state,
-      action
-    ) => {
-      state.analysisError =
-        action.payload;
+    setPortfolioAnalysisError: (state, action) => {
+      state.analysisError = action.payload;
     },
 
-    
-    
-    
-
-    clearPortfolioError: (
-      state
-    ) => {
+    clearPortfolioError: (state) => {
       state.error = null;
     },
 
-    
-    
-    
-
-    clearPortfolioAnalysisError: (
-      state
-    ) => {
+    clearPortfolioAnalysisError: (state) => {
       state.analysisError = null;
     },
 
-    
-    
-    
-
-    updatePortfolioAnalysis: (
-      state,
-      action
-    ) => {
+    updatePortfolioAnalysis: (state, action) => {
       if (!state.currentPortfolio) {
         return;
       }
 
-      const currentId =
-        getPortfolioId(
-          state.currentPortfolio
-        );
+      const currentId = getPortfolioId(state.currentPortfolio);
 
       state.currentPortfolio = {
         ...state.currentPortfolio,
         ...action.payload,
 
-        
         generatedCode:
-          action.payload
-            ?.generatedCode ||
-          state.currentPortfolio
-            ?.generatedCode,
+          action.payload?.generatedCode ||
+          state.currentPortfolio?.generatedCode,
       };
 
-      state.portfolios =
-        state.portfolios.map(
-          (portfolio) =>
-            getPortfolioId(
-              portfolio
-            ) === currentId
-              ? {
-                  ...portfolio,
-                  ...state.currentPortfolio,
-                }
-              : portfolio
-        );
+      state.portfolios = state.portfolios.map((portfolio) =>
+        getPortfolioId(portfolio) === currentId
+          ? {
+              ...portfolio,
+              ...state.currentPortfolio,
+            }
+          : portfolio,
+      );
     },
 
-    
-    
-    
-
-    setGeneratedCode: (
-      state,
-      action
-    ) => {
+    setGeneratedCode: (state, action) => {
       if (!state.currentPortfolio) {
         return;
       }
 
-      state.currentPortfolio.generatedCode =
-        {
-          html:
-            action.payload?.html ||
-            "",
-          css:
-            action.payload?.css ||
-            "",
-          js:
-            action.payload?.js ||
-            "",
-        };
+      state.currentPortfolio.generatedCode = {
+        html: action.payload?.html || "",
+        css: action.payload?.css || "",
+        js: action.payload?.js || "",
+      };
 
-      const currentId =
-        getPortfolioId(
-          state.currentPortfolio
-        );
+      const currentId = getPortfolioId(state.currentPortfolio);
 
-      state.portfolios =
-        state.portfolios.map(
-          (portfolio) =>
-            getPortfolioId(
-              portfolio
-            ) === currentId
-              ? {
-                  ...portfolio,
-                  generatedCode:
-                    state
-                      .currentPortfolio
-                      .generatedCode,
-                }
-              : portfolio
-        );
+      state.portfolios = state.portfolios.map((portfolio) =>
+        getPortfolioId(portfolio) === currentId
+          ? {
+              ...portfolio,
+              generatedCode: state.currentPortfolio.generatedCode,
+            }
+          : portfolio,
+      );
     },
 
-    
-    
-    
-
-    setPortfolioAnalysis: (
-      state,
-      action
-    ) => {
+    setPortfolioAnalysis: (state, action) => {
       if (!state.currentPortfolio) {
         return;
       }
 
-      state.currentPortfolio.analysis =
-        action.payload;
+      state.currentPortfolio.analysis = action.payload;
 
-      const currentId =
-        getPortfolioId(
-          state.currentPortfolio
-        );
+      const currentId = getPortfolioId(state.currentPortfolio);
 
-      state.portfolios =
-        state.portfolios.map(
-          (portfolio) =>
-            getPortfolioId(
-              portfolio
-            ) === currentId
-              ? {
-                  ...portfolio,
-                  analysis:
-                    action.payload,
-                }
-              : portfolio
-        );
+      state.portfolios = state.portfolios.map((portfolio) =>
+        getPortfolioId(portfolio) === currentId
+          ? {
+              ...portfolio,
+              analysis: action.payload,
+            }
+          : portfolio,
+      );
     },
-
-    
-    
-    
 
     resetPortfolioState: () => {
       return initialState;
     },
   },
 });
-
-
-
-
 
 export const {
   setPortfolios,
@@ -422,9 +234,5 @@ export const {
 
   resetPortfolioState,
 } = portfolioSlice.actions;
-
-
-
-
 
 export default portfolioSlice.reducer;

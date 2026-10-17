@@ -24,15 +24,11 @@ export default function CodePreview() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const messages = useSelector(
-    (state) => state.message.messages || [],
-  );
+  const messages = useSelector((state) => state.message.messages || []);
 
   const selectedConversation = useSelector(
     (state) => state.conversation.selectedConversation,
   );
-
-
 
   const conversationMessages = useMemo(() => {
     if (!selectedConversation?._id) {
@@ -40,26 +36,18 @@ export default function CodePreview() {
     }
 
     return messages.filter(
-      (message) =>
-        message.conversationId === selectedConversation._id,
+      (message) => message.conversationId === selectedConversation._id,
     );
   }, [messages, selectedConversation]);
 
-  
   const getMessageContent = useCallback((message) => {
     if (!message) {
       return "";
     }
 
-    return (
-      message.content ||
-      message.message ||
-      message.text ||
-      ""
-    );
+    return message.content || message.message || message.text || "";
   }, []);
 
-  
   const codeBlocks = useMemo(() => {
     const blocks = [];
 
@@ -70,21 +58,14 @@ export default function CodePreview() {
         return;
       }
 
-      const regex =
-        /```([a-zA-Z0-9_+#.-]+)?[ \t]*\n?([\s\S]*?)```/g;
+      const regex = /```([a-zA-Z0-9_+#.-]+)?[ \t]*\n?([\s\S]*?)```/g;
 
       let match;
 
       while ((match = regex.exec(content)) !== null) {
-        const language = (
-          match[1] || "text"
-        )
-          .trim()
-          .toLowerCase();
+        const language = (match[1] || "text").trim().toLowerCase();
 
-        const code = (
-          match[2] || ""
-        ).trim();
+        const code = (match[2] || "").trim();
 
         if (!code) {
           continue;
@@ -98,89 +79,49 @@ export default function CodePreview() {
     });
 
     return blocks;
-  }, [
-    conversationMessages,
-    getMessageContent,
-  ]);
+  }, [conversationMessages, getMessageContent]);
 
-  
-  const normalizeLanguage = useCallback(
-    (language) => {
-      const lang = (
-        language || ""
-      )
-        .toLowerCase()
-        .trim();
+  const normalizeLanguage = useCallback((language) => {
+    const lang = (language || "").toLowerCase().trim();
 
-      if (
-        lang === "html" ||
-        lang === "htm" ||
-        lang === "html5"
-      ) {
-        return "html";
-      }
+    if (lang === "html" || lang === "htm" || lang === "html5") {
+      return "html";
+    }
 
-      if (
-        lang === "css" ||
-        lang === "scss" ||
-        lang === "sass"
-      ) {
-        return "css";
-      }
+    if (lang === "css" || lang === "scss" || lang === "sass") {
+      return "css";
+    }
 
-      if (
-        lang === "javascript" ||
-        lang === "js" ||
-        lang === "javascriptreact"
-      ) {
-        return "javascript";
-      }
+    if (lang === "javascript" || lang === "js" || lang === "javascriptreact") {
+      return "javascript";
+    }
 
-      if (
-        lang === "react" ||
-        lang === "jsx" ||
-        lang === "tsx"
-      ) {
-        return "react";
-      }
+    if (lang === "react" || lang === "jsx" || lang === "tsx") {
+      return "react";
+    }
 
-      if (
-        lang === "typescript" ||
-        lang === "ts"
-      ) {
-        return "typescript";
-      }
+    if (lang === "typescript" || lang === "ts") {
+      return "typescript";
+    }
 
-      if (
-        lang === "vue" ||
-        lang === "vuejs"
-      ) {
-        return "vue";
-      }
+    if (lang === "vue" || lang === "vuejs") {
+      return "vue";
+    }
 
-      if (lang === "angular") {
-        return "angular";
-      }
+    if (lang === "angular") {
+      return "angular";
+    }
 
-      if (
-        lang === "python" ||
-        lang === "py"
-      ) {
-        return "python";
-      }
+    if (lang === "python" || lang === "py") {
+      return "python";
+    }
 
-      if (lang === "json") {
-        return "json";
-      }
+    if (lang === "json") {
+      return "json";
+    }
 
-      return lang || "text";
-    },
-    [],
-  );
-
-  
-  
-  
+    return lang || "text";
+  }, []);
 
   const latestCode = useMemo(() => {
     if (!codeBlocks.length) {
@@ -194,9 +135,7 @@ export default function CodePreview() {
     let unsupportedLanguage = "";
 
     codeBlocks.forEach((block) => {
-      const language = normalizeLanguage(
-        block.language,
-      );
+      const language = normalizeLanguage(block.language);
 
       if (language === "html") {
         htmlCode = block.code;
@@ -224,10 +163,6 @@ export default function CodePreview() {
       }
     });
 
-    
-    
-    
-
     const scrollbarStyles = `
       <style>
         ::-webkit-scrollbar {
@@ -251,54 +186,32 @@ export default function CodePreview() {
       </style>
     `;
 
-    
-    
-    
-
     if (htmlCode) {
       let finalHtml = htmlCode;
 
       if (finalHtml.includes("</head>")) {
-        finalHtml = finalHtml.replace(
-          "</head>",
-          scrollbarStyles + "</head>",
-        );
+        finalHtml = finalHtml.replace("</head>", scrollbarStyles + "</head>");
       } else {
-        finalHtml =
-          scrollbarStyles + finalHtml;
+        finalHtml = scrollbarStyles + finalHtml;
       }
 
       if (cssCode) {
-        const cssTag =
-          "<style>\n" +
-          cssCode +
-          "\n</style>";
+        const cssTag = "<style>\n" + cssCode + "\n</style>";
 
         if (finalHtml.includes("</head>")) {
-          finalHtml = finalHtml.replace(
-            "</head>",
-            cssTag + "\n</head>",
-          );
+          finalHtml = finalHtml.replace("</head>", cssTag + "\n</head>");
         } else {
-          finalHtml =
-            cssTag + "\n" + finalHtml;
+          finalHtml = cssTag + "\n" + finalHtml;
         }
       }
 
       if (jsCode) {
-        const jsTag =
-          "<script>\n" +
-          jsCode +
-          "\n</script>";
+        const jsTag = "<script>\n" + jsCode + "\n</script>";
 
         if (finalHtml.includes("</body>")) {
-          finalHtml = finalHtml.replace(
-            "</body>",
-            jsTag + "\n</body>",
-          );
+          finalHtml = finalHtml.replace("</body>", jsTag + "\n</body>");
         } else {
-          finalHtml =
-            finalHtml + "\n" + jsTag;
+          finalHtml = finalHtml + "\n" + jsTag;
         }
       }
 
@@ -308,10 +221,6 @@ export default function CodePreview() {
         language: "html",
       };
     }
-
-    
-    
-    
 
     if (cssCode) {
       const cssOnlyHtml =
@@ -334,9 +243,7 @@ export default function CodePreview() {
         "  min-height: 100vh;\n" +
         "  font-family: Arial, sans-serif;\n" +
         "}\n" +
-        scrollbarStyles
-          .replace("<style>", "")
-          .replace("</style>", "") +
+        scrollbarStyles.replace("<style>", "").replace("</style>", "") +
         cssCode +
         "\n</style>\n" +
         "</head>\n" +
@@ -355,16 +262,8 @@ export default function CodePreview() {
       };
     }
 
-    
-    
-    
-
     if (jsCode) {
-      const escapedJsCode =
-        jsCode.replace(
-          /<\/script>/gi,
-          "<\\/script>",
-        );
+      const escapedJsCode = jsCode.replace(/<\/script>/gi, "<\\/script>");
 
       const jsOnlyHtml =
         "<!DOCTYPE html>\n" +
@@ -386,14 +285,10 @@ export default function CodePreview() {
         "  padding: 24px;\n" +
         "  min-height: 100vh;\n" +
         "  background: " +
-        (dark
-          ? "#080808"
-          : "#ffffff") +
+        (dark ? "#080808" : "#ffffff") +
         ";\n" +
         "  color: " +
-        (dark
-          ? "#ffffff"
-          : "#111111") +
+        (dark ? "#ffffff" : "#111111") +
         ";\n" +
         "  font-family: Arial, sans-serif;\n" +
         "}\n" +
@@ -403,9 +298,7 @@ export default function CodePreview() {
         "  min-height: 100px;\n" +
         "  border-radius: 10px;\n" +
         "  background: " +
-        (dark
-          ? "#151515"
-          : "#f3f4f6") +
+        (dark ? "#151515" : "#f3f4f6") +
         ";\n" +
         "  white-space: pre-wrap;\n" +
         "  word-break: break-word;\n" +
@@ -497,15 +390,9 @@ export default function CodePreview() {
       };
     }
 
-    
-    
-    
-
     if (unsupportedLanguage) {
       const readableLanguage =
-        unsupportedLanguage
-          .charAt(0)
-          .toUpperCase() +
+        unsupportedLanguage.charAt(0).toUpperCase() +
         unsupportedLanguage.slice(1);
 
       const comingSoonHtml =
@@ -528,14 +415,10 @@ export default function CodePreview() {
         "  justify-content: center;\n" +
         "  padding: 24px;\n" +
         "  background: " +
-        (dark
-          ? "#000000"
-          : "#ffffff") +
+        (dark ? "#000000" : "#ffffff") +
         ";\n" +
         "  color: " +
-        (dark
-          ? "#ffffff"
-          : "#111111") +
+        (dark ? "#ffffff" : "#111111") +
         ";\n" +
         "  font-family: Arial, sans-serif;\n" +
         "}\n" +
@@ -553,14 +436,10 @@ export default function CodePreview() {
         "  justify-content: center;\n" +
         "  border-radius: 14px;\n" +
         "  background: " +
-        (dark
-          ? "#111111"
-          : "#f3f4f6") +
+        (dark ? "#111111" : "#f3f4f6") +
         ";\n" +
         "  border: 1px solid " +
-        (dark
-          ? "#222222"
-          : "#e5e7eb") +
+        (dark ? "#222222" : "#e5e7eb") +
         ";\n" +
         "  font-size: 22px;\n" +
         "}\n" +
@@ -571,9 +450,7 @@ export default function CodePreview() {
         ".subtitle {\n" +
         "  margin-top: 8px;\n" +
         "  color: " +
-        (dark
-          ? "#888888"
-          : "#6b7280") +
+        (dark ? "#888888" : "#6b7280") +
         ";\n" +
         "  font-size: 12px;\n" +
         "  line-height: 1.6;\n" +
@@ -584,14 +461,10 @@ export default function CodePreview() {
         "  padding: 7px 11px;\n" +
         "  border-radius: 8px;\n" +
         "  background: " +
-        (dark
-          ? "#151515"
-          : "#f9fafb") +
+        (dark ? "#151515" : "#f9fafb") +
         ";\n" +
         "  border: 1px solid " +
-        (dark
-          ? "#252525"
-          : "#e5e7eb") +
+        (dark ? "#252525" : "#e5e7eb") +
         ";\n" +
         "  font-size: 11px;\n" +
         "}\n" +
@@ -620,10 +493,6 @@ export default function CodePreview() {
       };
     }
 
-    
-    
-    
-
     if (codeBlocks.length === 1) {
       const block = codeBlocks[0];
 
@@ -636,13 +505,9 @@ export default function CodePreview() {
         let finalHtml = block.code;
 
         if (finalHtml.includes("</head>")) {
-          finalHtml = finalHtml.replace(
-            "</head>",
-            scrollbarStyles + "</head>",
-          );
+          finalHtml = finalHtml.replace("</head>", scrollbarStyles + "</head>");
         } else {
-          finalHtml =
-            scrollbarStyles + finalHtml;
+          finalHtml = scrollbarStyles + finalHtml;
         }
 
         return {
@@ -654,20 +519,9 @@ export default function CodePreview() {
     }
 
     return null;
-  }, [
-    codeBlocks,
-    dark,
-    normalizeLanguage,
-  ]);
+  }, [codeBlocks, dark, normalizeLanguage]);
 
-  
-  
-  
-
-  const {
-    executeCode,
-    handleCopy,
-  } = CodePreviewLogic({
+  const { executeCode, handleCopy } = CodePreviewLogic({
     iframeRef,
     executionTimerRef,
     latestCode,
@@ -677,10 +531,6 @@ export default function CodePreview() {
     setIsFullscreen,
     setCopied,
   });
-
-  
-  
-  
 
   return (
     <CodePreviewUI

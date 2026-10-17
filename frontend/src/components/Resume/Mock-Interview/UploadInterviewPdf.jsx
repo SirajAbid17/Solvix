@@ -25,9 +25,6 @@ export default function UploadInterviewPdf() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState(null);
 
-  
-  
-  
   const handleFile = (file) => {
     if (!file) return;
 
@@ -40,7 +37,6 @@ export default function UploadInterviewPdf() {
       return;
     }
 
-    
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File size must be less than 10MB.");
       return;
@@ -50,9 +46,6 @@ export default function UploadInterviewPdf() {
     setError(null);
   };
 
-  
-  
-  
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -60,9 +53,6 @@ export default function UploadInterviewPdf() {
     }
   };
 
-  
-  
-  
   const handleDragOver = (event) => {
     event.preventDefault();
     setIsDragging(true);
@@ -83,9 +73,6 @@ export default function UploadInterviewPdf() {
     }
   };
 
-  
-  
-  
   const removeFile = (event) => {
     event.stopPropagation();
     setSelectedFile(null);
@@ -97,9 +84,7 @@ export default function UploadInterviewPdf() {
     }
   };
 
-  // -----------------------------
-  // Generate Interview
-  // -----------------------------
+  
   const handleGenerateInterview = async () => {
     if (!selectedFile) {
       inputRef.current?.click();
@@ -114,7 +99,6 @@ export default function UploadInterviewPdf() {
       const formData = new FormData();
       formData.append("resume", selectedFile);
 
-      
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 90) {
@@ -130,12 +114,11 @@ export default function UploadInterviewPdf() {
       clearInterval(interval);
       setUploadProgress(100);
 
-      console.log("✅ Interview Generated:", response);
+      console.log("Interview Generated:", response);
 
       if (response.success) {
-        toast.success("🎉 Mock interview generated successfully!");
+        toast.success("Mock interview generated successfully!");
 
-        
         navigate(`/interview-practice/${response.data._id}`, {
           state: {
             interview: response.data,
@@ -145,7 +128,7 @@ export default function UploadInterviewPdf() {
         throw new Error(response.message || "Failed to generate interview");
       }
     } catch (error) {
-      console.error("❌ Generate Error:", error);
+      console.error("Generate Error:", error);
 
       const errorMessage =
         error.response?.data?.message ||
@@ -160,9 +143,6 @@ export default function UploadInterviewPdf() {
     }
   };
 
-  
-  
-  
   return (
     <div
       className={`p-8 transition-colors duration-300 ${
@@ -172,9 +152,7 @@ export default function UploadInterviewPdf() {
       {}
       <div>
         <h2
-          className={`text-2xl font-bold ${
-            dark ? "text-white" : "text-black"
-          }`}
+          className={`text-2xl font-bold ${dark ? "text-white" : "text-black"}`}
         >
           Upload Resume PDF
         </h2>
@@ -184,8 +162,8 @@ export default function UploadInterviewPdf() {
             dark ? "text-gray-400" : "text-gray-600"
           }`}
         >
-          Upload your resume and AI will create a personalized interview
-          based on your skills, experience, projects, and job profile.
+          Upload your resume and AI will create a personalized interview based
+          on your skills, experience, projects, and job profile.
         </p>
       </div>
 
@@ -201,8 +179,8 @@ export default function UploadInterviewPdf() {
               ? "scale-[1.01] border-white bg-white/[0.06]"
               : "scale-[1.01] border-black bg-gray-100"
             : dark
-            ? "border-white/15 hover:border-white/40 hover:bg-white/[0.02]"
-            : "border-gray-300 bg-white hover:border-black hover:bg-gray-100"
+              ? "border-white/15 hover:border-white/40 hover:bg-white/[0.02]"
+              : "border-gray-300 bg-white hover:border-black hover:bg-gray-100"
         } ${loading ? "cursor-not-allowed opacity-70" : ""}`}
       >
         {}
@@ -215,8 +193,8 @@ export default function UploadInterviewPdf() {
                 ? "bg-white/10 text-gray-400"
                 : "bg-gray-200 text-gray-500"
               : dark
-              ? "bg-white text-black"
-              : "bg-black text-white"
+                ? "bg-white text-black"
+                : "bg-black text-white"
           }`}
         >
           {loading ? (
@@ -235,8 +213,8 @@ export default function UploadInterviewPdf() {
           {loading
             ? "Generating Interview..."
             : selectedFile
-            ? "Resume Selected"
-            : "Upload Resume PDF"}
+              ? "Resume Selected"
+              : "Upload Resume PDF"}
         </h3>
 
         {}
@@ -248,8 +226,12 @@ export default function UploadInterviewPdf() {
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
-            <p className={`mt-2 text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>
-              {uploadProgress < 100 ? "Analyzing your resume..." : "Almost done..."}
+            <p
+              className={`mt-2 text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}
+            >
+              {uploadProgress < 100
+                ? "Analyzing your resume..."
+                : "Almost done..."}
             </p>
           </div>
         )}
@@ -281,9 +263,7 @@ export default function UploadInterviewPdf() {
           <div
             onClick={(event) => event.stopPropagation()}
             className={`mx-auto mt-8 flex max-w-md items-center justify-between gap-4 rounded-2xl border px-5 py-4 ${
-              dark
-                ? "border-white/10 bg-black/40"
-                : "border-gray-200 bg-white"
+              dark ? "border-white/10 bg-black/40" : "border-gray-200 bg-white"
             }`}
           >
             <div className="flex min-w-0 items-center gap-3">
@@ -324,17 +304,19 @@ export default function UploadInterviewPdf() {
               <FaTimes />
             </button>
           </div>
-        ) : !loading && (
-          <div
-            className={`mx-auto mt-8 flex w-fit items-center gap-3 rounded-xl px-5 py-3 ${
-              dark
-                ? "bg-black text-white"
-                : "border border-gray-200 bg-white text-black"
-            }`}
-          >
-            <FaFilePdf className="text-red-500" />
-            PDF Files Only (Max 10MB)
-          </div>
+        ) : (
+          !loading && (
+            <div
+              className={`mx-auto mt-8 flex w-fit items-center gap-3 rounded-xl px-5 py-3 ${
+                dark
+                  ? "bg-black text-white"
+                  : "border border-gray-200 bg-white text-black"
+              }`}
+            >
+              <FaFilePdf className="text-red-500" />
+              PDF Files Only (Max 10MB)
+            </div>
+          )
         )}
 
         {}
@@ -360,8 +342,8 @@ export default function UploadInterviewPdf() {
                 ? "cursor-not-allowed bg-white/10 text-gray-500"
                 : "cursor-not-allowed bg-gray-200 text-gray-400"
               : dark
-              ? "bg-white text-black hover:bg-gray-200"
-              : "bg-black text-white hover:bg-gray-800"
+                ? "bg-white text-black hover:bg-gray-200"
+                : "bg-black text-white hover:bg-gray-800"
           }`}
         >
           {loading ? (

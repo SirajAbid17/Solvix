@@ -60,7 +60,7 @@ export default function CVGenerate() {
       const personal = existingResume.personal || {};
       const social = existingResume.social || {};
       
-      // Set personal info
+    
       setPersonalInfo({
         fullName: personal.fullName || '',
         jobTitle: personal.jobTitle || '',
@@ -76,12 +76,12 @@ export default function CVGenerate() {
         portfolio: social.portfolio || ''
       });
 
-      // Set profile image preview
+      
       if (existingResume.profileImage?.url) {
         setProfilePreview(existingResume.profileImage.url);
       }
 
-      // Set resume details - extract from the resume data
+     
       const skills = Array.isArray(existingResume.skills) 
         ? existingResume.skills.join(', ') 
         : '';
@@ -148,7 +148,6 @@ export default function CVGenerate() {
           ).join('\n\n')
         : '';
 
-      // Get summary from AI or resume
       const summary = existingResume.ai?.generatedSummary || existingResume.summary || '';
 
       setResumeDetails({

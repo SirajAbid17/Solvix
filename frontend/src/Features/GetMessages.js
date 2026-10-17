@@ -3,7 +3,7 @@ import api from "../utlis/axios";
 export default async function GetMessages(id) {
   try {
     const { data } = await api.get(`/chat/get-messages/${id}`);
-    console.log("📥 Messages fetched:", data);
+    console.log("Messages fetched:", data);
 
     const messagesWithFields = data.map((msg) => ({
       ...msg,
@@ -20,7 +20,7 @@ export default async function GetMessages(id) {
 
     return messagesWithFields;
   } catch (error) {
-    console.log("❌ GetMessages Error:", error);
+    console.log("GetMessages Error:", error);
     return [];
   }
 }

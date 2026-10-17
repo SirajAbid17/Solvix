@@ -1,9 +1,5 @@
 import api from "../utlis/axios";
 
-
-
-
-
 export const uploadPortfolio = async (formData) => {
   try {
     const { data } = await api.post(
@@ -35,9 +31,6 @@ export const uploadPortfolio = async (formData) => {
 };
 
 
-
-
-
 export const analyzePortfolio = async (id) => {
   try {
     const { data } = await api.post(
@@ -64,10 +57,6 @@ export const analyzePortfolio = async (id) => {
     throw error;
   }
 };
-
-
-
-
 
 export const getAllPortfolios = async () => {
   try {
@@ -97,14 +86,8 @@ export const getAllPortfolios = async () => {
 };
 
 
-
-
-
 export const getMyPortfolios =
   getAllPortfolios;
-
-
-
 
 
 export const getPortfolioBySlug = async (
@@ -135,10 +118,6 @@ export const getPortfolioBySlug = async (
     throw error;
   }
 };
-
-
-
-
 
 export const deletePortfolio = async (
   id

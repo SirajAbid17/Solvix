@@ -1,12 +1,9 @@
-// backend/services/agent/utlis/Generateppt.js
+
 import pptxgen from "pptxgenjs";
 
 export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
   try {
-    // ============================================
-    // COLORS
-    // ============================================
-
+   
     const colors = {
       primary: "2563EB",
       primaryDark: "1D4ED8",
@@ -26,10 +23,6 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       chart5: "1D4ED8",
     };
 
-    // ============================================
-    // CREATE PRESENTATION
-    // ============================================
-
     const ppt = new pptxgen();
 
     ppt.layout = "LAYOUT_WIDE";
@@ -46,10 +39,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       lang: "en_US",
     };
 
-    // ============================================
-    // COVER SLIDE
-    // ============================================
-
+   
     const addCover = (ppt, data) => {
       const slide = ppt.addSlide();
 
@@ -90,9 +80,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       });
     };
 
-    // ============================================
-    // CONTENT SLIDE
-    // ============================================
+   
 
     const addContentSlide = (ppt, slideData, page, total) => {
       const slide = ppt.addSlide();
@@ -189,9 +177,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       });
     };
 
-    // ============================================
-    // BUILD 25 LINES (5 x 5)
-    // ============================================
+
 
     const buildSummaryLines = (data) => {
       const title = data?.title || "this topic";
@@ -234,7 +220,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
         `We hope this presentation provides a strong starting point for deeper discussion and meaningful real-world application.`,
       ];
 
-      // Guarantee at least 25 lines
+     
       while (lines.length < 25) {
         lines.push(
           `Further analysis of ${title} continues to reveal new perspectives and reinforces the importance of ongoing study and reflection.`
@@ -244,10 +230,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       return lines.slice(0, 25);
     };
 
-    // ============================================
-    // HELPER: BAR CHART
-    // ============================================
-
+    
     const addEmphasisChart = (ppt, slide, data, x, y, w, h) => {
       const chartLabels = (data?.slides || []).map((s, i) => {
         const t = s?.title || `Section ${i + 1}`;
@@ -287,10 +270,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       });
     };
 
-    // ============================================
-    // SUMMARY SLIDE (5 lines + chart)
-    // ============================================
-
+   
     const addSummarySlide = (ppt, data, lines, partNumber, totalParts, chartTitle) => {
       const slide = ppt.addSlide();
       slide.background = { color: colors.white };
@@ -308,7 +288,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
         line: { color: colors.border, width: 1 },
       });
 
-      // ---- LEFT: 5 lines paragraph ----
+    
       slide.addShape(ppt.ShapeType.roundRect, {
         x: 0.5, y: 1.1, w: 7.3, h: 5.3,
         rectRadius: 0.08,
@@ -327,7 +307,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
         fit: "shrink",
       });
 
-      // ---- RIGHT: chart ----
+     
       slide.addShape(ppt.ShapeType.roundRect, {
         x: 8.0, y: 1.1, w: 4.8, h: 5.3,
         rectRadius: 0.08,
@@ -345,7 +325,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
 
       addEmphasisChart(ppt, slide, data, 8.2, 1.75, 4.4, 4.5);
 
-      // ---- Footer ----
+      
       slide.addText("Solvix", {
         x: 0.5, y: 6.9, w: 2, h: 0.2,
         align: "left", color: colors.muted,
@@ -361,10 +341,7 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       });
     };
 
-    // ============================================
-    // THANK YOU SLIDE
-    // ============================================
-
+   
     const addThankyou = (ppt) => {
       const slide = ppt.addSlide();
 
@@ -399,34 +376,27 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       });
     };
 
-    // ============================================
-    // VALIDATE DATA
-    // ============================================
-
+   
     if (!data) throw new Error("Presentation data is required.");
     if (!Array.isArray(data.slides))
       throw new Error("Presentation slides must be an array.");
 
-    // ============================================
-    // GENERATE SLIDES
-    // ============================================
-
-    // 1) Cover
+   
     addCover(ppt, data);
 
-    // 2) Content slides
+    
     data.slides.forEach((slideData, index) => {
       addContentSlide(ppt, slideData, index + 1, data.slides.length);
     });
 
-    // 3) ✅ Build 25 lines, split into 5 chunks of 5
+    
     const summaryLines = buildSummaryLines(data);
     const chunks = [];
     for (let i = 0; i < 25; i += 5) {
       chunks.push(summaryLines.slice(i, i + 5));
     }
 
-    // 4) ✅ Create 5 summary slides (5 lines each)
+   
     const chartTitles = [
       "Section Emphasis",
       "Key Insights",
@@ -446,12 +416,10 @@ export const Generateppt = async (data, outputPath = "./presentation.pptx") => {
       );
     });
 
-    // 5) Thank You
+   
     addThankyou(ppt);
 
-    // ============================================
-    // SAVE FILE
-    // ============================================
+  
 
     await ppt.writeFile({ fileName: outputPath });
 

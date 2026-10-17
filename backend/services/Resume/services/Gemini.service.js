@@ -2,24 +2,15 @@ import { ChatGroq } from "@langchain/groq";
 import { TavilySearch } from "@langchain/tavily";
 
 const model = new ChatGroq({
-
-    apiKey: process.env.GROQ_API_KEY,
-
+  apiKey: process.env.GROQ_API_KEY,
   model: "openai/gpt-oss-20b",
-    temperature: 0
-
+  temperature: 0,
 });
-
 
 const tavily = new TavilySearch({
-
-    apiKey: process.env.TAVILY_API_KEY,
-
-    maxResults: 10
-
+  apiKey: process.env.TAVILY_API_KEY,
+  maxResults: 10,
 });
-
-
 
 export const analyzeResume = async (resumeText) => {
   const prompt = `
@@ -36,61 +27,28 @@ ${resumeText}
 - **sectionScores**: Rate each section (experience, projects, skills, education, formatting, ats)
 
 ### 2. STRENGTHS
-Identify 3-5 key strengths from the resume. Focus on:
-- Technical expertise that stands out
-- Notable achievements or impact
-- Unique combinations of skills
-- Project complexity and scale
-- Leadership or initiative shown
+Identify 3-5 key strengths from the resume.
 
 ### 3. AREAS FOR IMPROVEMENT
-Provide 3-5 constructive improvements that are:
-- Specific and actionable
-- Aligned with current industry demands
-- Based on gaps in the resume
-- Prioritized by importance
+Provide 3-5 constructive improvements.
 
 ### 4. CAREER ROADMAP
-Create exactly 4 personalized steps:
-- **Step 1**: Immediate action (set completed: true)
-- **Steps 2-4**: Progressive career development (completed: false)
-- Each step should have a clear title and actionable description
+Create exactly 4 personalized steps.
 
 ### 5. SKILLS TO IMPROVE
-List 4-6 specific technical skills that would enhance the candidate's profile based on:
-- Current job market demands
-- Career trajectory
-- Technology stack evolution
-- Industry trends
+List 4-6 specific technical skills.
 
 ### 6. NEXT LEARNING RECOMMENDATIONS
-Provide 3 detailed recommendations covering:
-- Specific technologies or frameworks
-- Concrete learning resources or paths
-- Practical projects to build
-- Timeframe for completion
+Provide 3 detailed recommendations.
 
 ### 7. MISSING KEYWORDS
-Extract 5-10 important keywords that are:
-- Relevant to the candidate's target roles
-- Currently trending in job descriptions
-- Missing from the resume
-- ATS-friendly and recruiter-valued
+Extract 5-10 important keywords.
 
 ### 8. RECOMMENDED ROLES
-Suggest 3-5 job titles that best match the candidate's:
-- Current skills and experience
-- Career progression path
-- Industry demand and opportunities
+Suggest 3-5 job titles.
 
 ## CRITICAL RULES:
 1. Return ONLY valid JSON - no markdown, no code blocks, no explanations
-2. Be specific and personalized to this resume
-3. Provide actionable, realistic recommendations
-4. Consider the candidate's current level (junior/mid/senior)
-5. Match recommendations to their specific tech stack and experience
-6. Include emerging technologies where relevant
-7. Be constructive, not critical
 
 ## EXACT JSON FORMAT:
 {
@@ -139,22 +97,26 @@ Suggest 3-5 job titles that best match the candidate's:
 
   const response = await model.invoke(prompt);
   let content = response.content;
-  content = content.replace(/```json/g, "").replace(/```/g, "").trim();
+  content = content
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
   const analysis = JSON.parse(content);
   return analysis;
 };
 
 export const findJobs = async (analysis) => {
+  try {
+    const primaryRole =
+      analysis?.recommendedRoles?.[0] || "Full Stack Developer";
 
-  const primaryRole =
-    analysis.recommendedRoles?.[0] || "Full Stack Developer";
+    const skills =
+      analysis?.skillsToImprove?.map((skill) => skill?.name).filter(Boolean) ||
+      [];
 
-  const skills =
-    analysis.skillsToImprove?.map(skill => skill.name) || [];
+    const experienceLevel = "Junior to Mid Level";
 
-  const experienceLevel = "Junior to Mid Level";
-
-  const query = `
+    const query = `
 Find ONLY ACTIVE JOB POSTINGS.
 
 Candidate Profile
@@ -207,18 +169,65 @@ Each result MUST contain
 Return only 8 jobs.
 `;
 
-  const result = await tavily.invoke({ query });
+    console.log("Searching jobs via Tavily for role:", primaryRole);
 
-  return result.results.map(job => ({
-    title: job.title || "Not specified",
-    company: job.company || "Not specified",
-    location: job.location || "Not specified",
-    url: job.url,
-    description: job.content || "",
-    jobType: job.jobType || "Not specified",
-    salary: job.salary || "Not specified",
-    source: "Tavily",
-  }));
+    const result = await tavily.invoke({ query });
+
+    if (!result) {
+      console.error("Tavily returned null/undefined result");
+      return [];
+    }
+
+    let jobResults = [];
+
+    if (Array.isArray(result)) {
+      jobResults = result;
+    } else if (Array.isArray(result.results)) {
+      jobResults = result.results;
+    } else if (result.error) {
+      console.error("Tavily API error:", result.error);
+      return [];
+    } else {
+      console.error(
+        "Tavily returned unexpected format:",
+        JSON.stringify(result).slice(0, 200),
+      );
+      return [];
+    }
+
+    if (jobResults.length === 0) {
+      console.warn("Tavily returned 0 jobs");
+      return [];
+    }
+
+    const jobs = jobResults
+      .map((job, index) => {
+        if (!job) {
+          console.warn(`Job at index ${index} is null`);
+          return null;
+        }
+
+        return {
+          title: job.title || "Not specified",
+          company: job.company || "Not specified",
+          location: job.location || "Not specified",
+          url: job.url || "",
+          description: job.content || "",
+          jobType: job.jobType || "Not specified",
+          salary: job.salary || "Not specified",
+          source: "Tavily",
+        };
+      })
+      .filter(Boolean);
+
+    console.log(`Found ${jobs.length} jobs successfully`);
+    return jobs;
+  } catch (error) {
+    console.error(" findJobs failed:", {
+      message: error.message,
+      stack: error.stack?.split("\n").slice(0, 3).join("\n"),
+    });
+
+    return [];
+  }
 };
-
-

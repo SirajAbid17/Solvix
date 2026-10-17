@@ -19,9 +19,6 @@ import {
 } from "../redux/portfolioSlice.js";
 
 
-
-
-
 import {
   getAllPortfolios,
   deletePortfolio,
@@ -42,10 +39,6 @@ export default function AllPortfolio() {
   } = useSelector(
     (state) => state.portfolio
   );
-
-  
-  
-  
 
   const loadPortfolios = async () => {
     try {
@@ -97,17 +90,9 @@ export default function AllPortfolio() {
     }
   };
 
-  
-  
-  
-
   useEffect(() => {
     loadPortfolios();
   }, []);
-
-  
-  
-  
 
   const handleViewWebsite = (
     portfolio
@@ -122,14 +107,6 @@ export default function AllPortfolio() {
       );
       return;
     }
-
-    
-    
-    
-    
-    
-    
-    
 
     if (portfolio?.slug) {
       navigate(
@@ -153,10 +130,6 @@ export default function AllPortfolio() {
       }
     );
   };
-
-  
-  
-  
 
   const handleDelete = async (
     portfolio
@@ -207,17 +180,9 @@ export default function AllPortfolio() {
     }
   };
 
-  
-  
-  
-
   const handleRetry = () => {
     loadPortfolios();
   };
-
-  
-  
-  
 
   if (isLoading) {
     return (
@@ -234,9 +199,6 @@ export default function AllPortfolio() {
   }
 
   
-  
-  
-
   if (error) {
     return (
       <div className={`min-h-screen px-6 py-16 transition-colors duration-300 ${
@@ -271,10 +233,6 @@ export default function AllPortfolio() {
       </div>
     );
   }
-
-  
-  
-  
 
   return (
     <> 

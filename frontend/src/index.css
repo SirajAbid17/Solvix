@@ -16,13 +16,13 @@
   background: transparent !important;
 }
 
-/* Modern Scrollbar */
+
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #60a5fa transparent; /* Firefox */
+  scrollbar-color: #60a5fa transparent; 
 }
 
-/* Chrome, Edge, Safari */
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
@@ -49,14 +49,14 @@
   background: transparent;
 }
 
-/* Hide scrollbar but keep scrolling */
+
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE & Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  
+  scrollbar-width: none;    
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;             /* Chrome, Safari, Opera */
+  display: none;            
 }
 
 .message {
@@ -93,11 +93,11 @@
   background: transparent;
 }
 * {
-  scrollbar-width: none;    /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none;   
+  -ms-overflow-style: none; 
 }
 
-/* Hide scrollbars but keep functionality */
+
 .no-scrollbar::-webkit-scrollbar {
   width: 0px;
   height: 0px;
@@ -107,7 +107,7 @@
   -ms-overflow-style: none;
 }
 
-/* Gradient shift animation */
+
 @keyframes gradient-x {
   0%, 100% {
     background-position: 0% 50%;
@@ -122,7 +122,7 @@
   animation: gradient-x 3s ease infinite;
 }
 
-/* Existing animations */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

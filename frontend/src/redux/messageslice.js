@@ -10,9 +10,8 @@ const messageSlice = createSlice({
 
   reducers: {
     setMessages: (state, action) => {
-      state.messages = action.payload.map(msg => ({
+      state.messages = action.payload.map((msg) => ({
         ...msg,
-        
         images: Array.isArray(msg.images) ? msg.images : [],
         pdf: msg.pdf || null,
         pdfUrl: msg.pdfUrl || null,
@@ -22,13 +21,18 @@ const messageSlice = createSlice({
         pptGenerated: msg.pptGenerated || false,
         pptFileName: msg.pptFileName || "solvix-presentation.pptx",
         pptData: msg.pptData || null,
+      
+        attachedFile: msg.attachedFile || null,
+        ragUsed: msg.ragUsed || false,
+        ragSources: msg.ragSources || [],
       }));
     },
 
     addMessage: (state, action) => {
-      
-      const images = Array.isArray(action.payload.images) ? action.payload.images : [];
-      
+      const images = Array.isArray(action.payload.images)
+        ? action.payload.images
+        : [];
+
       const message = {
         ...action.payload,
         images: images,
@@ -40,6 +44,10 @@ const messageSlice = createSlice({
         pptGenerated: action.payload.pptGenerated || false,
         pptFileName: action.payload.pptFileName || "solvix-presentation.pptx",
         pptData: action.payload.pptData || null,
+      
+        attachedFile: action.payload.attachedFile || null,
+        ragUsed: action.payload.ragUsed || false,
+        ragSources: action.payload.ragSources || [],
       };
       state.messages.push(message);
     },
@@ -50,10 +58,6 @@ const messageSlice = createSlice({
   },
 });
 
-export const {
-  setMessages,
-  addMessage,
-  clearMessages,
-} = messageSlice.actions;
+export const { setMessages, addMessage, clearMessages } = messageSlice.actions;
 
 export default messageSlice.reducer;

@@ -1,5 +1,10 @@
-
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
@@ -22,8 +27,6 @@ import {
 } from "react-icons/fi";
 
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -36,8 +39,6 @@ import {
   Area,
 } from "recharts";
 
-
-import BgContextBtn from "../BgContextBtn";
 import DashboardHeader from "./DashboardHeader";
 import DashboardTabs from "./DashboardTabs";
 import UserProfileCard from "./UserProfileCard";
@@ -57,7 +58,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 const formatPlan = (plan) => {
   if (!plan) return "Free";
-  return String(plan).charAt(0).toUpperCase() + String(plan).slice(1).toLowerCase();
+  return (
+    String(plan).charAt(0).toUpperCase() + String(plan).slice(1).toLowerCase()
+  );
 };
 
 const getCredits = (user) => {
@@ -106,8 +109,12 @@ const COLORS = [
   "#3B82F6",
 ];
 
-
-
+const PAID_SERVICES = [
+  "Resume Upload",
+  "CV Generator",
+  "Portfolio Generator",
+  "Mock Interview",
+];
 
 
 const PaginatedList = ({
@@ -119,14 +126,12 @@ const PaginatedList = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  
   useEffect(() => {
     setCurrentPage(1);
   }, [resetKey, items.length]);
 
   const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
 
-  
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -147,15 +152,12 @@ const PaginatedList = ({
 
   return (
     <div className="space-y-3">
-      {}
       <div className="space-y-2">
         {paginatedItems.map((item, index) => renderItem(item, index))}
       </div>
 
-      {}
       {totalPages > 1 && (
         <div className="flex flex-col items-center justify-between gap-3 border-t border-white/[0.06] pt-4 sm:flex-row">
-          {}
           <p className="text-xs text-gray-500">
             Showing{" "}
             <span className="font-semibold text-gray-300">
@@ -169,20 +171,16 @@ const PaginatedList = ({
             <span className="font-semibold text-gray-300">{items.length}</span>
           </p>
 
-          {}
           <div className="flex items-center gap-1.5">
-            {}
             <button
               type="button"
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] text-gray-400 transition hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08] disabled:hover:bg-white/[0.02] disabled:hover:text-gray-400"
-              aria-label="Previous page"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] text-gray-400 transition hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-400 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <FiChevronLeft className="text-sm" />
             </button>
 
-            {}
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((page) => {
                 if (totalPages <= 7) return true;
@@ -215,13 +213,11 @@ const PaginatedList = ({
                 );
               })}
 
-            {}
             <button
               type="button"
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] text-gray-400 transition hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08] disabled:hover:bg-white/[0.02] disabled:hover:text-gray-400"
-              aria-label="Next page"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.02] text-gray-400 transition hover:border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-400 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <FiChevronRight className="text-sm" />
             </button>
@@ -233,13 +229,17 @@ const PaginatedList = ({
 };
 
 
-
-
-
-const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
+const ChartsSection = ({
+  chartData,
+  weeklyData,
+  serviceUsage,
+  isPaidOnly = false,
+}) => {
   const dailyChartData = chartData?.length
     ? chartData.map((day) => ({
-        name: day.day || new Date(day.date).toLocaleDateString("en-US", { weekday: "short" }),
+        name:
+          day.day ||
+          new Date(day.date).toLocaleDateString("en-US", { weekday: "short" }),
         requests: Number(day.count) || 0,
       }))
     : [
@@ -264,46 +264,92 @@ const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
         { name: "Week 4", requests: 0 },
       ];
 
-  const pieData = Object.entries(serviceUsage || {}).map(([name, value]) => ({
-    name,
-    value: Number(value) || 0,
-  }));
+
+  const pieData = Object.entries(serviceUsage || {})
+    .filter(([name, value]) => {
+      
+      if (!isPaidOnly) return Number(value) > 0;
+
+     
+      return (
+        Number(value) > 0 &&
+        PAID_SERVICES.some((svc) =>
+          name.toLowerCase().includes(svc.toLowerCase()),
+        )
+      );
+    })
+    .map(([name, value]) => ({
+      name,
+      value: Number(value) || 0,
+    }));
 
   const hasData = pieData.length > 0;
 
+  const totalForPie = pieData.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <div className="space-y-6">
-      {}
+     
       <Card className="p-6">
         <SectionHeader
-          title="Daily Requests"
-          description="Track your daily API usage over the last 7 days"
+          title="Daily Paid Requests"
+          description="Track your paid API usage over the last 7 days"
           icon={<FiCalendar />}
         />
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={dailyChartData}>
               <defs>
-                <linearGradient id="requestsGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient
+                  id="requestsGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
                   <stop offset="0%" stopColor="#6366F1" stopOpacity={0.35} />
                   <stop offset="100%" stopColor="#6366F1" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#171717" />
-              <XAxis dataKey="name" stroke="#555" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis stroke="#555" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: "#080808", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", color: "#fff" }} />
-              <Area type="monotone" dataKey="requests" stroke="#6366F1" strokeWidth={2} fill="url(#requestsGradient)" />
+              <XAxis
+                dataKey="name"
+                stroke="#555"
+                tick={{ fill: "#666", fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                stroke="#555"
+                tick={{ fill: "#666", fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#080808",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "12px",
+                  color: "#fff",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="requests"
+                stroke="#6366F1"
+                strokeWidth={2}
+                fill="url(#requestsGradient)"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </Card>
 
-      {}
+     
       <Card className="p-6">
         <SectionHeader
-          title="Service Distribution"
-          description="Breakdown of your API service usage"
+          title="Paid Service Distribution"
+          description="Breakdown of your paid service usage"
           icon={<FiPieChart />}
         />
         <div className="h-80">
@@ -322,24 +368,46 @@ const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
                   hasData ? `${name} ${(percent * 100).toFixed(0)}%` : "No Data"
                 }
               >
-                {(hasData ? pieData : [{ name: "No Data", value: 1 }]).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
+                {(hasData ? pieData : [{ name: "No Data", value: 1 }]).map(
+                  (entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ),
+                )}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "#080808", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", color: "#fff" }} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#080808",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "12px",
+                  color: "#fff",
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
+
         {hasData && (
           <div className="mt-4 flex flex-wrap justify-center gap-4">
             {pieData.map((item, index) => {
-              const total = pieData.reduce((sum, current) => sum + current.value, 0);
-              const percentage = total > 0 ? ((item.value / total) * 100).toFixed(0) : 0;
+              const percentage =
+                totalForPie > 0
+                  ? ((item.value / totalForPie) * 100).toFixed(0)
+                  : 0;
               return (
                 <div key={item.name} className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                  <div
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{
+                      backgroundColor: COLORS[index % COLORS.length],
+                    }}
+                  />
                   <span className="text-xs text-gray-500">{item.name}</span>
-                  <span className="text-xs font-bold text-gray-400">{percentage}%</span>
+                  <span className="text-xs font-bold text-gray-400">
+                    {percentage}%
+                  </span>
                 </div>
               );
             })}
@@ -349,9 +417,6 @@ const ChartsSection = ({ chartData, weeklyData, serviceUsage }) => {
     </div>
   );
 };
-
-
-
 
 
 export default function UserData() {
@@ -367,10 +432,6 @@ export default function UserData() {
 
   const dashboardRef = useRef(null);
 
-  
-  
-  
-
   const userName = userdata?.name || "User";
   const userEmail = userdata?.email || "user@email.com";
   const userAvatar = userdata?.avatar || "";
@@ -379,7 +440,6 @@ export default function UserData() {
   const initials = useMemo(() => getInitials(userName), [userName]);
 
   
-
   const fetchActivity = useCallback(async () => {
     try {
       setLoading(true);
@@ -390,10 +450,14 @@ export default function UserData() {
       } else {
         setActivityData({
           totalRequests: 0,
+          paidRequests: 0,
           totalCreditsUsed: 0,
           dailyData: [],
           weeklyData: [],
           serviceUsage: {},
+          paidDailyData: [],
+          paidWeeklyData: [],
+          paidServiceUsage: {},
           creditHistory: [],
         });
       }
@@ -401,10 +465,14 @@ export default function UserData() {
       console.error("Error fetching activity:", error);
       setActivityData({
         totalRequests: 0,
+        paidRequests: 0,
         totalCreditsUsed: 0,
         dailyData: [],
         weeklyData: [],
         serviceUsage: {},
+        paidDailyData: [],
+        paidWeeklyData: [],
+        paidServiceUsage: {},
         creditHistory: [],
       });
     } finally {
@@ -416,27 +484,22 @@ export default function UserData() {
     fetchActivity();
   }, [fetchActivity]);
 
- 
 
   useGSAP(
     () => {
       gsap.fromTo(
         ".dashboard-header",
         { opacity: 0, y: -25 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }
+        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
       );
       gsap.fromTo(
         ".dashboard-tabs",
         { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.6, delay: 0.15, ease: "power3.out" }
+        { opacity: 1, y: 0, duration: 0.6, delay: 0.15, ease: "power3.out" },
       );
     },
-    { scope: dashboardRef }
+    { scope: dashboardRef },
   );
-
-  
-  
-  
 
   useEffect(() => {
     const content = document.querySelector(".tab-content");
@@ -444,14 +507,11 @@ export default function UserData() {
     gsap.fromTo(
       content,
       { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
+      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
     );
   }, [activeTab]);
 
   
-  
-  
-
   const handleLogout = async () => {
     if (loggingOut) return;
     try {
@@ -468,9 +528,6 @@ export default function UserData() {
   };
 
   
-  
-  
-
   const tabs = [
     { id: "overview", label: "Overview", icon: <FiHome /> },
     { id: "analytics", label: "Analytics", icon: <FiBarChart2 /> },
@@ -479,17 +536,16 @@ export default function UserData() {
     { id: "pricing", label: "Pricing", icon: <FiDollarSign /> },
   ];
 
-  
-  
-  
 
-  const totalRequests = Number(activityData?.totalRequests) || 0;
+  const totalRequests = Number(activityData?.paidRequests) || 0;
   const totalCreditsUsed = Number(activityData?.totalCreditsUsed) || 0;
-  const activeAgents = Object.keys(activityData?.serviceUsage || {}).length;
+
+  const activeAgents = Object.keys(activityData?.paidServiceUsage || {}).length;
+
   const creditHistory = activityData?.creditHistory || [];
 
-  const weeklyChartData = activityData?.weeklyData?.length
-    ? activityData.weeklyData.map((week) => ({
+  const weeklyChartData = activityData?.paidWeeklyData?.length
+    ? activityData.paidWeeklyData.map((week) => ({
         name: week.label || `Week ${week.week?.split("-W")[1] || ""}`,
         requests: Number(week.count) || 0,
       }))
@@ -497,41 +553,47 @@ export default function UserData() {
 
   const weeklyAvg = weeklyChartData.length
     ? Math.round(
-        weeklyChartData.reduce((total, item) => total + Number(item.requests), 0) /
-          weeklyChartData.length
+        weeklyChartData.reduce(
+          (total, item) => total + Number(item.requests),
+          0,
+        ) / weeklyChartData.length,
       )
     : 0;
 
   const mostActive =
-    Object.entries(activityData?.serviceUsage || {})
+    Object.entries(activityData?.paidServiceUsage || {})
       .sort((a, b) => Number(b[1]) - Number(a[1]))
       .map(([name]) => name)
       .at(0) || "N/A";
 
-  const pieData = Object.entries(activityData?.serviceUsage || {}).map(([name, value]) => ({
-    name,
-    value: Number(value) || 0,
-  }));
 
-  
-  
-  
+  const paidPieData = Object.entries(activityData?.paidServiceUsage || {}).map(
+    ([name, value]) => ({
+      name,
+      value: Number(value) || 0,
+    }),
+  );
+
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+          <p className="text-xs text-gray-500">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
 
- 
+
   return (
-    <div ref={dashboardRef} className="min-h-screen mt-[2px] bg-black text-white">
-      {}
+    <div
+      ref={dashboardRef}
+      className="min-h-screen mt-[2px] bg-black text-white"
+    >
       <div className="pointer-events-none fixed left-1/2 top-0 z-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-indigo-600/[0.035] blur-[130px]" />
 
-      {}
       <DashboardHeader
         userCredits={userCredits}
         userPlan={userPlan}
@@ -539,16 +601,17 @@ export default function UserData() {
         handleLogout={handleLogout}
       />
 
-      {}
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-8">
         <div className="h-[62px]" />
 
-        {}
-        <DashboardTabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+        <DashboardTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
 
-        {}
         <div className="tab-content">
-          {}
+         
           {activeTab === "overview" && (
             <>
               <UserProfileCard
@@ -573,23 +636,25 @@ export default function UserData() {
                 totalRequests={totalRequests}
               />
 
-              <AgentUsageGrid serviceUsage={activityData?.serviceUsage || {}} />
+              <AgentUsageGrid
+                serviceUsage={activityData?.paidServiceUsage || {}}
+              />
 
-              {}
               <PricingSection />
             </>
           )}
 
-          {}
+         
           {activeTab === "analytics" && (
             <ChartsSection
-              chartData={activityData?.dailyData || []}
-              weeklyData={activityData?.weeklyData || []}
-              serviceUsage={activityData?.serviceUsage || {}}
+              chartData={activityData?.paidDailyData || []}
+              weeklyData={activityData?.paidWeeklyData || []}
+              serviceUsage={activityData?.paidServiceUsage || {}}
+              isPaidOnly={true}
             />
           )}
 
-          {}
+         
           {activeTab === "credits" && (
             <div className="space-y-6">
               <Card className="relative overflow-hidden p-8 text-center">
@@ -615,7 +680,6 @@ export default function UserData() {
                 </button>
               </Card>
 
-              {}
               <Card className="p-6">
                 <SectionHeader
                   title="Credit Usage History"
@@ -662,45 +726,48 @@ export default function UserData() {
             </div>
           )}
 
-          {}
+         
           {activeTab === "activity" && (
             <div className="space-y-6">
-              {}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard
                   icon={<FiActivity />}
-                  label="Total Activity"
+                  label="Paid Activity"
                   value={totalRequests.toLocaleString()}
-                  subtext="all time"
+                  subtext="paid requests"
                   delay={0}
                 />
                 <StatCard
                   icon={<FiTrendingUp />}
                   label="Weekly Average"
                   value={weeklyAvg}
-                  subtext="requests per week"
+                  subtext="paid requests per week"
                   delay={1}
                 />
                 <StatCard
                   icon={<FiZap />}
                   label="Most Active"
                   value={mostActive}
-                  subtext="service"
+                  subtext="paid service"
                   delay={2}
                 />
               </div>
 
               <Card className="p-6">
                 <SectionHeader
-                  title="Service Distribution"
-                  description="Breakdown of your service usage"
+                  title="Paid Service Distribution"
+                  description="Breakdown of your paid service usage"
                   icon={<FiPieChart />}
                 />
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={pieData}
+                        data={
+                          paidPieData.length
+                            ? paidPieData
+                            : [{ name: "No Data", value: 1 }]
+                        }
                         cx="50%"
                         cy="50%"
                         innerRadius={65}
@@ -709,7 +776,10 @@ export default function UserData() {
                         dataKey="value"
                         stroke="none"
                       >
-                        {pieData.map((entry, index) => (
+                        {(paidPieData.length
+                          ? paidPieData
+                          : [{ name: "No Data", value: 1 }]
+                        ).map((entry, index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={COLORS[index % COLORS.length]}
@@ -729,11 +799,10 @@ export default function UserData() {
                 </div>
               </Card>
 
-              {}
               <Card className="p-6">
                 <SectionHeader
                   title="Recent Activity Log"
-                  description="Latest actions performed"
+                  description="Latest paid actions performed"
                   icon={<FiActivity />}
                 />
                 <PaginatedList
@@ -781,7 +850,7 @@ export default function UserData() {
             </div>
           )}
 
-          {}
+         
           {activeTab === "pricing" && <PricingSection full />}
         </div>
       </main>

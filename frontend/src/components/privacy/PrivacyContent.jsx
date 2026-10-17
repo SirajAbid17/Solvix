@@ -40,7 +40,6 @@ const PrivacyContent = () => {
 
       <div className="mx-auto w-full max-w-[1200px] px-5 py-16 sm:px-8 sm:py-2 lg:px-10 lg:py-8">
         <div className="w-full">
-
           {}
           <div className="mb-2 border-b border-white/[0.08] pb-12 sm:mb-20">
             <div className="mb-5 flex items-center gap-3">
@@ -56,15 +55,14 @@ const PrivacyContent = () => {
             </h2>
 
             <p className="mt-5 max-w-3xl text-sm leading-7 text-white/45 sm:text-[15px]">
-              We believe privacy should be understandable. This policy
-              explains what information Solvix may collect, why we use it,
-              how we protect it, and the choices available to you.
+              We believe privacy should be understandable. This policy explains
+              what information Solvix may collect, why we use it, how we protect
+              it, and the choices available to you.
             </p>
           </div>
 
           {}
           <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-
             {}
             <PrivacySection
               id="section-01"
@@ -73,9 +71,9 @@ const PrivacyContent = () => {
               title="Information we collect"
             >
               <p>
-                When you use Solvix AI, we may collect information necessary
-                to create your account, operate our services, maintain
-                security, and improve your experience.
+                When you use Solvix AI, we may collect information necessary to
+                create your account, operate our services, maintain security,
+                and improve your experience.
               </p>
 
               <dl className="mt-8 w-full divide-y divide-white/[0.07] overflow-hidden rounded-2xl border border-white/[0.07] p-3">
@@ -133,10 +131,7 @@ const PrivacyContent = () => {
                     className="group flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3 transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04]"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                      <Icon
-                        size={14}
-                        className="text-[#c9a468]/80"
-                      />
+                      <Icon size={14} className="text-[#c9a468]/80" />
                     </div>
 
                     <span className="text-xs leading-5 text-white/55 group-hover:text-white/75">
@@ -150,7 +145,6 @@ const PrivacyContent = () => {
 
           {}
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-
             {}
             <PrivacySection
               id="section-03"
@@ -160,24 +154,20 @@ const PrivacyContent = () => {
             >
               <p>
                 Solvix uses AI models and supporting infrastructure to power
-                conversations, research, coding, document processing, and
-                other intelligent workflows.
+                conversations, research, coding, document processing, and other
+                intelligent workflows.
               </p>
 
               <p>
-                When you use an AI feature, the information required to
-                process your request may be transmitted to the relevant AI
-                service.
+                When you use an AI feature, the information required to process
+                your request may be transmitted to the relevant AI service.
               </p>
 
               <div className="mt-8 w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025]">
                 <div className="border-b border-white/[0.08] px-5 py-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05]">
-                      <FiCpu
-                        size={15}
-                        className="text-[#d9bd88]"
-                      />
+                      <FiCpu size={15} className="text-[#d9bd88]" />
                     </div>
 
                     <div>
@@ -226,10 +216,7 @@ const PrivacyContent = () => {
                           {number}
                         </span>
 
-                        <Icon
-                          size={14}
-                          className="text-white/25"
-                        />
+                        <Icon size={14} className="text-white/25" />
                       </div>
 
                       <div className="mt-4 text-sm font-medium text-white/85">
@@ -251,8 +238,8 @@ const PrivacyContent = () => {
                 />
 
                 <p className="!mt-0 text-[12px] leading-6 text-white/50">
-                  Avoid submitting highly sensitive personal information
-                  unless it is necessary for the feature you are using.
+                  Avoid submitting highly sensitive personal information unless
+                  it is necessary for the feature you are using.
                 </p>
               </div>
             </PrivacySection>
@@ -265,9 +252,9 @@ const PrivacyContent = () => {
               title="Data security"
             >
               <p>
-                We use reasonable technical and organizational measures
-                designed to protect information against unauthorized access,
-                alteration, disclosure, or destruction.
+                We use reasonable technical and organizational measures designed
+                to protect information against unauthorized access, alteration,
+                disclosure, or destruction.
               </p>
 
               <div className="mt-8 grid w-full grid-cols-1 overflow-hidden rounded-2xl border border-white/[0.07] sm:grid-cols-2">
@@ -313,19 +300,12 @@ const PrivacyContent = () => {
                           ? "sm:border-l sm:border-white/[0.07]"
                           : ""
                       }
-                      ${
-                        index >= 2
-                          ? "border-t border-white/[0.07]"
-                          : ""
-                      }
+                      ${index >= 2 ? "border-t border-white/[0.07]" : ""}
                     `}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035]">
-                        <Icon
-                          size={14}
-                          className="text-[#c9a468]/80"
-                        />
+                        <Icon size={14} className="text-[#c9a468]/80" />
                       </div>
 
                       <div>
@@ -346,7 +326,6 @@ const PrivacyContent = () => {
 
           {}
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-
             {}
             <PrivacySection
               id="section-05"
@@ -355,9 +334,9 @@ const PrivacyContent = () => {
               title="When we share information"
             >
               <p>
-                We do not sell your personal information. Information may
-                be shared only when necessary to operate our services or
-                comply with applicable requirements.
+                We do not sell your personal information. Information may be
+                shared only when necessary to operate our services or comply
+                with applicable requirements.
               </p>
 
               <div className="mt-8 grid grid-cols-1 gap-3">
@@ -388,10 +367,7 @@ const PrivacyContent = () => {
                     className="group flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition-all duration-300 hover:bg-white/[0.035]"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                      <Icon
-                        size={14}
-                        className="text-[#c9a468]/75"
-                      />
+                      <Icon size={14} className="text-[#c9a468]/75" />
                     </div>
 
                     <div>
@@ -416,9 +392,9 @@ const PrivacyContent = () => {
               title="Data retention"
             >
               <p>
-                We retain information for as long as reasonably necessary
-                to provide services, maintain security, resolve disputes,
-                and satisfy legal or operational requirements.
+                We retain information for as long as reasonably necessary to
+                provide services, maintain security, resolve disputes, and
+                satisfy legal or operational requirements.
               </p>
 
               <div className="mt-8 grid grid-cols-1 gap-3">
@@ -449,10 +425,7 @@ const PrivacyContent = () => {
                     className="group flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition-all duration-300 hover:bg-white/[0.035]"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                      <Icon
-                        size={14}
-                        className="text-[#c9a468]/75"
-                      />
+                      <Icon size={14} className="text-[#c9a468]/75" />
                     </div>
 
                     <div>
@@ -472,7 +445,6 @@ const PrivacyContent = () => {
 
           {}
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-
             {}
             <PrivacySection
               id="section-07"
@@ -514,10 +486,7 @@ const PrivacyContent = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                        <Icon
-                          size={14}
-                          className="text-[#c9a468]/80"
-                        />
+                        <Icon size={14} className="text-[#c9a468]/80" />
                       </div>
 
                       <h3 className="text-xs font-medium text-white/75">
@@ -542,8 +511,8 @@ const PrivacyContent = () => {
             >
               <p>
                 We may use cookies and similar technologies to maintain
-                sessions, remember preferences, understand platform usage,
-                and improve functionality.
+                sessions, remember preferences, understand platform usage, and
+                improve functionality.
               </p>
 
               <div className="mt-8 grid grid-cols-1 gap-3">
@@ -563,17 +532,13 @@ const PrivacyContent = () => {
                     title: "Analytics",
                     text: "Understand platform usage and improve performance.",
                   },
-                 
                 ].map(({ icon: Icon, title, text }) => (
                   <div
                     key={title}
                     className="group flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition-all duration-300 hover:bg-white/[0.035]"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                      <Icon
-                        size={14}
-                        className="text-[#c9a468]/75"
-                      />
+                      <Icon size={14} className="text-[#c9a468]/75" />
                     </div>
 
                     <div>
@@ -590,16 +555,14 @@ const PrivacyContent = () => {
               </div>
 
               <p className="mt-5 text-xs leading-6 text-white/40">
-                You can manage certain cookie preferences through your
-                browser settings. Disabling cookies may affect some
-                platform features.
+                You can manage certain cookie preferences through your browser
+                settings. Disabling cookies may affect some platform features.
               </p>
             </PrivacySection>
           </div>
 
           {}
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-
             {}
             <PrivacySection
               id="section-09"
@@ -637,22 +600,17 @@ const PrivacyContent = () => {
                     className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                      <Icon
-                        size={14}
-                        className="text-[#c9a468]/75"
-                      />
+                      <Icon size={14} className="text-[#c9a468]/75" />
                     </div>
 
-                    <span className="text-xs text-white/55">
-                      {title}
-                    </span>
+                    <span className="text-xs text-white/55">{title}</span>
                   </div>
                 ))}
               </div>
 
               <p className="mt-5 text-xs leading-6 text-white/40">
-                These services may process information according to their
-                own privacy policies and terms.
+                These services may process information according to their own
+                privacy policies and terms.
               </p>
             </PrivacySection>
 
@@ -664,18 +622,15 @@ const PrivacyContent = () => {
               title="Changes to this policy"
             >
               <p>
-                We may update this Privacy Policy from time to time.
-                Significant changes may be communicated through the
-                platform or other appropriate channels.
+                We may update this Privacy Policy from time to time. Significant
+                changes may be communicated through the platform or other
+                appropriate channels.
               </p>
 
               <div className="mt-8 space-y-3">
                 <div className="flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                    <FiRefreshCw
-                      size={14}
-                      className="text-[#c9a468]/75"
-                    />
+                    <FiRefreshCw size={14} className="text-[#c9a468]/75" />
                   </div>
 
                   <div>
@@ -684,18 +639,15 @@ const PrivacyContent = () => {
                     </h3>
 
                     <p className="!mt-1 text-[11px] leading-5 text-white/35">
-                      We may revise this policy when our services,
-                      practices, or requirements change.
+                      We may revise this policy when our services, practices, or
+                      requirements change.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035]">
-                    <FiCheckCircle
-                      size={14}
-                      className="text-[#c9a468]/75"
-                    />
+                    <FiCheckCircle size={14} className="text-[#c9a468]/75" />
                   </div>
 
                   <div>
@@ -704,8 +656,8 @@ const PrivacyContent = () => {
                     </h3>
 
                     <p className="!mt-1 text-[11px] leading-5 text-white/35">
-                      Continued use of Solvix after changes become
-                      effective means you acknowledge the updated policy.
+                      Continued use of Solvix after changes become effective
+                      means you acknowledge the updated policy.
                     </p>
                   </div>
                 </div>
@@ -721,10 +673,7 @@ const PrivacyContent = () => {
 
             <div className="relative">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.09] bg-white/[0.05]">
-                <FiMail
-                  size={17}
-                  className="text-[#d9bd88]"
-                />
+                <FiMail size={17} className="text-[#d9bd88]" />
               </div>
 
               <div className="mt-7 max-w-2xl">
@@ -738,16 +687,15 @@ const PrivacyContent = () => {
 
                 <p className="mt-4 text-sm leading-7 text-white/45">
                   If you have questions about our privacy practices, your
-                  information, or your data rights, our team is here to
-                  help.
+                  information, or your data rights, our team is here to help.
                 </p>
 
-                <Link to="/contact"
-                 
+                <Link
+                  to="/contact"
+
                   className="group mt-7 inline-flex items-center gap-2 rounded-full bg-[#e9e7e2] px-5 py-3 text-xs font-semibold text-[#0b0c0e] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-xl hover:shadow-black/20"
                 >
                   Contact privacy team
-
                   <FiArrowUpRight
                     size={14}
                     className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -758,8 +706,6 @@ const PrivacyContent = () => {
           </section>
 
           {}
-        
-
         </div>
       </div>
     </main>

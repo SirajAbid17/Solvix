@@ -50,10 +50,7 @@ export default function WebsiteCodeModal({
   const rawJs =
     generatedCode?.js || "";
 
-  // ============================================================
-  // BEAUTIFY OPTIONS
-  // ============================================================
-
+  
   const beautifyOptions = {
     indent_size: 2,
     indent_char: " ",
@@ -65,10 +62,7 @@ export default function WebsiteCodeModal({
     jslint_happy: false,
   };
 
-  // ============================================================
-  // FORMAT HTML
-  // ============================================================
-
+ 
   const html = useMemo(() => {
     if (!rawHtml) return "";
 
@@ -130,7 +124,7 @@ export default function WebsiteCodeModal({
         {
           ...beautifyOptions,
 
-          // JavaScript specific
+       
           brace_style: "collapse",
           break_chained_methods: true,
           comma_first: false,
@@ -202,10 +196,6 @@ export default function WebsiteCodeModal({
 
   const currentCode =
     activeTab?.code || "";
-
-  // ============================================================
-  // ESCAPE KEY
-  // ============================================================
 
   useEffect(() => {
     if (!isOpen) return;

@@ -3,9 +3,6 @@ import generatePdf from "../utlis/GeneratePdf.js";
 import { uploadToCloudinary } from "../utlis/UploadFile.js";
 import { safeParseJSON } from "../utlis/jsonParser.js";
 
-// ============================================
-// CLEAN TOPIC (remove "create a", "pdf", etc.)
-// ============================================
 function cleanTopic(prompt) {
   return String(prompt || "Document")
     .replace(/^create\s+(a\s+)?/i, "")
@@ -16,9 +13,7 @@ function cleanTopic(prompt) {
     .trim() || "Document";
 }
 
-// ============================================
-// FALLBACK DOCUMENT (topic-specific)
-// ============================================
+
 function createFallbackDocument(prompt) {
   const topic = cleanTopic(prompt);
   const Title = topic.charAt(0).toUpperCase() + topic.slice(1);
@@ -91,9 +86,7 @@ function createFallbackDocument(prompt) {
   };
 }
 
-// ============================================
-// NORMALIZE
-// ============================================
+
 function normalizeDocument(doc, prompt) {
   if (!doc || typeof doc !== "object") doc = {};
 
@@ -137,9 +130,7 @@ function normalizeDocument(doc, prompt) {
   return doc;
 }
 
-// ============================================
-// FORMAT AS TEXT (for chat display)
-// ============================================
+
 function formatAsText(doc) {
   let text = `# ${doc.title}\n\n`;
   if (doc.subtitle) text += `${doc.subtitle}\n\n`;
@@ -152,9 +143,7 @@ function formatAsText(doc) {
   return text;
 }
 
-// ============================================
-// AI CALL WITH RETRY
-// ============================================
+
 async function callAIWithRetry(llm, prompt, maxRetries = 4) {
   let lastError = null;
 
@@ -191,7 +180,7 @@ async function callAIWithRetry(llm, prompt, maxRetries = 4) {
       else if (isRateLimit) delay = 20000;
       else delay = Math.pow(2, attempt) * 1500;
 
-      console.log(`⏳ Retry ${attempt}/${maxRetries} in ${delay}ms...`);
+      console.log(`Retry ${attempt}/${maxRetries} in ${delay}ms...`);
       await new Promise((r) => setTimeout(r, delay));
     }
   }
@@ -199,20 +188,16 @@ async function callAIWithRetry(llm, prompt, maxRetries = 4) {
   return { success: false, error: lastError };
 }
 
-// ============================================
-// PDF AGENT
-// ============================================
+
 export const PdfAgent = async (state) => {
   try {
     const llm = await GetModels("pdf");
     const rawPrompt = state?.prompt?.trim() || "technology";
     const userTopic = cleanTopic(rawPrompt);
 
-    console.log("📄 PDF Agent — topic:", userTopic);
+    console.log(" PDF Agent — topic:", userTopic);
 
-    // ----------------------------------------
-    // STEP 1: Build structure (8 sections)
-    // ----------------------------------------
+   
     const structurePrompt = `You are an expert document planner.
 
 USER TOPIC: "${userTopic}"
@@ -244,13 +229,13 @@ RULES:
       ? safeParseJSON(structureRes.content)
       : null;
 
-    // Validate structure
+   
     if (
       !structure ||
       !Array.isArray(structure.sections) ||
       structure.sections.length === 0
     ) {
-      console.log("⚠️ Structure failed, using fallback outline");
+      console.log(" Structure failed, using fallback outline");
       structure = {
         title: userTopic.charAt(0).toUpperCase() + userTopic.slice(1),
         subtitle: `A comprehensive guide to ${userTopic}`,
@@ -268,12 +253,9 @@ RULES:
     }
 
     const sectionsPlan = structure.sections.slice(0, 8);
-    console.log(`📋 Structure has ${sectionsPlan.length} sections`);
+    console.log(`Structure has ${sectionsPlan.length} sections`);
 
-    // ----------------------------------------
-    // STEP 2: Generate sections ONE BY ONE
-    // (smaller batches → higher success rate)
-    // ----------------------------------------
+   
     const generatedSections = [];
 
     for (let i = 0; i < sectionsPlan.length; i++) {
@@ -320,48 +302,42 @@ RULES:
               ? parsed.points.map(String)
               : [],
           });
-          console.log(`✅ Section ${i + 1}/${sectionsPlan.length} done: ${heading}`);
+          console.log(`Section ${i + 1}/${sectionsPlan.length} done: ${heading}`);
         } else {
-          console.log(`⚠️ Section ${i + 1} JSON parse failed`);
+          console.log(`Section ${i + 1} JSON parse failed`);
         }
       } else {
-        console.log(`❌ Section ${i + 1} AI call failed: ${heading}`);
+        console.log(`Section ${i + 1} AI call failed: ${heading}`);
       }
 
-      // Small delay between sections to avoid rate limit
+     
       if (i < sectionsPlan.length - 1) {
         await new Promise((r) => setTimeout(r, 1500));
       }
     }
 
-    // ----------------------------------------
-    // STEP 3: Build document
-    // ----------------------------------------
+    
     let document = {
       title: structure.title || userTopic,
       subtitle: structure.subtitle || `A comprehensive guide to ${userTopic}`,
       sections: generatedSections,
     };
 
-    // If all sections failed → fallback
+  
     if (document.sections.length === 0) {
-      console.log("⚠️ All sections failed, using fallback document");
+      console.log("All sections failed, using fallback document");
       document = createFallbackDocument(userTopic);
     }
 
     document = normalizeDocument(document, userTopic);
 
-    // ----------------------------------------
-    // STEP 4: Generate PDF
-    // ----------------------------------------
+  
     const pdfBuffer = await generatePdf(document);
     if (!pdfBuffer) throw new Error("Failed to generate PDF");
 
     const aiResponseText = formatAsText(document);
 
-    // ----------------------------------------
-    // STEP 5: Upload to Cloudinary
-    // ----------------------------------------
+   
     let pdfUrl = null;
     let pdfBase64 = null;
 
@@ -379,10 +355,10 @@ RULES:
       if (uploadResult.success) {
         pdfUrl = uploadResult.url;
         pdfBase64 = buffer.toString("base64");
-        console.log("✅ PDF uploaded:", pdfUrl);
+        console.log(" PDF uploaded:", pdfUrl);
       }
     } catch (uploadError) {
-      console.error("❌ Cloudinary failed:", uploadError);
+      console.error(" Cloudinary failed:", uploadError);
       pdfBase64 = Buffer.isBuffer(pdfBuffer)
         ? pdfBuffer.toString("base64")
         : Buffer.from(pdfBuffer).toString("base64");
@@ -400,7 +376,7 @@ RULES:
       error: null,
     };
   } catch (error) {
-    console.error("❌ PdfAgent error:", error);
+    console.error("PdfAgent error:", error);
 
     try {
       const fallbackDoc = normalizeDocument(

@@ -10,17 +10,11 @@ import toast from "react-hot-toast";
 export default function CodeBlock({ language, code, darkMode }) {
   const [copied, setCopied] = useState(false);
 
-  
-  
-  
-
   const normalizeCode = (code) => {
     if (!code) return "";
 
-    // ✅ If code has escaped newlines (\n), replace them with actual newlines
-    let normalized = code.replace(/\\n/g, "\n");
-
     
+    let normalized = code.replace(/\\n/g, "\n");
     normalized = normalized.replace(/\\"/g, '"');
     normalized = normalized.replace(/\\'/g, "'");
 
@@ -29,10 +23,6 @@ export default function CodeBlock({ language, code, darkMode }) {
 
     return normalized;
   };
-
-  
-  
-  
 
   const fallbackCopyCode = (text) => {
     const textArea = document.createElement("textarea");
@@ -55,11 +45,6 @@ export default function CodeBlock({ language, code, darkMode }) {
 
     document.body.removeChild(textArea);
   };
-
-  
-  
-  
-
   const handleCopy = () => {
     if (!code) {
       toast.error("No code to copy");
@@ -86,10 +71,6 @@ export default function CodeBlock({ language, code, darkMode }) {
       fallbackCopyCode(normalizedCode);
     }
   };
-
-  
-  
-  
 
   const getLanguageDisplay = (lang) => {
     const languageMap = {
@@ -129,10 +110,6 @@ export default function CodeBlock({ language, code, darkMode }) {
     return languageMap[lang?.toLowerCase()] || lang || "Code";
   };
 
-  
-  
-  
-
   const getSyntaxLanguage = (lang) => {
     const langMap = {
       js: "javascript",
@@ -147,10 +124,6 @@ export default function CodeBlock({ language, code, darkMode }) {
     };
     return langMap[lang?.toLowerCase()] || lang || "text";
   };
-
-  
-  
-  
 
   const displayLanguage = getLanguageDisplay(language);
   const syntaxLanguage = getSyntaxLanguage(language);
@@ -384,7 +357,7 @@ export default function CodeBlock({ language, code, darkMode }) {
             white-space: nowrap;
           }
 
-          /* ✅ SyntaxHighlighter - Preserve line breaks */
+          /*  SyntaxHighlighter - Preserve line breaks */
           .code-wrapper pre {
             margin: 0 !important;
             padding: 48px 20px 20px 20px !important;
@@ -409,7 +382,7 @@ export default function CodeBlock({ language, code, darkMode }) {
             opacity: 1;
           }
 
-          /* ✅ Fix line height for code */
+          /*  Fix line height for code */
           .code-wrapper pre .token-line {
             line-height: 1.7 !important;
           }

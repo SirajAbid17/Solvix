@@ -8,6 +8,19 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  try {
+    const state = window.__REDUX_STORE__?.getState?.();
+    const userId = state?.user?.userdata?._id;
 
+    if (userId && !config.headers["x-user-id"]) {
+      config.headers["x-user-id"] = userId;
+    }
+  } catch (e) {
+    console.log(e)
+  }
 
-export default api;
+  return config;
+});
+
+export default api;  

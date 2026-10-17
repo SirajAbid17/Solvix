@@ -39,26 +39,19 @@ export default function UploadPortfolioPdf() {
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
-  
-  
-  
-
   const handleFileSelect = (file) => {
     if (!file) return;
 
-    
     if (file.type !== "application/pdf") {
       toast.error("Please select a PDF file only.");
       return;
     }
 
-    
     if (!file.name.toLowerCase().endsWith(".pdf")) {
       toast.error("Only PDF files are supported.");
       return;
     }
 
-    
     const maxSize = 10 * 1024 * 1024;
 
     if (file.size > maxSize) {
@@ -69,65 +62,36 @@ export default function UploadPortfolioPdf() {
     setSelectedFile(file);
   };
 
-  
-  
-  
-
   const handleInputChange = (event) => {
     const file = event.target.files?.[0];
-
     handleFileSelect(file);
   };
-
-  
-  
-  
 
   const handleDragOver = (event) => {
     event.preventDefault();
     setIsDragging(true);
   };
 
-  
-  
-  
-
   const handleDragLeave = (event) => {
     event.preventDefault();
     setIsDragging(false);
   };
 
-  
-  
-  
-
   const handleDrop = (event) => {
     event.preventDefault();
-
     setIsDragging(false);
-
     const file = event.dataTransfer.files?.[0];
-
     handleFileSelect(file);
   };
 
-  
-  
-  
-
   const removeFile = () => {
     if (isProcessing) return;
-
     setSelectedFile(null);
-
     if (inputRef.current) {
       inputRef.current.value = "";
     }
   };
 
-  // ============================================================
-  // Generate Portfolio
-  // ============================================================
 
   const handleGeneratePortfolio = async () => {
     if (!selectedFile) {
@@ -138,54 +102,24 @@ export default function UploadPortfolioPdf() {
     let portfolioId = null;
 
     try {
-      // ========================================================
-      // 1. START UPLOAD
-      // ========================================================
-
+     
       setUploading(true);
-
       dispatch(setPortfolioLoading(true));
       dispatch(setPortfolioError(null));
       dispatch(setPortfolioAnalysisError(null));
 
-      // ========================================================
-      // 2. CREATE FORM DATA
-      // ========================================================
-
       const formData = new FormData();
-
       formData.append("pdf", selectedFile);
 
-      console.log(
-        "Uploading Portfolio PDF:",
-        selectedFile.name
-      );
-
-      
-      
-      
+      console.log("Uploading Portfolio PDF:", selectedFile.name);
 
       const uploadResponse = await uploadPortfolio(formData);
 
-      console.log(
-        "Portfolio Upload Response:",
-        uploadResponse
-      );
-
-      
-      
-      
+      console.log("Portfolio Upload Response:", uploadResponse);
 
       if (!uploadResponse?.success) {
-        throw new Error(
-          uploadResponse?.message ||
-            "Portfolio upload failed."
-        );
+        throw new Error(uploadResponse?.message || "Portfolio upload failed.");
       }
-
-      
-      
-      
 
       portfolioId =
         uploadResponse?.portfolioId ||
@@ -194,49 +128,24 @@ export default function UploadPortfolioPdf() {
         uploadResponse?.data?._id;
 
       if (!portfolioId) {
-        console.error(
-          "Invalid upload response:",
-          uploadResponse
-        );
-
-        throw new Error(
-          "Portfolio ID was not returned by the server."
-        );
+        console.error("Invalid upload response:", uploadResponse);
+        throw new Error("Portfolio ID was not returned by the server.");
       }
 
       console.log("Portfolio ID:", portfolioId);
 
-      
-      
-      
-
       const uploadedPortfolio = {
         _id: portfolioId,
-
         id: portfolioId,
-
         title:
           uploadResponse?.title ||
           selectedFile.name.replace(/\.pdf$/i, ""),
-
         slug: uploadResponse?.slug || "",
-
-        status:
-          uploadResponse?.status ||
-          "uploaded",
-
-        analysisStatus:
-          uploadResponse?.analysisStatus ||
-          "pending",
-
-        extractedCharacters:
-          uploadResponse?.extractedCharacters || 0,
-
-        totalPages:
-          uploadResponse?.totalPages || 0,
-
+        status: uploadResponse?.status || "uploaded",
+        analysisStatus: uploadResponse?.analysisStatus || "pending",
+        extractedCharacters: uploadResponse?.extractedCharacters || 0,
+        totalPages: uploadResponse?.totalPages || 0,
         analysis: null,
-
         generatedCode: {
           html: "",
           css: "",
@@ -244,380 +153,194 @@ export default function UploadPortfolioPdf() {
         },
       };
 
-      // ========================================================
-      // 5. STORE UPLOADED PORTFOLIO
-      // ========================================================
+   
+      dispatch(addPortfolio(uploadedPortfolio));
+      dispatch(setCurrentPortfolio(uploadedPortfolio));
 
-      dispatch(
-        addPortfolio(uploadedPortfolio)
-      );
+      toast.success("Resume uploaded successfully!");
 
-      dispatch(
-        setCurrentPortfolio(uploadedPortfolio)
-      );
-
-      toast.success(
-        "Resume uploaded successfully!"
-      );
-
-      // ========================================================
-      // 6. STOP UPLOAD LOADING
-      // ========================================================
-
+     
       setUploading(false);
+      dispatch(setPortfolioLoading(false));
 
-      dispatch(
-        setPortfolioLoading(false)
-      );
-
-      // ========================================================
-      // 7. START ANALYSIS
-      // ========================================================
-
+    
       setAnalyzing(true);
+      dispatch(setPortfolioAnalyzing(true));
+      dispatch(setPortfolioAnalysisError(null));
 
-      dispatch(
-        setPortfolioAnalyzing(true)
-      );
+      toast.loading("AI is generating your portfolio...", {
+        id: "portfolio-analysis",
+      });
 
-      dispatch(
-        setPortfolioAnalysisError(null)
-      );
+      console.log("Analyzing Portfolio:", portfolioId);
 
-      toast.loading(
-        "AI is generating your portfolio...",
-        {
-          id: "portfolio-analysis",
-        }
-      );
+      const analysisResponse = await analyzePortfolio(portfolioId);
 
-      
-      
-      
-
-      console.log(
-        "Analyzing Portfolio:",
-        portfolioId
-      );
-
-      const analysisResponse =
-        await analyzePortfolio(portfolioId);
-
-      console.log(
-        "Portfolio Analysis Response:",
-        analysisResponse
-      );
-
-      
-      
-      
+      console.log("Portfolio Analysis Response:", analysisResponse);
 
       if (!analysisResponse?.success) {
         throw new Error(
-          analysisResponse?.message ||
-            "Portfolio analysis failed."
+          analysisResponse?.message || "Portfolio analysis failed."
         );
       }
 
       
-      
-      
+      const rawGeneratedAt =
+        analysisResponse?.generatedCode?.generatedAt;
+
+      const generatedAtIso = rawGeneratedAt
+        ? new Date(rawGeneratedAt).toISOString()
+        : new Date().toISOString();
 
       const analyzedPortfolio = {
-        _id:
-          analysisResponse?.portfolioId ||
-          portfolioId,
-
-        id:
-          analysisResponse?.portfolioId ||
-          portfolioId,
-
-        title:
-          analysisResponse?.title ||
-          uploadedPortfolio.title,
-
-        slug:
-          analysisResponse?.slug ||
-          uploadedPortfolio.slug,
-
-        status:
-          analysisResponse?.status ||
-          "completed",
-
-        analysisStatus:
-          analysisResponse?.analysisStatus ||
-          "completed",
-
-        analysis:
-          analysisResponse?.analysis ||
-          null,
-
+        _id: analysisResponse?.portfolioId || portfolioId,
+        id: analysisResponse?.portfolioId || portfolioId,
+        title: analysisResponse?.title || uploadedPortfolio.title,
+        slug: analysisResponse?.slug || uploadedPortfolio.slug,
+        status: analysisResponse?.status || "completed",
+        analysisStatus: analysisResponse?.analysisStatus || "completed",
+        analysis: analysisResponse?.analysis || null,
         generatedCode: {
-          html:
-            analysisResponse?.generatedCode?.html ||
-            "",
-
-          css:
-            analysisResponse?.generatedCode?.css ||
-            "",
-
-          js:
-            analysisResponse?.generatedCode?.js ||
-            "",
-
-          generatedAt:
-            analysisResponse?.generatedCode?.generatedAt ||
-            new Date(),
+          html: analysisResponse?.generatedCode?.html || "",
+          css: analysisResponse?.generatedCode?.css || "",
+          js: analysisResponse?.generatedCode?.js || "",
+          generatedAt: generatedAtIso, 
         },
       };
 
-      // ========================================================
-      // 10. VALIDATE GENERATED WEBSITE
-      // ========================================================
-
-      if (
-        !analyzedPortfolio.generatedCode.html
-      ) {
-        throw new Error(
-          "Portfolio website HTML was not generated."
-        );
+  
+      if (!analyzedPortfolio.generatedCode.html) {
+        throw new Error("Portfolio website HTML was not generated.");
       }
 
-      // ========================================================
-      // 11. UPDATE CURRENT PORTFOLIO
-      // ========================================================
+     
+      dispatch(setCurrentPortfolio(analyzedPortfolio));
+      dispatch(addPortfolio(analyzedPortfolio));
 
-      dispatch(
-        setCurrentPortfolio(
-          analyzedPortfolio
-        )
-      );
+    
+      toast.success("Portfolio generated successfully!", {
+        id: "portfolio-analysis",
+      });
 
-      // ========================================================
-      // 12. UPDATE PORTFOLIO LIST
-      // ========================================================
-
-      dispatch(
-        addPortfolio(
-          analyzedPortfolio
-        )
-      );
-
-      // ========================================================
-      // 13. SUCCESS
-      // ========================================================
-
-      toast.success(
-        "Portfolio generated successfully!",
-        {
-          id: "portfolio-analysis",
-        }
-      );
-
-      console.log(
-        "Generated Portfolio:",
-        analyzedPortfolio
-      );
-
-      
-      
-      
+      console.log("Generated Portfolio:", analyzedPortfolio);
 
       setSelectedFile(null);
-
       if (inputRef.current) {
         inputRef.current.value = "";
       }
 
-      // ========================================================
-      // 15. REDIRECT TO WEBSITE PREVIEW
-      // ========================================================
-
-      navigate(
-        `/portfolio/preview/${analyzedPortfolio.slug}`,
-        {
-          state: {
-            portfolio: analyzedPortfolio,
-          },
-        }
-      );
-
+      
+      navigate(`/portfolio/preview/${analyzedPortfolio.slug}`, {
+        state: {
+          portfolio: analyzedPortfolio,
+        },
+      });
     } catch (error) {
-      console.error(
-        "Portfolio Generation Error:",
-        error
-      );
+      console.error("Portfolio Generation Error:", error);
 
       const message =
         error?.response?.data?.message ||
         error?.message ||
         "Portfolio generation failed.";
 
-      dispatch(
-        setPortfolioError(message)
-      );
-
-      dispatch(
-        setPortfolioAnalysisError(message)
-      );
+      dispatch(setPortfolioError(message));
+      dispatch(setPortfolioAnalysisError(message));
 
       toast.error(message, {
         id: "portfolio-analysis",
       });
-
     } finally {
       setUploading(false);
       setAnalyzing(false);
-
-      dispatch(
-        setPortfolioLoading(false)
-      );
-
-      dispatch(
-        setPortfolioAnalyzing(false)
-      );
+      dispatch(setPortfolioLoading(false));
+      dispatch(setPortfolioAnalyzing(false));
     }
   };
 
-  
-  
-  
+  const isProcessing = uploading || analyzing;
 
-  const isProcessing =
-    uploading || analyzing;
 
-  
-  
-  
 
   return (
     <div
-      className={` p-8 ${
+      className={`w-full px-3 py-5 transition-colors duration-300 sm:px-5 sm:py-6 md:px-6 md:py-8 lg:px-8 lg:py-10 ${
         dark
-          ? "border-white/10 bg-white/[0.03]"
-          : "border-gray-200 bg-gray-50"
+          ? "bg-white/[0.03] text-white"
+          : "bg-gray-50 text-black"
       }`}
     >
-      {}
-
-      <h3
-        className={`mb-2 text-2xl font-bold ${
-          dark ? "text-white" : "text-black"
-        }`}
-      >
+     
+      <h3 className="mb-2 text-lg font-bold sm:text-xl md:text-2xl">
         Upload Resume PDF
       </h3>
 
       <p
-        className={`mb-8 ${
-          dark
-            ? "text-gray-400"
-            : "text-gray-600"
+        className={`mb-6 text-xs leading-5 sm:mb-8 sm:text-sm sm:leading-6 md:text-base ${
+          dark ? "text-gray-400" : "text-gray-600"
         }`}
       >
-        Upload your resume PDF and our AI will
-        generate a complete portfolio website
-        with beautiful sections and responsive
-        design.
+        Upload your resume PDF and our AI will generate a complete portfolio
+        website with beautiful sections and responsive design.
       </p>
 
-      {}
-
+      
       <div
-        onClick={() =>
-          !isProcessing &&
-          inputRef.current?.click()
-        }
+        onClick={() => !isProcessing && inputRef.current?.click()}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          cursor-pointer rounded-3xl
-          border-2 border-dashed
-          p-12 text-center
-          transition-all duration-300
-
+          cursor-pointer rounded-2xl border-2 border-dashed
+          p-6 text-center transition-all duration-300
+          sm:rounded-3xl sm:p-10 md:p-12
           ${
             isDragging
               ? dark
                 ? "scale-[1.01] border-white bg-white/10"
                 : "scale-[1.01] border-black bg-black/5"
               : dark
-              ? "border-white/20 hover:border-white/50"
-              : "border-gray-300 hover:border-black"
+                ? "border-white/20 hover:border-white/50"
+                : "border-gray-300 hover:border-black"
           }
-
-          ${
-            isProcessing
-              ? "cursor-not-allowed opacity-70"
-              : ""
-          }
+          ${isProcessing ? "cursor-not-allowed opacity-70" : ""}
         `}
       >
-        {}
-
+       
         <div
-          className={`mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full ${
-            dark
-              ? "bg-white text-black"
-              : "bg-black text-white"
+          className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full sm:mb-5 sm:h-16 sm:w-16 md:h-20 md:w-20 ${
+            dark ? "bg-white text-black" : "bg-black text-white"
           }`}
         >
           {isProcessing ? (
-            <FaSpinner
-              size={32}
-              className="animate-spin"
-            />
+            <FaSpinner size={22} className="animate-spin sm:size-[28px] md:size-[32px]" />
           ) : (
-            <FaCloudUploadAlt
-              size={35}
-            />
+            <FaCloudUploadAlt size={22} className="sm:size-[28px] md:size-[35px]" />
           )}
         </div>
 
-        {}
-
-        <h4
-          className={`text-xl font-semibold ${
-            dark
-              ? "text-white"
-              : "text-black"
-          }`}
-        >
-          {isDragging
-            ? "Drop your resume here"
-            : "Upload Resume PDF"}
+      
+        <h4 className="text-base font-semibold sm:text-lg md:text-xl">
+          {isDragging ? "Drop your resume here" : "Upload Resume PDF"}
         </h4>
 
-        {}
-
+     
         <p
-          className={`mt-2 ${
-            dark
-              ? "text-gray-400"
-              : "text-gray-500"
+          className={`mt-1.5 text-xs sm:mt-2 sm:text-sm ${
+            dark ? "text-gray-400" : "text-gray-500"
           }`}
         >
           Click here or drag & drop your resume.
         </p>
 
-        {}
-
+      
         <div
-          className={`mx-auto mt-8 flex w-fit items-center gap-3 rounded-xl px-5 py-3 ${
-            dark
-              ? "bg-black text-white"
-              : "border bg-white text-black"
+          className={`mx-auto mt-5 flex w-fit items-center gap-2 rounded-xl px-3.5 py-2 text-[11px] sm:mt-7 sm:gap-3 sm:px-5 sm:py-2.5 sm:text-xs md:text-sm ${
+            dark ? "bg-black text-white" : "border bg-white text-black"
           }`}
         >
-          <FaFilePdf className="text-red-500" />
-
-          <span>
-            PDF Files Only
-          </span>
+          <FaFilePdf className="text-red-500" size={13} />
+          <span>PDF Files Only</span>
         </div>
-
-        {}
 
         <input
           ref={inputRef}
@@ -629,47 +352,31 @@ export default function UploadPortfolioPdf() {
         />
       </div>
 
-      {}
-
+   
       {selectedFile && (
         <div
-          className={`mt-6 flex items-center justify-between rounded-2xl border p-4 ${
+          className={`mt-4 flex items-center justify-between gap-2 rounded-xl border p-3 sm:mt-6 sm:rounded-2xl sm:p-4 ${
             dark
               ? "border-white/10 bg-white/[0.04]"
               : "border-gray-200 bg-white"
           }`}
         >
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10">
-              <FaFilePdf
-                className="text-red-500"
-                size={22}
-              />
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500/10 sm:h-12 sm:w-12 sm:rounded-xl">
+              <FaFilePdf className="text-red-500" size={18} />
             </div>
 
-            <div>
-              <p
-                className={`font-semibold ${
-                  dark
-                    ? "text-white"
-                    : "text-black"
-                }`}
-              >
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold sm:text-sm">
                 {selectedFile.name}
               </p>
 
               <p
-                className={`text-sm ${
-                  dark
-                    ? "text-gray-400"
-                    : "text-gray-500"
+                className={`text-[10px] sm:text-xs ${
+                  dark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                {(
-                  selectedFile.size /
-                  (1024 * 1024)
-                ).toFixed(2)}{" "}
-                MB
+                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
               </p>
             </div>
           </div>
@@ -681,152 +388,102 @@ export default function UploadPortfolioPdf() {
                 event.stopPropagation();
                 removeFile();
               }}
-              className={`rounded-lg p-2 transition ${
+              className={`shrink-0 rounded-lg p-1.5 transition sm:p-2 ${
                 dark
                   ? "text-gray-400 hover:bg-white/10 hover:text-white"
                   : "text-gray-500 hover:bg-gray-100 hover:text-black"
               }`}
             >
-              <FaTimes />
+              <FaTimes size={14} />
             </button>
           )}
         </div>
       )}
 
-      {}
-
+      
       {uploading && (
         <div
-          className={`mt-6 rounded-2xl border p-4 ${
+          className={`mt-4 flex items-start gap-3 rounded-xl border p-3 sm:mt-6 sm:rounded-2xl sm:p-4 ${
             dark
               ? "border-white/10 bg-white/[0.03]"
               : "border-gray-200 bg-white"
           }`}
         >
-          <div className="flex items-center gap-3">
-            <FaSpinner
-              className="animate-spin"
-            />
-
-            <div>
-              <p
-                className={`font-semibold ${
-                  dark
-                    ? "text-white"
-                    : "text-black"
-                }`}
-              >
-                Uploading resume...
-              </p>
-
-              <p
-                className={`text-sm ${
-                  dark
-                    ? "text-gray-400"
-                    : "text-gray-500"
-                }`}
-              >
-                Please wait while your resume
-                is uploaded.
-              </p>
-            </div>
+          <FaSpinner className="mt-0.5 shrink-0 animate-spin text-sm sm:text-base" />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold sm:text-sm">
+              Uploading resume...
+            </p>
+            <p
+              className={`mt-0.5 text-[10px] sm:text-xs ${
+                dark ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              Please wait while your resume is uploaded.
+            </p>
           </div>
         </div>
       )}
-
-      {}
 
       {analyzing && (
         <div
-          className={`mt-6 rounded-2xl border p-4 ${
+          className={`mt-4 flex items-start gap-3 rounded-xl border p-3 sm:mt-6 sm:rounded-2xl sm:p-4 ${
             dark
               ? "border-white/10 bg-white/[0.03]"
               : "border-gray-200 bg-white"
           }`}
         >
-          <div className="flex items-center gap-3">
-            <FaSpinner
-              className="animate-spin"
-            />
-
-            <div>
-              <p
-                className={`font-semibold ${
-                  dark
-                    ? "text-white"
-                    : "text-black"
-                }`}
-              >
-                AI is generating your portfolio...
-              </p>
-
-              <p
-                className={`text-sm ${
-                  dark
-                    ? "text-gray-400"
-                    : "text-gray-500"
-                }`}
-              >
-                Extracting information and
-                creating your portfolio design.
-              </p>
-            </div>
+          <FaSpinner className="mt-0.5 shrink-0 animate-spin text-sm sm:text-base" />
+          <div className="min-w-0">
+            <p className="text-xs font-semibold sm:text-sm">
+              AI is generating your portfolio...
+            </p>
+            <p
+              className={`mt-0.5 text-[10px] sm:text-xs ${
+                dark ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              Extracting information and creating your portfolio design.
+            </p>
           </div>
         </div>
       )}
 
-      {}
+      
+      {!isProcessing && selectedFile && (
+        <div className="mt-3 flex items-center gap-2 text-[11px] text-green-500 sm:mt-4 sm:text-xs md:text-sm">
+          <FaCheckCircle />
+          <span>Resume ready to generate portfolio.</span>
+        </div>
+      )}
 
-      {!isProcessing &&
-        selectedFile && (
-          <div className="mt-4 flex items-center gap-2 text-sm text-green-500">
-            <FaCheckCircle />
-
-            <span>
-              Resume ready to generate portfolio.
-            </span>
-          </div>
-        )}
-
-      {}
-
-      <div className="mt-8 flex justify-end">
+     
+      <div className="mt-5 flex justify-end sm:mt-6 md:mt-8">
         <button
           type="button"
           onClick={handleGeneratePortfolio}
-          disabled={
-            !selectedFile ||
-            isProcessing
-          }
+          disabled={!selectedFile || isProcessing}
           className={`
-            flex items-center gap-3
-            rounded-xl px-8 py-3
-            font-semibold
-            transition-all
-
+            flex w-full items-center justify-center gap-2 rounded-xl
+            px-5 py-2.5 text-xs font-semibold transition-all
+            sm:w-auto sm:gap-3 sm:px-6 sm:py-3 sm:text-sm md:px-8
             ${
-              !selectedFile ||
-              isProcessing
+              !selectedFile || isProcessing
                 ? dark
                   ? "cursor-not-allowed bg-white/10 text-gray-500"
                   : "cursor-not-allowed bg-gray-200 text-gray-400"
                 : dark
-                ? "bg-white text-black hover:bg-gray-200"
-                : "bg-black text-white hover:bg-gray-800"
+                  ? "bg-white text-black hover:bg-gray-200"
+                  : "bg-black text-white hover:bg-gray-800"
             }
           `}
         >
-          {isProcessing && (
-            <FaSpinner
-              className="animate-spin"
-            />
-          )}
-
+          {isProcessing && <FaSpinner className="animate-spin" />}
           {uploading
             ? "Uploading..."
             : analyzing
-            ? "Generating..."
-            : "Generate Portfolio"}
+              ? "Generating..."
+              : "Generate Portfolio"}
         </button>
       </div>
     </div>

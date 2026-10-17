@@ -3,7 +3,7 @@ import redis from "../../shared/redis/redis.js";
 
 export const CurrentUser = async (req, res) => {
   try {
-    // ✅ Redis se direct user fetch karo (protect middleware ke bina)
+   
     const sessionid = req.cookies?.sessionid;
 
     if (!sessionid) {
@@ -33,7 +33,7 @@ export const CurrentUser = async (req, res) => {
       plan: user.plan || "free",
       credits: Number(user.credits ?? 0),
       totalcredits: Number(user.totalcredits ?? 0),
-      isAdmin: user.isAdmin || false, // ✅ Admin flag in response
+      isAdmin: user.isAdmin || false, 
     });
 
   } catch (error) {

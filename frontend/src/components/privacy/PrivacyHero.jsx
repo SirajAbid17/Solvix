@@ -1,7 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-} from "react";
+import React, { useEffect, useRef } from "react";
 import {
   FiArrowLeft,
   FiCheck,
@@ -12,18 +9,14 @@ import {
 } from "react-icons/fi";
 import gsap from "gsap";
 
-const PrivacyHero = ({
-  orbRef,
-  gridRef,
-  onBack,
-}) => {
+const PrivacyHero = ({ orbRef, gridRef, onBack }) => {
   const titleRef = useRef(null);
   const textRef = useRef(null);
   const metaRef = useRef(null);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
 
     const ctx = gsap.context(() => {
@@ -48,7 +41,7 @@ const PrivacyHero = ({
         {
           opacity: 0,
           y: 25,
-        }
+        },
       );
 
       timeline
@@ -64,7 +57,7 @@ const PrivacyHero = ({
             y: 0,
             duration: 0.85,
           },
-          "-=0.25"
+          "-=0.25",
         )
         .to(
           textRef.current,
@@ -73,7 +66,7 @@ const PrivacyHero = ({
             y: 0,
             duration: 0.65,
           },
-          "-=0.4"
+          "-=0.4",
         )
         .to(
           metaRef.current,
@@ -82,7 +75,7 @@ const PrivacyHero = ({
             y: 0,
             duration: 0.55,
           },
-          "-=0.3"
+          "-=0.3",
         )
         .to(
           ".hero-line",
@@ -92,7 +85,7 @@ const PrivacyHero = ({
             scaleX: 1,
             duration: 0.7,
           },
-          "-=0.2"
+          "-=0.2",
         )
         .to(
           ".privacy-visual",
@@ -101,7 +94,7 @@ const PrivacyHero = ({
             y: 0,
             duration: 0.7,
           },
-          "-=0.35"
+          "-=0.35",
         )
         .to(
           ".privacy-stat",
@@ -111,7 +104,7 @@ const PrivacyHero = ({
             duration: 0.5,
             stagger: 0.08,
           },
-          "-=0.3"
+          "-=0.3",
         );
     });
 
@@ -120,54 +113,30 @@ const PrivacyHero = ({
 
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden border-b border-white/[0.08] pt-[68px]">
-      {}
-
-     
-
-      {}
-
-   
-
-      {}
+      
 
       <header className="fixed left-0 top-0 z-50 w-full border-b border-white/[0.08] bg-[#0b0c0e]/85 backdrop-blur-2xl">
         <div className="mx-auto flex h-[68px] max-w-[1400px] items-center justify-between px-5 sm:px-8 lg:px-12">
-          <button
-            onClick={onBack}
-            className="group flex items-center gap-3"
-          >
+          <button onClick={onBack} className="group flex items-center gap-3">
             <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.05]">
               <div className="absolute inset-0 bg-gradient-to-br from-[#c9a468]/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
 
-              <FiCpu
-                size={17}
-                className="relative text-white/80"
-              />
+              <FiCpu size={17} className="relative text-white/80" />
             </div>
 
             <div className="text-left">
-              <div className="font-serif text-[16px] font-medium">
-                Solvix
-              </div>
+              <div className="font-serif text-[16px] font-medium">Solvix</div>
 
-              <div className="text-[10px] text-white/40">
-                Intelligence
-              </div>
+              <div className="text-[10px] text-white/40">Intelligence</div>
             </div>
           </button>
 
           <div className="hidden items-center gap-2 text-[12px] md:flex">
-            <span className="text-white/35">
-              Legal
-            </span>
+            <span className="text-white/35">Legal</span>
 
-            <span className="text-white/15">
-              /
-            </span>
+            <span className="text-white/15">/</span>
 
-            <span className="text-white/70">
-              Privacy & data
-            </span>
+            <span className="text-white/70">Privacy & data</span>
           </div>
 
           <button
@@ -178,20 +147,17 @@ const PrivacyHero = ({
               size={13}
               className="transition-transform duration-300 group-hover:-translate-x-1"
             />
-
             Back home
           </button>
         </div>
       </header>
 
-      {}
+     
 
       <div className="relative mx-auto w-full max-w-[1400px] px-5 py-2 sm:px-8 sm:py-24 lg:px-12 lg:py-8">
         <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
             <div className="privacy-badge inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] text-white/60">
-             
-
               Privacy by design
             </div>
 
@@ -201,19 +167,15 @@ const PrivacyHero = ({
             >
               Your data
               <br />
-
-              <span className="text-white/40">
-                stays yours.
-              </span>
+              <span className="text-white/40">stays yours.</span>
             </h1>
 
             <p
               ref={textRef}
               className="mt-7 max-w-xl text-base leading-7 text-white/55 sm:text-lg sm:leading-8"
             >
-              Solvix is built around a simple principle:
-              AI should empower you without compromising
-              your privacy. Here&apos;s how we collect,
+              Solvix is built around a simple principle: AI should empower you
+              without compromising your privacy. Here&apos;s how we collect,
               process, protect, and manage your data.
             </p>
 
@@ -221,15 +183,11 @@ const PrivacyHero = ({
               ref={metaRef}
               className="mt-7 flex flex-wrap items-center gap-4 text-[11px] text-white/35"
             >
-              <span>
-                Last updated September 6, 2026
-              </span>
+              <span>Last updated September 6, 2026</span>
 
               <span className="h-1 w-1 rounded-full bg-white/20" />
 
-              <span>
-                Privacy Policy v1.0
-              </span>
+              <span>Privacy Policy v1.0</span>
             </div>
 
             <div className="hero-line mt-8 h-px max-w-xl origin-left scale-x-0 bg-white/15" />
@@ -247,9 +205,7 @@ const PrivacyHero = ({
                     </div>
 
                     <div>
-                      <p className="font-serif text-base">
-                        Privacy layer
-                      </p>
+                      <p className="font-serif text-base">Privacy layer</p>
 
                       <p className="mt-0.5 text-[10px] text-white/30">
                         Protected environment
@@ -264,35 +220,18 @@ const PrivacyHero = ({
 
                 <div className="divide-y divide-white/[0.07] border-y border-white/[0.07]">
                   {[
-                    [
-                      FiLock,
-                      "Secure authentication",
-                    ],
-                    [
-                      FiShield,
-                      "Controlled access",
-                    ],
-                    [
-                      FiCpu,
-                      "Protected processing",
-                    ],
+                    [FiLock, "Secure authentication"],
+                    [FiShield, "Controlled access"],
+                    [FiCpu, "Protected processing"],
                   ].map(([Icon, text]) => (
-                    <div
-                      key={text}
-                      className="flex items-center gap-3 py-4"
-                    >
+                    <div key={text} className="flex items-center gap-3 py-4">
                       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/[0.04]">
                         <Icon size={13} className="text-white/55" />
                       </div>
 
-                      <span className="text-xs text-white/55">
-                        {text}
-                      </span>
+                      <span className="text-xs text-white/55">{text}</span>
 
-                      <FiCheck
-                        size={13}
-                        className="ml-auto text-[#c9a468]"
-                      />
+                      <FiCheck size={13} className="ml-auto text-[#c9a468]" />
                     </div>
                   ))}
                 </div>
@@ -327,25 +266,18 @@ const PrivacyHero = ({
               <div
                 key={item.title}
                 className={`privacy-stat border-white/[0.08] py-6 sm:px-6 ${
-                  index !== 0
-                    ? "border-t sm:border-l sm:border-t-0"
-                    : ""
+                  index !== 0 ? "border-t sm:border-l sm:border-t-0" : ""
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon
-                    size={14}
-                    className="text-white/45"
-                  />
+                  <Icon size={14} className="text-white/45" />
 
                   <span className="text-[13px] font-medium text-white/75">
                     {item.title}
                   </span>
                 </div>
 
-                <p className="mt-1 text-[12px] text-white/35">
-                  {item.text}
-                </p>
+                <p className="mt-1 text-[12px] text-white/35">{item.text}</p>
               </div>
             );
           })}

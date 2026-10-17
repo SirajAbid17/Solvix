@@ -30,21 +30,11 @@ import {
 export default function InterviewHero() {
   const { dark } = useTheme();
   const navigate = useNavigate();
-
-  
-  
-  
-
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
   const [error, setError] = useState(null);
   const [showCount, setShowCount] = useState(2);
-
-  
-  
-  
-
   const fetchInterviews = async () => {
     try {
       setLoading(true);
@@ -60,7 +50,7 @@ export default function InterviewHero() {
         setError(response.message || "Failed to load interviews");
       }
     } catch (err) {
-      console.error("❌ Fetch interviews error:", err);
+      console.error("Fetch interviews error:", err);
       setError(err.message || "Failed to load interviews");
       toast.error("Failed to load interviews");
     } finally {
@@ -71,10 +61,6 @@ export default function InterviewHero() {
   useEffect(() => {
     fetchInterviews();
   }, []);
-
-  
-  
-  
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this interview?")) {
@@ -98,16 +84,12 @@ export default function InterviewHero() {
         toast.error(response.message || "Failed to delete interview");
       }
     } catch (err) {
-      console.error("❌ Delete error:", err);
+      console.error("Delete error:", err);
       toast.error(err.response?.data?.message || "Failed to delete interview");
     } finally {
       setDeleting(null);
     }
   };
-
-  
-  
-  
 
   const handleViewInterview = (id) => {
     navigate(`/interview-practice/${id}`);
@@ -121,10 +103,6 @@ export default function InterviewHero() {
     navigate("/mock-interview");
   };
 
-  
-  
-  
-
   const handleShowMore = () => {
     setShowCount((prev) => prev + 4);
   };
@@ -137,10 +115,6 @@ export default function InterviewHero() {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
-
-  
-  
-  
 
   const formatDate = (dateString) => {
     if (!dateString) return "Recently";
@@ -166,9 +140,6 @@ export default function InterviewHero() {
     }
   };
 
-  
-  
-  
 
   const getPdfName = (interview) => {
     if (interview?.pdf?.originalName) {
@@ -177,25 +148,15 @@ export default function InterviewHero() {
     return "Resume.pdf";
   };
 
-  
-  
-  
-
   const getBatchCount = (interview) => {
     const total = interview?.totalQuestions || 0;
     return Math.max(1, Math.ceil(total / 15));
   };
 
-  
-  
-  
 
   const displayedInterviews = interviews.slice(0, showCount);
   const hasMore = interviews.length > showCount;
 
-  
-  
-  
 
   const pageBackground = dark
     ? "bg-[#080808] text-white"
@@ -207,9 +168,6 @@ export default function InterviewHero() {
 
   const mutedText = dark ? "text-white/50" : "text-black/50";
 
-  
-  
-  
 
   return (
     <div

@@ -33,9 +33,7 @@ export default function AllConverSation() {
 
   useEffect(() => {
     if (!containerRef.current) return;
-
     const cards = cardsRef.current.filter(Boolean);
-
     if (!cards.length) return;
 
     gsap.set(cards, {
@@ -86,36 +84,18 @@ export default function AllConverSation() {
     };
   }, [conversations.length]);
 
-  useEffect(() => {
-    console.log(
-      "Conversations updated:",
-      conversations.map((c) => ({
-        id: c._id,
-        title: c.title,
-      })),
-    );
-  }, [conversations]);
-
-  useEffect(() => {
-    console.log("Selected conversation:", selectedConversation?.title);
-  }, [selectedConversation]);
-
   const handleSelectConversation = (conversation) => {
-    console.log("Selecting conversation:", conversation.title);
-
     dispatch(setSelectedConversation(conversation));
   };
 
   const handleStartEdit = (e, conversation) => {
     e.stopPropagation();
-
     setEditingId(conversation._id);
     setEditTitle(conversation.title || "New Conversation");
   };
 
   const handleSaveTitle = async (e, conversationId) => {
     e.stopPropagation();
-
     const trimmedTitle = editTitle.trim();
 
     if (!trimmedTitle) {
@@ -137,7 +117,6 @@ export default function AllConverSation() {
 
     try {
       setTitleLoading(true);
-
       await UpdateConversation({
         id: conversationId,
         title: trimmedTitle,
@@ -153,7 +132,6 @@ export default function AllConverSation() {
       setEditingId(null);
     } catch (error) {
       console.error("Failed to update title:", error);
-
       alert("Failed to update title. Please try again.");
     } finally {
       setTitleLoading(false);
@@ -162,17 +140,14 @@ export default function AllConverSation() {
 
   const handleCancelEdit = (e) => {
     e.stopPropagation();
-
     setEditingId(null);
   };
 
   const handleKeyDown = (e, conversationId) => {
     if (e.key === "Enter") {
       e.preventDefault();
-
       handleSaveTitle(e, conversationId);
     }
-
     if (e.key === "Escape") {
       handleCancelEdit(e);
     }
@@ -180,7 +155,6 @@ export default function AllConverSation() {
 
   const handleCardEnter = (element) => {
     if (!element) return;
-
     gsap.to(element, {
       y: -2,
       scale: 1.008,
@@ -191,7 +165,6 @@ export default function AllConverSation() {
 
   const handleCardLeave = (element) => {
     if (!element) return;
-
     gsap.to(element, {
       y: 0,
       scale: 1,
@@ -202,28 +175,14 @@ export default function AllConverSation() {
 
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
-
     const date = new Date(timestamp);
     const now = new Date();
-
     const diff = now - date;
 
-    if (diff < 60000) {
-      return "Just now";
-    }
-
-    if (diff < 3600000) {
-      return `${Math.floor(diff / 60000)}m ago`;
-    }
-
-    if (diff < 86400000) {
-      return `${Math.floor(diff / 3600000)}h ago`;
-    }
-
-    if (diff < 604800000) {
-      return `${Math.floor(diff / 86400000)}d ago`;
-    }
-
+    if (diff < 60000) return "Just now";
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
     return date.toLocaleDateString();
   };
 
@@ -231,7 +190,6 @@ export default function AllConverSation() {
     if (conversation.title && conversation.title !== "New Conversation") {
       return conversation.title;
     }
-
     return "New Conversation";
   };
 
@@ -240,45 +198,20 @@ export default function AllConverSation() {
       ref={containerRef}
       className={`
         relative
+        h-full
         w-full
-
-        h-[150px]
-        sm:h-[165px]
-        md:h-[190px]
-        lg:h-[260px]
-        xl:h-[370px]
-
+        space-y-1
         overflow-y-auto
-
-        px-2
-        sm:px-2.5
-        lg:px-3
-
-        py-2
-        sm:py-2.5
-
-        space-y-1.5
-        sm:space-y-2
-
         scroll-smooth
-
         scrollbar-thin
-
-        ${
-          dark
-            ? "scrollbar-thumb-white/10 scrollbar-track-transparent"
-            : "scrollbar-thumb-gray-300 scrollbar-track-transparent"
-        }
+        sm:space-y-1.5
+        ${dark ? "scrollbar-thumb-white/10 scrollbar-track-transparent" : "scrollbar-thumb-gray-300 scrollbar-track-transparent"}
       `}
     >
-      {}
-
       {conversations.length > 0 ? (
         conversations.map((item, index) => {
           const isSelected = selectedConversation?._id === item._id;
-
           const isEditing = editingId === item._id;
-
           const displayTitle = getConversationTitle(item);
 
           return (
@@ -297,230 +230,117 @@ export default function AllConverSation() {
               className={`
                 group
                 relative
-
-                w-full
-
                 flex
+                w-full
                 items-center
-
-                gap-2.5
-
-                px-3
-                py-2.5
-
-                sm:px-3.5
-                sm:py-3
-
-                rounded-xl
-
-                cursor-pointer
-
+                gap-2
+                overflow-hidden
+                rounded-lg
                 border
-
+                px-2
+                py-2
                 transition-colors
                 duration-300
                 ease-out
-
-                overflow-hidden
-
+                cursor-pointer
+                sm:gap-2.5
+                sm:rounded-xl
+                sm:px-3
+                sm:py-2.5
                 ${
                   isSelected
                     ? dark
-                      ? `
-                        bg-blue-500/[0.10]
-                        border-blue-500/25
-                        shadow-[0_4px_20px_rgba(59,130,246,0.08)]
-                      `
-                      : `
-                        bg-blue-50/80
-                        border-blue-200
-                        shadow-[0_4px_18px_rgba(59,130,246,0.10)]
-                      `
+                      ? "border-blue-500/25 bg-blue-500/[0.10] shadow-[0_4px_20px_rgba(59,130,246,0.08)]"
+                      : "border-blue-200 bg-blue-50/80 shadow-[0_4px_18px_rgba(59,130,246,0.10)]"
                     : dark
-                      ? `
-                        bg-white/[0.025]
-                        border-white/[0.055]
-
-                        hover:bg-white/[0.055]
-                        hover:border-white/[0.10]
-
-                        hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]
-                      `
-                      : `
-                        bg-white
-                        border-gray-100
-
-                        hover:bg-gray-50/80
-                        hover:border-gray-200
-
-                        hover:shadow-[0_8px_20px_rgba(0,0,0,0.05)]
-                      `
+                      ? "border-white/[0.055] bg-white/[0.025] hover:border-white/[0.10] hover:bg-white/[0.055]"
+                      : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50/80"
                 }
               `}
             >
-              {}
-
-              <div
-                className={`
-                  pointer-events-none
-                  absolute
-                  inset-0
-
-                  opacity-0
-                  group-hover:opacity-100
-
-                  transition-opacity
-                  duration-500
-
-                  ${
-                    dark
-                      ? "bg-gradient-to-r from-transparent via-white/[0.025] to-transparent"
-                      : "bg-gradient-to-r from-transparent via-blue-500/[0.025] to-transparent"
-                  }
-                `}
-              />
-
-              {}
-
+            
               <div
                 className={`
                   absolute
                   left-0
                   top-1/2
-
-                  -translate-y-1/2
-
                   w-[3px]
-
+                  -translate-y-1/2
                   rounded-r-full
-
                   transition-all
                   duration-500
-
                   ${
                     isSelected
                       ? dark
-                        ? "h-7 bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,0.7)]"
-                        : "h-7 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.35)]"
+                        ? "h-6 bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,0.7)] sm:h-7"
+                        : "h-6 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.35)] sm:h-7"
                       : "h-0 bg-transparent"
                   }
                 `}
               />
 
-              {}
-
+         
               <div
                 className={`
                   relative
                   flex
+                  h-7
+                  w-7
+                  shrink-0
                   items-center
                   justify-center
-
-                  flex-shrink-0
-
-                  w-8
-                  h-8
-
-                  sm:w-9
-                  sm:h-9
-
-                  rounded-lg
-
+                  rounded-md
                   transition-all
                   duration-300
-
                   group-hover:scale-[1.04]
-
+                  sm:h-9
+                  sm:w-9
+                  sm:rounded-lg
                   ${
                     isSelected
                       ? dark
-                        ? `
-                          bg-blue-500/15
-                          text-blue-400
-                          shadow-[0_0_15px_rgba(59,130,246,0.08)]
-                        `
-                        : `
-                          bg-blue-100
-                          text-blue-600
-                        `
+                        ? "bg-blue-500/15 text-blue-400"
+                        : "bg-blue-100 text-blue-600"
                       : dark
-                        ? `
-                          bg-white/[0.045]
-                          text-gray-500
-
-                          group-hover:bg-white/[0.08]
-                          group-hover:text-gray-300
-                        `
-                        : `
-                          bg-gray-100
-                          text-gray-500
-
-                          group-hover:bg-gray-200
-                          group-hover:text-gray-700
-                        `
+                        ? "bg-white/[0.045] text-gray-500 group-hover:bg-white/[0.08] group-hover:text-gray-300"
+                        : "bg-gray-100 text-gray-500 group-hover:bg-gray-200 group-hover:text-gray-700"
                   }
                 `}
               >
-                <FiMessageSquare size={15} strokeWidth={2} />
-
-                {}
-
+                <FiMessageSquare size={12} strokeWidth={2} className="sm:size-[15px]" />
                 {isSelected && (
                   <span
                     className={`
                       absolute
                       -right-0.5
                       -top-0.5
-
-                      w-2
-                      h-2
-
+                      h-1.5
+                      w-1.5
                       rounded-full
-
-                      ${dark ? "bg-blue-400" : "bg-blue-500"}
-
-                      ring-2
-
-                      ${dark ? "ring-[#111827]" : "ring-white"}
-
                       animate-pulse
+                      sm:h-2
+                      sm:w-2
+                      ${dark ? "bg-blue-400 ring-2 ring-[#111827]" : "bg-blue-500 ring-2 ring-white"}
                     `}
                   />
                 )}
               </div>
 
-              {}
-
-              <div className="min-w-0 flex-1 relative z-10">
-                {}
-
-                <div
-                  className="
-                    flex
-                    items-center
-                    justify-between
-                    gap-2
-
-                    mb-1
-                  "
-                >
+              {/* Content */}
+              <div className="relative z-10 min-w-0 flex-1">
+                {/* Time row */}
+                <div className="mb-0.5 flex items-center justify-between gap-1.5 sm:mb-1 sm:gap-2">
                   <span
                     className={`
-                      text-[9px]
-
-                      sm:text-[10px]
-
-                      font-medium
-
-                      tracking-wide
-
-                      uppercase
-
                       truncate
-
+                      text-[8px]
+                      font-medium
+                      uppercase
+                      tracking-wide
                       transition-colors
                       duration-300
-
+                      sm:text-[9px]
+                      lg:text-[10px]
                       ${
                         isSelected
                           ? dark
@@ -535,37 +355,26 @@ export default function AllConverSation() {
                     {formatTime(item.updatedAt || item.createdAt)}
                   </span>
 
-                  {}
-
                   {isSelected && !isEditing && (
                     <span
                       className={`
-                        flex-shrink-0
-
-                        w-1.5
-                        h-1.5
-
-                        rounded-full
-
-                        ${dark ? "bg-blue-400" : "bg-blue-500"}
-
+                        h-1
+                        w-1
+                        shrink-0
                         animate-pulse
+                        rounded-full
+                        sm:h-1.5
+                        sm:w-1.5
+                        ${dark ? "bg-blue-400" : "bg-blue-500"}
                       `}
                     />
                   )}
                 </div>
 
-                {}
-
+             
                 {isEditing ? (
                   <div
-                    className="
-                      flex
-                      items-center
-                      gap-1.5
-
-                      w-full
-                    "
+                    className="flex w-full items-center gap-1 sm:gap-1.5"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <input
@@ -578,51 +387,26 @@ export default function AllConverSation() {
                       className={`
                         w-full
                         min-w-0
-
-                        px-2.5
-                        py-1.5
-
-                        text-xs
-                        font-medium
-
-                        rounded-lg
-
-                        outline-none
-
+                        rounded-md
                         border
-
+                        px-1.5
+                        py-1
+                        text-[10px]
+                        font-medium
+                        outline-none
                         transition-all
-
+                        sm:rounded-lg
+                        sm:px-2.5
+                        sm:py-1.5
+                        sm:text-xs
                         ${
                           dark
-                            ? `
-                              bg-black/30
-                              border-blue-500/30
-                              text-white
-
-                              placeholder:text-gray-600
-
-                              focus:border-blue-400
-                              focus:ring-2
-                              focus:ring-blue-500/10
-                            `
-                            : `
-                              bg-white
-                              border-blue-200
-                              text-gray-900
-
-                              placeholder:text-gray-400
-
-                              focus:border-blue-500
-                              focus:ring-2
-                              focus:ring-blue-500/10
-                            `
+                            ? "border-blue-500/30 bg-black/30 text-white placeholder:text-gray-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/10"
+                            : "border-blue-200 bg-white text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
                         }
                       `}
                       placeholder="Enter title..."
                     />
-
-                    {}
 
                     <button
                       onClick={(e) => handleSaveTitle(e, item._id)}
@@ -630,199 +414,118 @@ export default function AllConverSation() {
                       aria-label="Save title"
                       className={`
                         flex
+                        h-6
+                        w-6
+                        shrink-0
                         items-center
                         justify-center
-
-                        w-7
-                        h-7
-
-                        rounded-lg
-
-                        flex-shrink-0
-
+                        rounded-md
                         transition-all
                         duration-200
-
                         hover:scale-105
                         active:scale-95
-
+                        sm:h-7
+                        sm:w-7
+                        sm:rounded-lg
                         ${
                           dark
-                            ? `
-                              bg-emerald-500/10
-                              text-emerald-400
-
-                              hover:bg-emerald-500/20
-                            `
-                            : `
-                              bg-emerald-50
-                              text-emerald-600
-
-                              hover:bg-emerald-100
-                            `
+                            ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                            : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
                         }
-
-                        ${titleLoading ? "opacity-50 cursor-not-allowed" : ""}
+                        ${titleLoading ? "cursor-not-allowed opacity-50" : ""}
                       `}
                     >
-                      <FiCheck size={13} />
+                      <FiCheck size={11} className="sm:size-[13px]" />
                     </button>
-
-                    {}
 
                     <button
                       onClick={handleCancelEdit}
                       aria-label="Cancel editing"
                       className={`
                         flex
+                        h-6
+                        w-6
+                        shrink-0
                         items-center
                         justify-center
-
-                        w-7
-                        h-7
-
-                        rounded-lg
-
-                        flex-shrink-0
-
+                        rounded-md
                         transition-all
                         duration-200
-
                         hover:scale-105
                         active:scale-95
-
+                        sm:h-7
+                        sm:w-7
+                        sm:rounded-lg
                         ${
                           dark
-                            ? `
-                              bg-red-500/10
-                              text-red-400
-
-                              hover:bg-red-500/20
-                            `
-                            : `
-                              bg-red-50
-                              text-red-600
-
-                              hover:bg-red-100
-                            `
+                            ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                            : "bg-red-50 text-red-600 hover:bg-red-100"
                         }
                       `}
                     >
-                      <FiX size={13} />
+                      <FiX size={11} className="sm:size-[13px]" />
                     </button>
                   </div>
                 ) : (
-                  <div
-                    className="
-                      flex
-                      items-center
-                      gap-2
-
-                      w-full
-                    "
-                  >
+                  <div className="flex w-full items-center gap-1.5 sm:gap-2">
                     <h1
                       title={displayTitle}
                       className={`
                         min-w-0
                         flex-1
-
                         truncate
-
-                        text-[11px]
-
-                        sm:text-xs
-
-                        lg:text-sm
-
+                        text-[10px]
                         font-semibold
-
-                        leading-5
-
+                        leading-4
                         tracking-[-0.01em]
-
                         transition-colors
                         duration-300
-
+                        sm:text-[11px]
+                        sm:leading-5
+                        lg:text-xs
                         ${
                           isSelected
                             ? dark
                               ? "text-blue-200"
                               : "text-blue-700"
                             : dark
-                              ? `
-                                text-gray-200
-
-                                group-hover:text-white
-                              `
-                              : `
-                                text-gray-700
-
-                                group-hover:text-gray-900
-                              `
+                              ? "text-gray-200 group-hover:text-white"
+                              : "text-gray-700 group-hover:text-gray-900"
                         }
                       `}
                     >
                       {displayTitle}
                     </h1>
 
-                    {}
-
                     <button
                       onClick={(e) => handleStartEdit(e, item)}
                       aria-label="Edit conversation title"
                       className={`
                         flex
+                        h-5
+                        w-5
+                        shrink-0
                         items-center
                         justify-center
-
-                        w-6
-                        h-6
-
                         rounded-md
-
-                        flex-shrink-0
-
                         border
-
                         opacity-0
-
-                        group-hover:opacity-100
-
-                        focus:opacity-100
-
                         transition-all
                         duration-300
-
+                        group-hover:opacity-100
+                        focus:opacity-100
                         hover:scale-110
                         active:scale-95
-
+                        sm:h-6
+                        sm:w-6
                         ${
                           dark
-                            ? `
-                              border-white/10
-                              bg-white/[0.04]
-
-                              text-gray-500
-
-                              hover:bg-white/[0.10]
-                              hover:border-white/20
-                              hover:text-gray-200
-                            `
-                            : `
-                              border-gray-200
-                              bg-white
-
-                              text-gray-400
-
-                              hover:bg-gray-100
-                              hover:border-gray-300
-                              hover:text-gray-700
-                            `
+                            ? "border-white/10 bg-white/[0.04] text-gray-500 hover:border-white/20 hover:bg-white/[0.10] hover:text-gray-200"
+                            : "border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:bg-gray-100 hover:text-gray-700"
                         }
                       `}
                     >
-                      <FiEdit2 size={11} />
+                      <FiEdit2 size={9} className="sm:size-[11px]" />
                     </button>
                   </div>
                 )}
@@ -833,83 +536,45 @@ export default function AllConverSation() {
       ) : (
         <div
           ref={emptyStateRef}
-          className="
-            min-h-full
-
-            flex
-            items-center
-            justify-center
-
-            px-4
-          "
+          className="flex min-h-full items-center justify-center px-3 sm:px-4"
         >
           <div className="text-center">
-            {}
-
             <div
               data-empty-animation
               className={`
                 mx-auto
-
+                mb-2
                 flex
+                h-10
+                w-10
                 items-center
                 justify-center
-
-                w-12
-                h-12
-
-                mb-3
-
-                rounded-2xl
-
+                rounded-xl
                 border
-
+                sm:mb-3
+                sm:h-12
+                sm:w-12
+                sm:rounded-2xl
                 ${
                   dark
-                    ? `
-                      bg-white/[0.035]
-                      border-white/[0.06]
-                      text-gray-600
-                    `
-                    : `
-                      bg-gray-50
-                      border-gray-100
-                      text-gray-300
-                    `
+                    ? "border-white/[0.06] bg-white/[0.035] text-gray-600"
+                    : "border-gray-100 bg-gray-50 text-gray-300"
                 }
               `}
             >
-              <RiMessageAi3Fill size={23} />
+              <RiMessageAi3Fill size={18} className="sm:size-[23px]" />
             </div>
-
-            {}
 
             <p
               data-empty-animation
-              className={`
-                text-xs
-                sm:text-sm
-
-                font-semibold
-
-                ${dark ? "text-gray-400" : "text-gray-600"}
-              `}
+              className={`text-[11px] font-semibold sm:text-xs lg:text-sm ${dark ? "text-gray-400" : "text-gray-600"}`}
             >
               No conversations yet
             </p>
 
-            {}
-
             <p
               data-empty-animation
-              className={`
-                text-[10px]
-                sm:text-[11px]
-
-                mt-1
-
-                ${dark ? "text-gray-600" : "text-gray-400"}
-              `}
+              className={`mt-1 text-[9px] sm:text-[10px] lg:text-[11px] ${dark ? "text-gray-600" : "text-gray-400"}`}
             >
               Start a new chat to begin
             </p>

@@ -1,5 +1,8 @@
 import axios from "axios";
-import { getAllAgentStats, getAgentUsageFromRedis } from "../../shared/middlewares/activity.middleware.js";
+import {
+  getAllAgentStats,
+  getAgentUsageFromRedis,
+} from "../../shared/middlewares/activity.middleware.js";
 import redis from "../../shared/redis/redis.js";
 
 const AUTH_SERVICE = process.env.Auth_Services || "http://localhost:5001";
@@ -43,9 +46,24 @@ export const getAdminStats = async (req, res) => {
       fetchFromService(`${BILLING_SERVICE}/admin/stats`),
     ]);
 
-    // ✅ Get global requests from Redis (already tracked)
-    const totalRequests = parseInt(await redis.get("admin:global:requests") || 0);
-    const totalCreditsUsedGlobal = parseInt(await redis.get("admin:global:credits-used") || 0);
+   
+    const totalRequests = parseInt(
+      (await redis.get("admin:global:requests")) || 0
+    );
+    const totalPaidRequests = parseInt(
+      (await redis.get("admin:paid-requests-total")) || 0
+    );
+    const totalCreditsUsedGlobal = parseInt(
+      (await redis.get("admin:global:credits-used")) || 0
+    );
+
+    
+    const totalFreeRequests = parseInt(
+      (await redis.get("admin:type-count:free")) || 0
+    );
+    const totalPaidTypeCount = parseInt(
+      (await redis.get("admin:type-count:paid")) || 0
+    );
 
     const stats = {
       totalUsers: users?.data?.totalUsers || 0,
@@ -54,11 +72,20 @@ export const getAdminStats = async (req, res) => {
       inactiveUsers: users?.data?.inactiveUsers || 0,
       suspendedUsers: users?.data?.suspendedUsers || 0,
       newUsersThisMonth: users?.data?.newUsersThisMonth || 0,
-      totalCreditsUsed: totalCreditsUsedGlobal || users?.data?.totalCreditsUsed || 0,
+
+     
+      totalRequests: totalPaidRequests || totalRequests || 0,
+
+      
+      totalPaidRequests: totalPaidRequests || 0,
+      totalFreeRequests: totalFreeRequests || 0,
+      totalPaidTypeCount: totalPaidTypeCount || 0,
+
+      totalCreditsUsed:
+        totalCreditsUsedGlobal || users?.data?.totalCreditsUsed || 0,
       avgCreditsPerUser: users?.data?.avgCreditsPerUser || 0,
       totalRevenue: billing?.data?.totalRevenue || 0,
       totalAgents: 7,
-      totalRequests,
     };
 
     await redis.set(cacheKey, JSON.stringify(stats), "EX", 120);
@@ -77,9 +104,6 @@ export const getAdminStats = async (req, res) => {
   }
 };
 
-// ============================================================
-// 2. GET ADMIN USERS
-// ============================================================
 
 export const getAdminUsers = async (req, res) => {
   try {
@@ -122,9 +146,6 @@ export const getAdminUsers = async (req, res) => {
   }
 };
 
-// ============================================================
-// 3. GET ADMIN TRANSACTIONS
-// ============================================================
 
 export const getAdminTransactions = async (req, res) => {
   try {
@@ -171,9 +192,6 @@ export const getAdminTransactions = async (req, res) => {
   }
 };
 
-// ============================================================
-// 4. GET ADMIN ACTIVITIES
-// ============================================================
 
 export const getAdminActivities = async (req, res) => {
   try {
@@ -190,7 +208,6 @@ export const getAdminActivities = async (req, res) => {
       });
     }
 
-    // ✅ Get top active users from Redis
     const activityKeys = await redis.keys("activity:*:total");
     const userActivities = [];
 
@@ -211,11 +228,9 @@ export const getAdminActivities = async (req, res) => {
       }
     }
 
-    // Sort by requests
     userActivities.sort((a, b) => b.requests - a.requests);
     const topUsers = userActivities.slice(0, Number(limit));
 
-    // Fetch user info in parallel
     const activities = await Promise.all(
       topUsers.map(async (item) => {
         try {
@@ -270,9 +285,6 @@ export const getAdminActivities = async (req, res) => {
   }
 };
 
-// ============================================================
-// 5. GET AGENT USAGE
-// ============================================================
 
 export const getAdminAgentUsage = async (req, res) => {
   try {
@@ -287,12 +299,11 @@ export const getAdminAgentUsage = async (req, res) => {
       });
     }
 
-    // ✅ Get all agent stats (includes paid + free)
     const agents = await getAllAgentStats();
 
-    console.log("📤 Sending agent usage to frontend:", agents);
+    console.log("Sending agent usage to frontend:", agents);
 
-    await redis.set(cacheKey, JSON.stringify(agents), "EX", 30); // 30 sec cache
+    await redis.set(cacheKey, JSON.stringify(agents), "EX", 30);
 
     return res.status(200).json({
       success: true,
@@ -308,9 +319,6 @@ export const getAdminAgentUsage = async (req, res) => {
   }
 };
 
-// ============================================================
-// 6. GET PLAN DISTRIBUTION
-// ============================================================
 
 export const getAdminPlanDistribution = async (req, res) => {
   try {
@@ -325,7 +333,9 @@ export const getAdminPlanDistribution = async (req, res) => {
       });
     }
 
-    const response = await fetchFromService(`${AUTH_SERVICE}/admin/plan-distribution`);
+    const response = await fetchFromService(
+      `${AUTH_SERVICE}/admin/plan-distribution`
+    );
 
     const plans = response?.plans || [];
 
@@ -361,9 +371,6 @@ export const getAdminPlanDistribution = async (req, res) => {
   }
 };
 
-// ============================================================
-// 7. UPDATE USER CREDITS
-// ============================================================
 
 export const updateUserCredits = async (req, res) => {
   try {
@@ -377,10 +384,13 @@ export const updateUserCredits = async (req, res) => {
       });
     }
 
-    const response = await fetchFromService(`${AUTH_SERVICE}/admin/user/${id}/credits`, {
-      method: "PUT",
-      data: { credits },
-    });
+    const response = await fetchFromService(
+      `${AUTH_SERVICE}/admin/user/${id}/credits`,
+      {
+        method: "PUT",
+        data: { credits },
+      }
+    );
 
     if (!response || !response.success) {
       return res.status(404).json({
@@ -389,7 +399,6 @@ export const updateUserCredits = async (req, res) => {
       });
     }
 
-    // Clear cache
     await redis.del("admin:stats");
     await clearAdminUsersCache();
 
@@ -407,9 +416,6 @@ export const updateUserCredits = async (req, res) => {
   }
 };
 
-// ============================================================
-// 8. UPDATE USER PLAN
-// ============================================================
 
 export const updateUserPlan = async (req, res) => {
   try {
@@ -424,10 +430,13 @@ export const updateUserPlan = async (req, res) => {
       });
     }
 
-    const response = await fetchFromService(`${AUTH_SERVICE}/admin/user/${id}/plan`, {
-      method: "PUT",
-      data: { plan },
-    });
+    const response = await fetchFromService(
+      `${AUTH_SERVICE}/admin/user/${id}/plan`,
+      {
+        method: "PUT",
+        data: { plan },
+      }
+    );
 
     if (!response || !response.success) {
       return res.status(404).json({
@@ -436,7 +445,6 @@ export const updateUserPlan = async (req, res) => {
       });
     }
 
-    // Clear cache
     await redis.del("admin:stats");
     await redis.del("admin:plan-distribution");
     await clearAdminUsersCache();
@@ -455,9 +463,6 @@ export const updateUserPlan = async (req, res) => {
   }
 };
 
-// ============================================================
-// 9. TOGGLE USER STATUS
-// ============================================================
 
 export const toggleUserStatus = async (req, res) => {
   try {
@@ -471,10 +476,13 @@ export const toggleUserStatus = async (req, res) => {
       });
     }
 
-    const response = await fetchFromService(`${AUTH_SERVICE}/admin/user/${id}/status`, {
-      method: "PATCH",
-      data: { status },
-    });
+    const response = await fetchFromService(
+      `${AUTH_SERVICE}/admin/user/${id}/status`,
+      {
+        method: "PATCH",
+        data: { status },
+      }
+    );
 
     if (!response || !response.success) {
       return res.status(404).json({
@@ -483,7 +491,6 @@ export const toggleUserStatus = async (req, res) => {
       });
     }
 
-    // Clear cache
     await redis.del("admin:stats");
     await clearAdminUsersCache();
 
@@ -501,17 +508,17 @@ export const toggleUserStatus = async (req, res) => {
   }
 };
 
-// ============================================================
-// 10. DELETE USER
-// ============================================================
 
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const response = await fetchFromService(`${AUTH_SERVICE}/admin/user/${id}`, {
-      method: "DELETE",
-    });
+    const response = await fetchFromService(
+      `${AUTH_SERVICE}/admin/user/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     if (!response || !response.success) {
       return res.status(404).json({
@@ -520,7 +527,6 @@ export const deleteUser = async (req, res) => {
       });
     }
 
-    // Clear cache
     await redis.del("admin:stats");
     await clearAdminUsersCache();
 
@@ -537,9 +543,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// ============================================================
-// 11. GET ADMIN SETTINGS
-// ============================================================
 
 export const getAdminSettings = async (req, res) => {
   try {
@@ -573,7 +576,7 @@ export const getAdminSettings = async (req, res) => {
       data: settings,
     });
   } catch (error) {
-    console.error("❌ Get Admin Settings Error:", error);
+    console.error("Get Admin Settings Error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to fetch settings",
@@ -581,15 +584,15 @@ export const getAdminSettings = async (req, res) => {
   }
 };
 
-// ============================================================
-// 12. UPDATE ADMIN SETTINGS
-// ============================================================
 
 export const updateAdminSettings = async (req, res) => {
   try {
     const settings = req.body;
 
-    if (settings.freePlanCredits !== undefined && settings.freePlanCredits < 0) {
+    if (
+      settings.freePlanCredits !== undefined &&
+      settings.freePlanCredits < 0
+    ) {
       return res.status(400).json({
         success: false,
         message: "Free plan credits must be >= 0",
@@ -604,7 +607,12 @@ export const updateAdminSettings = async (req, res) => {
     }
 
     const cacheKey = "admin:settings";
-    await redis.set(cacheKey, JSON.stringify(settings), "EX", 7 * 24 * 60 * 60);
+    await redis.set(
+      cacheKey,
+      JSON.stringify(settings),
+      "EX",
+      7 * 24 * 60 * 60
+    );
 
     return res.status(200).json({
       success: true,
@@ -612,7 +620,7 @@ export const updateAdminSettings = async (req, res) => {
       data: settings,
     });
   } catch (error) {
-    console.error("❌ Update Admin Settings Error:", error);
+    console.error(" Update Admin Settings Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message || "Failed to update settings",
@@ -620,9 +628,6 @@ export const updateAdminSettings = async (req, res) => {
   }
 };
 
-// ============================================================
-// HELPER: Clear Admin Users Cache
-// ============================================================
 
 const clearAdminUsersCache = async () => {
   try {

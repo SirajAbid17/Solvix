@@ -29,8 +29,6 @@ export const uploadPortfolio = async (req, res) => {
       });
     }
 
-   
-  
     const { text, chunks } = await extractPdfText(req.file.buffer);
 
     if (!text || !text.trim()) {
@@ -40,26 +38,20 @@ export const uploadPortfolio = async (req, res) => {
       });
     }
 
-  
     const uploadedPdf = await uploadPdf(req.file.buffer);
 
     if (!uploadedPdf) {
       throw new Error("PDF upload failed");
     }
 
-    
-    const originalName = req.file.originalname
-      .replace(/\.pdf$/i, "")
-      .trim();
+    const originalName = req.file.originalname.replace(/\.pdf$/i, "").trim();
 
     const cleanTitle = originalName || "My Portfolio";
 
     const slug = `portfolio-${Date.now()}-${Math.random()
       .toString(36)
-      .substring(2, 8)}`
-      .toLowerCase();
+      .substring(2, 8)}`.toLowerCase();
 
-  
     const portfolio = await Portfolio.create({
       userId,
       title: cleanTitle,
@@ -75,10 +67,8 @@ export const uploadPortfolio = async (req, res) => {
       analysisStatus: "pending",
     });
 
-    
     await redis.del(`user-portfolios:${userId}`);
 
-   
     return res.status(201).json({
       success: true,
       message: "Portfolio uploaded successfully",
@@ -90,7 +80,6 @@ export const uploadPortfolio = async (req, res) => {
       status: portfolio.status,
       analysisStatus: portfolio.analysisStatus,
     });
-
   } catch (error) {
     console.error("Upload Portfolio Error:", error);
     return res.status(500).json({
@@ -100,12 +89,10 @@ export const uploadPortfolio = async (req, res) => {
   }
 };
 
-
 export const analyzePortfolioController = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = getUserId(req);
-
 
     if (!userId) {
       return res.status(401).json({
@@ -114,7 +101,6 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-   
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -129,7 +115,6 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-   
     const portfolio = await Portfolio.findOne({
       _id: id,
       userId,
@@ -142,7 +127,6 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-    
     if (!portfolio.extractedText || !portfolio.extractedText.trim()) {
       return res.status(400).json({
         success: false,
@@ -150,7 +134,6 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-    
     if (portfolio.analysisStatus === "processing") {
       return res.status(409).json({
         success: false,
@@ -158,16 +141,13 @@ export const analyzePortfolioController = async (req, res) => {
       });
     }
 
-   
     console.log("Starting portfolio analysis:", portfolio._id.toString());
 
     const result = await analyzePortfolio(portfolio._id);
 
-  
     await redis.del(`portfolio:${portfolio.slug}`);
     await redis.del(`user-portfolios:${userId}`);
 
-   
     return res.status(200).json({
       success: true,
       message: "Portfolio generated successfully",
@@ -182,7 +162,6 @@ export const analyzePortfolioController = async (req, res) => {
         generatedAt: result.generatedCode?.generatedAt || null,
       },
     });
-
   } catch (error) {
     console.error("Analyze Portfolio Controller Error:", error);
     return res.status(500).json({
@@ -192,13 +171,11 @@ export const analyzePortfolioController = async (req, res) => {
   }
 };
 
-
 export const getPortfolioBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
     const userId = getUserId(req);
     const cacheKey = `portfolio:${slug}`;
-
 
     const cached = await redis.get(cacheKey);
 
@@ -242,7 +219,6 @@ export const getPortfolioBySlug = async (req, res) => {
       });
     }
 
-    
     const isOwner = userId && portfolio.userId.toString() === String(userId);
 
     if (!isOwner && !portfolio.isPublic) {
@@ -252,15 +228,13 @@ export const getPortfolioBySlug = async (req, res) => {
       });
     }
 
-   
     await redis.set(
       cacheKey,
       JSON.stringify(portfolio.toObject()),
       "EX",
-      CACHE_TIME
+      CACHE_TIME,
     );
 
-   
     return res.status(200).json({
       success: true,
       fromCache: false,
@@ -277,7 +251,6 @@ export const getPortfolioBySlug = async (req, res) => {
         updatedAt: portfolio.updatedAt,
       },
     });
-
   } catch (error) {
     console.error("Get Portfolio Error:", error);
     return res.status(500).json({
@@ -286,7 +259,6 @@ export const getPortfolioBySlug = async (req, res) => {
     });
   }
 };
-
 
 export const getAllUserPortfolios = async (req, res) => {
   try {
@@ -301,7 +273,6 @@ export const getAllUserPortfolios = async (req, res) => {
 
     const cacheKey = `user-portfolios:${userId}`;
 
-    
     const cached = await redis.get(cacheKey);
 
     if (cached) {
@@ -311,12 +282,11 @@ export const getAllUserPortfolios = async (req, res) => {
       });
     }
 
-    
     const portfolios = await Portfolio.find({
       userId,
     })
       .select(
-        "title slug isPublic status analysisStatus createdAt updatedAt generatedCode error"
+        "title slug isPublic status analysisStatus createdAt updatedAt generatedCode error",
       )
       .sort({
         createdAt: -1,
@@ -324,7 +294,6 @@ export const getAllUserPortfolios = async (req, res) => {
 
     console.log(`Found ${portfolios.length} portfolios for user ${userId}`);
 
-    
     const response = {
       success: true,
       total: portfolios.length,
@@ -346,19 +315,12 @@ export const getAllUserPortfolios = async (req, res) => {
       })),
     };
 
-    
-    await redis.set(
-      cacheKey,
-      JSON.stringify(response),
-      "EX",
-      CACHE_TIME
-    );
+    await redis.set(cacheKey, JSON.stringify(response), "EX", CACHE_TIME);
 
     return res.status(200).json({
       ...response,
       fromCache: false,
     });
-
   } catch (error) {
     console.error("Get All Portfolios Error:", error);
     return res.status(500).json({
@@ -368,13 +330,11 @@ export const getAllUserPortfolios = async (req, res) => {
   }
 };
 
-
 export const deletePortfolio = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = getUserId(req);
 
-    
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -382,7 +342,6 @@ export const deletePortfolio = async (req, res) => {
       });
     }
 
-    
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
@@ -390,7 +349,6 @@ export const deletePortfolio = async (req, res) => {
       });
     }
 
-    
     const portfolio = await Portfolio.findOne({
       _id: id,
       userId,
@@ -403,22 +361,18 @@ export const deletePortfolio = async (req, res) => {
       });
     }
 
-    
     await Portfolio.findOneAndDelete({
       _id: id,
       userId,
     });
 
-    
     await redis.del(`portfolio:${portfolio.slug}`);
     await redis.del(`user-portfolios:${userId}`);
 
-  
     return res.status(200).json({
       success: true,
       message: "Portfolio deleted successfully",
     });
-
   } catch (error) {
     console.error("Delete Portfolio Error:", error);
     return res.status(500).json({

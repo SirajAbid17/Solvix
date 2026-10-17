@@ -1,4 +1,4 @@
-// agents/SearchAgent.js
+
 import { tavilySearch } from "../config/websearchTavily.js";
 
 export const SearchAgent = async (state) => {
@@ -9,7 +9,6 @@ export const SearchAgent = async (state) => {
     });
 
    
-    // Extract images from the result
     const images = result?.images || result?.Images || [];
     const searchResults = result?.results || result || [];
 
@@ -20,7 +19,7 @@ export const SearchAgent = async (state) => {
       images: images,
     };
   } catch (error) {
-    console.error("❌ SearchAgent error:", error);
+    console.error(" SearchAgent error:", error);
     return {
       ...state,
       searchResults: [],

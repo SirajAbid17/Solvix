@@ -3,17 +3,14 @@ import { plans } from "../plans/plan.js";
 import Payment from "../models/payment.model.js";
 import axios from "axios";
 
+
 const updateUserPlan = async (userId, plan, credits) => {
   try {
-    const authServiceUrl = process.env.AUTH_SERVICES_URL || "http://localhost:5001";
+    const authServiceUrl =
+      process.env.AUTH_SERVICES_URL || "http://localhost:5001";
     const url = `${authServiceUrl}/update-plan`;
 
-    console.log("");
-    console.log("🔄 Updating Auth Service");
-    console.log("URL:", url);
-    console.log("User ID:", userId);
-    console.log("Plan:", plan);
-    console.log("Credits:", credits);
+   
 
     const response = await axios.post(
       url,
@@ -30,15 +27,17 @@ const updateUserPlan = async (userId, plan, credits) => {
       }
     );
 
-    console.log("✅ Auth Service Updated");
+    
     return response.data;
   } catch (error) {
-    console.error("❌ Auth Update Failed:", error.message);
+    console.error("Auth Update Failed:", error.message);
     if (error.response) {
       console.error("Status:", error.response.status);
       console.error("Response:", error.response.data);
     }
-    throw new Error(error.response?.data?.message || "Failed to update user");
+    throw new Error(
+      error.response?.data?.message || "Failed to update user"
+    );
   }
 };
 
@@ -47,7 +46,6 @@ export const createOrder = async (req, res) => {
   try {
     const { planType } = req.body;
     const userId = req.headers["x-user-id"];
-
 
     if (!userId) {
       return res.status(401).json({
@@ -67,28 +65,55 @@ export const createOrder = async (req, res) => {
 
     
     if (Number(selectedPlan.price) === 0) {
-      const result = await updateUserPlan(userId, planType, selectedPlan.credits);
+      try {
+        const result = await updateUserPlan(
+          userId,
+          planType,
+          selectedPlan.credits
+        );
 
-      const payment = await Payment.create({
-        userId: String(userId),
-        orderId: `free_${Date.now()}_${userId}`,
-        amount: 0,
-        currency: "USD",
-        credits: selectedPlan.credits,
-        plan: planType,
-        status: "Paid",
-        creditsAdded: true,
-      });
+        const payment = await Payment.create({
+          userId: String(userId),
+          orderId: `free_${Date.now()}_${userId}`,
+          amount: 0,
+          currency: "USD",
+          credits: selectedPlan.credits,
+          plan: planType,
+          status: "Paid",
+          creditsAdded: true,
+        });
 
-      return res.status(200).json({
-        success: true,
-        message: "Free plan activated",
-        user: result.data?.user,
-        payment,
-      });
+        return res.status(200).json({
+          success: true,
+          message: "Free plan activated",
+          user: result?.user || null,
+          payment,
+        });
+      } catch (freeError) {
+        console.error(" Free plan error:", freeError.message);
+
+       
+        const payment = await Payment.create({
+          userId: String(userId),
+          orderId: `free_${Date.now()}_${userId}`,
+          amount: 0,
+          currency: "USD",
+          credits: selectedPlan.credits,
+          plan: planType,
+          status: "Paid",
+          creditsAdded: true,
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: "Free plan activated",
+          user: null,
+          payment,
+        });
+      }
     }
 
-  
+   
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -110,8 +135,12 @@ export const createOrder = async (req, res) => {
         plan: String(planType),
         credits: String(selectedPlan.credits),
       },
-      success_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/pricing`,
+      success_url: `${
+        process.env.FRONTEND_URL || "http://localhost:5173"
+      }/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${
+        process.env.FRONTEND_URL || "http://localhost:5173"
+      }/pricing`,
     });
 
     const payment = await Payment.create({
@@ -125,7 +154,6 @@ export const createOrder = async (req, res) => {
       creditsAdded: false,
     });
 
-   
     return res.status(200).json({
       success: true,
       sessionUrl: session.url,
@@ -133,7 +161,7 @@ export const createOrder = async (req, res) => {
       payment,
     });
   } catch (error) {
-    console.error("❌ Create Order Error:", error);
+    console.error("Create Order Error:", error);
     return res.status(500).json({
       success: false,
       message: error.message || "Failed to create order",
@@ -141,11 +169,11 @@ export const createOrder = async (req, res) => {
   }
 };
 
+
 export const getPaymentStatus = async (req, res) => {
   try {
     const { sessionId } = req.params;
     const userId = req.headers["x-user-id"];
-
 
     if (!userId) {
       return res.status(401).json({
@@ -173,6 +201,7 @@ export const getPaymentStatus = async (req, res) => {
       });
     }
 
+    
     if (payment.creditsAdded) {
       console.log("Credits already added");
       return res.status(200).json({
@@ -195,6 +224,7 @@ export const getPaymentStatus = async (req, res) => {
       });
     }
 
+  
     const metadata = session.metadata || {};
     const stripeUserId = metadata.userId;
     const stripePlan = metadata.plan;
@@ -228,7 +258,7 @@ export const getPaymentStatus = async (req, res) => {
       });
     }
 
-  
+   
     const result = await updateUserPlan(userId, stripePlan, stripeCredits);
 
     payment.status = "Paid";
@@ -236,12 +266,11 @@ export const getPaymentStatus = async (req, res) => {
     payment.creditsAdded = true;
     await payment.save();
 
-    
     return res.status(200).json({
       success: true,
       message: "Payment verified and credits added",
       payment,
-      user: result.data?.user || null,
+      user: result?.user || null,
     });
   } catch (error) {
     console.error("Payment Verification Error:", error);
@@ -283,10 +312,11 @@ export const getPaymentHistory = async (req, res) => {
   }
 };
 
+
 export const getAdminBillingStats = async (req, res) => {
   try {
     const payments = await Payment.find({ status: "Paid" });
-    
+
     let totalRevenue = 0;
     let totalTransactions = payments.length;
     let totalCreditsSold = 0;
@@ -312,6 +342,7 @@ export const getAdminBillingStats = async (req, res) => {
     });
   }
 };
+
 
 export const getAdminTransactions = async (req, res) => {
   try {

@@ -6,7 +6,6 @@ import redis from "../../../shared/redis/redis.js";
 
 export const generateInterview = async (req, res) => {
   try {
-   
     const userId = req.headers["x-user-id"];
 
     if (!userId) {
@@ -23,18 +22,14 @@ export const generateInterview = async (req, res) => {
       });
     }
 
-   
-
     const extractedText = await extractTextFromPDF(req.file.buffer);
 
-
-    const uploadedPDF = await uploadPDFToCloudinary(req.file.buffer, req.file.originalname);
-
-    
+    const uploadedPDF = await uploadPDFToCloudinary(
+      req.file.buffer,
+      req.file.originalname,
+    );
 
     const interview = await generateMockInterview(extractedText);
-
-   
 
     const totalQuestions =
       interview.dsaQuestions.length +
@@ -43,7 +38,6 @@ export const generateInterview = async (req, res) => {
       interview.behavioralQuestions.length +
       interview.hrQuestions.length;
 
-  
     const savedInterview = await MockInterview.create({
       userId: userId,
       title: interview.title || "AI Mock Interview",
@@ -64,16 +58,14 @@ export const generateInterview = async (req, res) => {
       status: "generated",
     });
 
-    
     const cacheKey = `mock-interview:${savedInterview._id}`;
     await redis.set(
       cacheKey,
       JSON.stringify(savedInterview.toObject()),
       "EX",
-      60 * 60 * 24 
+      60 * 60 * 24,
     );
 
-    
     await redis.del(`mock-interviews:${userId}`);
 
     return res.status(201).json({
@@ -81,7 +73,6 @@ export const generateInterview = async (req, res) => {
       message: "Mock interview generated successfully",
       data: savedInterview,
     });
-
   } catch (error) {
     console.error("??? MOCK INTERVIEW ERROR:", error);
 
@@ -91,7 +82,6 @@ export const generateInterview = async (req, res) => {
     });
   }
 };
-
 
 export const getMyInterviews = async (req, res) => {
   try {
@@ -106,7 +96,6 @@ export const getMyInterviews = async (req, res) => {
 
     const cacheKey = `mock-interviews:${userId}`;
 
-    
     const cached = await redis.get(cacheKey);
 
     if (cached) {
@@ -119,7 +108,7 @@ export const getMyInterviews = async (req, res) => {
 
     const interviews = await MockInterview.find({ userId })
       .select(
-        "-dsaQuestions -technicalQuestions -projectQuestions -behavioralQuestions -hrQuestions"
+        "-dsaQuestions -technicalQuestions -projectQuestions -behavioralQuestions -hrQuestions",
       )
       .sort({ createdAt: -1 });
 
@@ -129,7 +118,6 @@ export const getMyInterviews = async (req, res) => {
       data: interviews,
     };
 
-   
     await redis.set(cacheKey, JSON.stringify(response), "EX", 300);
 
     return res.status(200).json(response);
@@ -141,7 +129,6 @@ export const getMyInterviews = async (req, res) => {
     });
   }
 };
-
 
 export const getInterviewById = async (req, res) => {
   try {
@@ -157,13 +144,11 @@ export const getInterviewById = async (req, res) => {
 
     const cacheKey = `mock-interview:${id}`;
 
-    
     const cached = await redis.get(cacheKey);
 
     if (cached) {
       const interview = JSON.parse(cached);
 
-      
       if (String(interview.userId) !== String(userId)) {
         return res.status(403).json({
           success: false,
@@ -187,7 +172,6 @@ export const getInterviewById = async (req, res) => {
       });
     }
 
-  
     if (String(interview.userId) !== String(userId)) {
       return res.status(403).json({
         success: false,
@@ -195,7 +179,6 @@ export const getInterviewById = async (req, res) => {
       });
     }
 
-    
     await redis.set(cacheKey, JSON.stringify(interview.toObject()), "EX", 3600);
 
     return res.status(200).json({
@@ -211,7 +194,6 @@ export const getInterviewById = async (req, res) => {
     });
   }
 };
-
 
 export const deleteInterview = async (req, res) => {
   try {
@@ -234,7 +216,6 @@ export const deleteInterview = async (req, res) => {
       });
     }
 
-  
     if (String(interview.userId) !== String(userId)) {
       return res.status(403).json({
         success: false,
@@ -244,7 +225,6 @@ export const deleteInterview = async (req, res) => {
 
     await MockInterview.findByIdAndDelete(id);
 
-    
     await redis.del(`mock-interview:${id}`);
     await redis.del(`mock-interviews:${userId}`);
 
@@ -261,7 +241,6 @@ export const deleteInterview = async (req, res) => {
   }
 };
 
-
 export const generateNextBatch = async (req, res) => {
   try {
     const userId = req.headers["x-user-id"];
@@ -275,7 +254,6 @@ export const generateNextBatch = async (req, res) => {
 
     const { id } = req.params;
 
-    
     const existing = await MockInterview.findById(id);
 
     if (!existing) {
@@ -292,19 +270,14 @@ export const generateNextBatch = async (req, res) => {
       });
     }
 
-  
     console.log("???? Fetching resume PDF for next batch...");
 
-  
     const pdfResponse = await fetch(existing.pdf.url);
     const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
 
-    const { extractTextFromPDF } = await import(
-      "../services/pdf.service.js"
-    );
+    const { extractTextFromPDF } = await import("../services/pdf.service.js");
     const extractedText = await extractTextFromPDF(pdfBuffer);
 
-   
     const previousTopics = [
       ...existing.dsaQuestions.map((q) => `DSA: ${q.question}`),
       ...existing.technicalQuestions.map((q) => `Tech: ${q.question}`),
@@ -313,22 +286,18 @@ export const generateNextBatch = async (req, res) => {
       ...existing.hrQuestions.map((q) => `HR: ${q.question}`),
     ];
 
-    
     const currentBatch = Math.floor(previousTopics.length / 15) + 1;
 
     console.log(`???? Generating batch #${currentBatch + 1}...`);
 
-
-    const { generateMockInterview } = await import(
-      "../services/mockInterview.service.js"
-    );
+    const { generateMockInterview } =
+      await import("../services/mockInterview.service.js");
 
     const newBatch = await generateMockInterview(extractedText, {
       batchNumber: currentBatch + 1,
       previousTopics,
     });
 
-    
     existing.dsaQuestions.push(...newBatch.dsaQuestions);
     existing.technicalQuestions.push(...newBatch.technicalQuestions);
     existing.projectQuestions.push(...newBatch.projectQuestions);
@@ -344,11 +313,12 @@ export const generateNextBatch = async (req, res) => {
 
     await existing.save();
 
-    
     await redis.del(`mock-interview:${id}`);
     await redis.del(`mock-interviews:${userId}`);
 
-    console.log(`??? Batch #${currentBatch + 1} added. Total now: ${existing.totalQuestions}`);
+    console.log(
+      `??? Batch #${currentBatch + 1} added. Total now: ${existing.totalQuestions}`,
+    );
 
     return res.status(200).json({
       success: true,

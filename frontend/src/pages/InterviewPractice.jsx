@@ -23,14 +23,7 @@ import { SiJavascript, SiPython } from "react-icons/si";
 import { useTheme } from "../BgContext/ThemeContext";
 import { toast } from "react-hot-toast";
 import CodeBlock from "../components/Resume/Mock-Interview/CodeBlock";
-import {
-  getInterviewById,
-  generateNextBatch,
-} from "../Features/mockInterview";
-
-
-
-
+import { getInterviewById, generateNextBatch } from "../Features/mockInterview";
 
 const styles = {
   container: (dark) => `
@@ -41,9 +34,7 @@ const styles = {
   card: (dark) => `
     overflow-hidden rounded-2xl border shadow-sm transition-all duration-300
     ${
-      dark
-        ? "border-white/[0.08] bg-[#101010]"
-        : "border-black/[0.08] bg-white"
+      dark ? "border-white/[0.08] bg-[#101010]" : "border-black/[0.08] bg-white"
     }
   `,
 
@@ -72,19 +63,11 @@ const styles = {
   },
 };
 
-
-
-
-
 export default function InterviewPractice() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { dark } = useTheme();
-
-  
-  
-  
 
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -94,10 +77,6 @@ export default function InterviewPractice() {
   const [completed, setCompleted] = useState([]);
   const [language, setLanguage] = useState("javascript");
   const [generatingNext, setGeneratingNext] = useState(false);
-
-  
-  
-  
 
   useEffect(() => {
     const loadInterview = async () => {
@@ -134,10 +113,6 @@ export default function InterviewPractice() {
     loadInterview();
   }, [id, location.state]);
 
-  
-  
-  
-
   const getAllQuestions = () => {
     if (!interview) return [];
 
@@ -170,15 +145,11 @@ export default function InterviewPractice() {
   const currentQuestion = allQuestions[currentQuestionIndex];
 
   const progress = allQuestions.length
-    ? Math.round(
-        ((currentQuestionIndex + 1) / allQuestions.length) * 100
-      )
+    ? Math.round(((currentQuestionIndex + 1) / allQuestions.length) * 100)
     : 0;
 
   const isCurrentCompleted = completed.includes(currentQuestionIndex);
 
-  // ✅ Complete when last question of CURRENT batch is done
-  // Batch = multiples of 15
   const currentBatchSize = 15;
   const currentBatchEnd =
     Math.floor(currentQuestionIndex / currentBatchSize) * currentBatchSize +
@@ -190,10 +161,6 @@ export default function InterviewPractice() {
   const isBatchComplete = isLastInBatch && isCurrentCompleted;
 
   const batchNumber = Math.floor(currentQuestionIndex / currentBatchSize) + 1;
-
-  // ============================================================
-  // HANDLERS
-  // ============================================================
 
   const markCompleted = () => {
     if (!completed.includes(currentQuestionIndex)) {
@@ -229,10 +196,6 @@ export default function InterviewPractice() {
     toast.success("PDF download coming soon!");
   };
 
-  
-  
-  
-
   const handleGenerateNext = async () => {
     if (!interview?._id) return;
 
@@ -248,11 +211,10 @@ export default function InterviewPractice() {
       if (response.success) {
         setInterview(response.data);
 
-        toast.success("✅ 15 new questions added!", {
+        toast.success("15 new questions added!", {
           id: "next-batch",
         });
 
-        
         const prevLength = allQuestions.length;
         setTimeout(() => {
           setCurrentQuestionIndex(prevLength);
@@ -278,10 +240,6 @@ export default function InterviewPractice() {
     }
   };
 
-  
-  
-  
-
   if (loading) {
     return (
       <div
@@ -298,9 +256,7 @@ export default function InterviewPractice() {
             }`}
           >
             <FaSpinner
-              className={`animate-spin ${
-                dark ? "text-white" : "text-black"
-              }`}
+              className={`animate-spin ${dark ? "text-white" : "text-black"}`}
             />
           </div>
           <p
@@ -314,10 +270,6 @@ export default function InterviewPractice() {
       </div>
     );
   }
-
-  
-  
-  
 
   if (error || !interview) {
     return (
@@ -364,10 +316,6 @@ export default function InterviewPractice() {
     );
   }
 
-  
-  
-  
-
   if (allQuestions.length === 0) {
     return (
       <div
@@ -403,10 +351,6 @@ export default function InterviewPractice() {
       </div>
     );
   }
-
-  
-  
-  
 
   return (
     <div className={styles.container(dark)}>
@@ -502,12 +446,12 @@ export default function InterviewPractice() {
 
               <p
                 className={`mt-5 max-w-2xl text-sm leading-7 sm:text-base ${styles.muted(
-                  dark
+                  dark,
                 )}`}
               >
-                Practice real coding interview problems tailored to your
-                resume. Every challenge includes expected approach,
-                complexity, and language-specific solutions.
+                Practice real coding interview problems tailored to your resume.
+                Every challenge includes expected approach, complexity, and
+                language-specific solutions.
               </p>
 
               {}
@@ -602,12 +546,8 @@ export default function InterviewPractice() {
                       : "border-black/[0.07] bg-white"
                   }`}
                 >
-                  <p className={`text-xs ${styles.muted(dark)}`}>
-                    Completed
-                  </p>
-                  <p className="mt-1 text-xl font-black">
-                    {completed.length}
-                  </p>
+                  <p className={`text-xs ${styles.muted(dark)}`}>Completed</p>
+                  <p className="mt-1 text-xl font-black">{completed.length}</p>
                 </div>
 
                 <div
@@ -617,9 +557,7 @@ export default function InterviewPractice() {
                       : "border-black/[0.07] bg-white"
                   }`}
                 >
-                  <p className={`text-xs ${styles.muted(dark)}`}>
-                    Remaining
-                  </p>
+                  <p className={`text-xs ${styles.muted(dark)}`}>Remaining</p>
                   <p className="mt-1 text-xl font-black">
                     {Math.max(allQuestions.length - completed.length, 0)}
                   </p>
@@ -662,12 +600,12 @@ export default function InterviewPractice() {
                           ? "border-white bg-white text-black shadow-lg"
                           : "border-black bg-black text-white shadow-lg"
                         : isDone
-                        ? dark
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                          : "border-emerald-600/20 bg-emerald-50 text-emerald-700"
-                        : dark
-                        ? "border-white/[0.08] bg-[#101010] text-white/45 hover:border-white/15 hover:bg-white/[0.05] hover:text-white"
-                        : "border-black/[0.08] bg-white text-black/45 hover:border-black/15 hover:bg-black/[0.025] hover:text-black"
+                          ? dark
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                            : "border-emerald-600/20 bg-emerald-50 text-emerald-700"
+                          : dark
+                            ? "border-white/[0.08] bg-[#101010] text-white/45 hover:border-white/15 hover:bg-white/[0.05] hover:text-white"
+                            : "border-black/[0.08] bg-white text-black/45 hover:border-black/15 hover:bg-black/[0.025] hover:text-black"
                     }
                   `}
                 >
@@ -699,7 +637,7 @@ export default function InterviewPractice() {
                   <div className="min-w-0">
                     <p
                       className={`text-xs font-bold uppercase tracking-widest ${styles.muted(
-                        dark
+                        dark,
                       )}`}
                     >
                       {currentQuestion?.typeLabel || "Coding"} Challenge
@@ -723,12 +661,12 @@ export default function InterviewPractice() {
                               ? "border-red-500/20 bg-red-500/10 text-red-400"
                               : "border-red-200 bg-red-50 text-red-600"
                             : currentQuestion.difficulty === "Medium"
-                            ? dark
-                              ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
-                              : "border-amber-200 bg-amber-50 text-amber-700"
-                            : dark
-                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                            : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                              ? dark
+                                ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
+                                : "border-amber-200 bg-amber-50 text-amber-700"
+                              : dark
+                                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                                : "border-emerald-200 bg-emerald-50 text-emerald-700"
                         }
                       `}
                     >
@@ -784,7 +722,7 @@ export default function InterviewPractice() {
                 {currentQuestion?.description && (
                   <p
                     className={`mt-4 text-sm leading-7 sm:text-base ${styles.muted(
-                      dark
+                      dark,
                     )}`}
                   >
                     {currentQuestion.description}
@@ -795,9 +733,7 @@ export default function InterviewPractice() {
                   <div className="mt-5">
                     <p className="text-sm font-bold">What Interviewer Tests</p>
                     <p
-                      className={`mt-1 text-sm leading-7 ${styles.muted(
-                        dark
-                      )}`}
+                      className={`mt-1 text-sm leading-7 ${styles.muted(dark)}`}
                     >
                       {currentQuestion.whatInterviewerTests}
                     </p>
@@ -812,7 +748,7 @@ export default function InterviewPractice() {
                       </p>
                       <ul
                         className={`mt-2 list-disc pl-5 text-sm leading-7 ${styles.muted(
-                          dark
+                          dark,
                         )}`}
                       >
                         {currentQuestion.expectedAnswerPoints.map((p, i) => (
@@ -875,9 +811,7 @@ export default function InterviewPractice() {
                     </div>
 
                     <span
-                      className={`text-xs font-semibold ${styles.muted(
-                        dark
-                      )}`}
+                      className={`text-xs font-semibold ${styles.muted(dark)}`}
                     >
                       Solution Code
                     </span>
@@ -927,7 +861,7 @@ export default function InterviewPractice() {
                     </p>
                     <ul
                       className={`mt-2 list-disc pl-5 text-sm leading-7 ${styles.muted(
-                        dark
+                        dark,
                       )}`}
                     >
                       {currentQuestion.followUps.map((f, i) => (
@@ -964,17 +898,15 @@ export default function InterviewPractice() {
                       Interview Tip
                     </p>
                     <p
-                      className={`mt-1 text-sm leading-6 ${styles.muted(
-                        dark
-                      )}`}
+                      className={`mt-1 text-sm leading-6 ${styles.muted(dark)}`}
                     >
                       {currentQuestion?.type === "dsa"
                         ? "First try solving the problem yourself. Explain your approach, time complexity, and space complexity before checking the solution."
                         : currentQuestion?.type === "behavioral"
-                        ? "Use the STAR method (Situation, Task, Action, Result) to structure your answer."
-                        : currentQuestion?.type === "hr"
-                        ? "Be honest and align your answer with the company's values and culture."
-                        : "Take your time to understand the question and think through your answer before responding."}
+                          ? "Use the STAR method (Situation, Task, Action, Result) to structure your answer."
+                          : currentQuestion?.type === "hr"
+                            ? "Be honest and align your answer with the company's values and culture."
+                            : "Take your time to understand the question and think through your answer before responding."}
                     </p>
                   </div>
                 </div>
@@ -1000,9 +932,7 @@ export default function InterviewPractice() {
 
                     <div
                       className={`overflow-hidden rounded-2xl border ${
-                        dark
-                          ? "border-white/[0.08]"
-                          : "border-black/[0.08]"
+                        dark ? "border-white/[0.08]" : "border-black/[0.08]"
                       }`}
                     >
                       <div
@@ -1020,14 +950,12 @@ export default function InterviewPractice() {
                         <div
                           key={index}
                           className={`grid grid-cols-[1fr_1fr] border-b px-4 py-4 last:border-b-0 ${
-                            dark
-                              ? "border-white/[0.08]"
-                              : "border-black/[0.07]"
+                            dark ? "border-white/[0.08]" : "border-black/[0.07]"
                           }`}
                         >
                           <code
                             className={`pr-3 text-xs sm:text-sm ${styles.muted(
-                              dark
+                              dark,
                             )}`}
                           >
                             {typeof test === "object"
@@ -1049,7 +977,6 @@ export default function InterviewPractice() {
                   </div>
                 )}
 
-              {/* REVEAL SOLUTION */}
               <div className="mt-8">
                 <button
                   onClick={() => setShowAnswer((prev) => !prev)}
@@ -1088,7 +1015,7 @@ export default function InterviewPractice() {
                         <h4 className="font-bold">Solution Approach</h4>
                         <p
                           className={`mt-2 text-sm leading-7 ${styles.muted(
-                            dark
+                            dark,
                           )}`}
                         >
                           {currentQuestion?.type === "dsa"
@@ -1114,9 +1041,7 @@ export default function InterviewPractice() {
                                 Time Complexity
                               </p>
                               <p
-                                className={`mt-2 text-sm ${styles.muted(
-                                  dark
-                                )}`}
+                                className={`mt-2 text-sm ${styles.muted(dark)}`}
                               >
                                 {currentQuestion?.timeComplexity || "O(n)"}
                               </p>
@@ -1136,9 +1061,7 @@ export default function InterviewPractice() {
                                 Space Complexity
                               </p>
                               <p
-                                className={`mt-2 text-sm ${styles.muted(
-                                  dark
-                                )}`}
+                                className={`mt-2 text-sm ${styles.muted(dark)}`}
                               >
                                 {currentQuestion?.spaceComplexity || "O(1)"}
                               </p>
@@ -1151,7 +1074,6 @@ export default function InterviewPractice() {
                 )}
               </div>
 
-              {/* NAVIGATION */}
               <div
                 className={`mt-8 flex flex-col gap-3 border-t pt-7 sm:flex-row sm:items-center sm:justify-between ${
                   dark ? "border-white/[0.08]" : "border-black/[0.07]"
@@ -1164,8 +1086,8 @@ export default function InterviewPractice() {
                     currentQuestionIndex === 0
                       ? "cursor-not-allowed opacity-30"
                       : dark
-                      ? "border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.08]"
-                      : "border-black/10 bg-white text-black hover:bg-black/[0.04]"
+                        ? "border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.08]"
+                        : "border-black/10 bg-white text-black hover:bg-black/[0.04]"
                   }`}
                 >
                   <FaArrowLeft />
@@ -1182,8 +1104,8 @@ export default function InterviewPractice() {
                           ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
                           : "border-emerald-200 bg-emerald-50 text-emerald-700"
                         : dark
-                        ? "border-white/10 bg-white text-black hover:bg-white/90"
-                        : "border-black/10 bg-black text-white hover:bg-black/85"
+                          ? "border-white/10 bg-white text-black hover:bg-white/90"
+                          : "border-black/10 bg-black text-white hover:bg-black/85"
                     }
                   `}
                 >
@@ -1200,8 +1122,8 @@ export default function InterviewPractice() {
                       currentQuestionIndex === allQuestions.length - 1
                         ? "cursor-not-allowed opacity-30"
                         : dark
-                        ? "border-white bg-white text-black hover:bg-white/90"
-                        : "border-black bg-black text-white hover:bg-black/85"
+                          ? "border-white bg-white text-black hover:bg-white/90"
+                          : "border-black bg-black text-white hover:bg-black/85"
                     }
                   `}
                 >
@@ -1213,7 +1135,6 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {/* ==================== BATCH COMPLETE ==================== */}
         {isBatchComplete && (
           <section className="mt-8">
             <div
@@ -1249,17 +1170,17 @@ export default function InterviewPractice() {
                 </p>
 
                 <h2 className="mt-2 text-2xl font-black sm:text-3xl">
-                  🎉 Great job! Batch {batchNumber} complete
+                  Great job! Batch {batchNumber} complete
                 </h2>
 
                 <p
                   className={`mx-auto mt-3 max-w-2xl text-sm leading-6 ${styles.muted(
-                    dark
+                    dark,
                   )}`}
                 >
-                  You've completed {allQuestions.length} questions. Keep
-                  going — generate the next 15 fresh questions to continue
-                  your practice.
+                  You've completed {allQuestions.length} questions. Keep going —
+                  generate the next 15 fresh questions to continue your
+                  practice.
                 </p>
 
                 <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
@@ -1271,7 +1192,6 @@ export default function InterviewPractice() {
                     Back to Interviews
                   </button>
 
-                  {/* ✅ GENERATE NEXT 15 */}
                   <button
                     onClick={handleGenerateNext}
                     disabled={generatingNext}
@@ -1281,8 +1201,8 @@ export default function InterviewPractice() {
                         generatingNext
                           ? "cursor-not-allowed opacity-50"
                           : dark
-                          ? "border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20"
-                          : "border-purple-600/20 bg-purple-50 text-purple-700 hover:bg-purple-100"
+                            ? "border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20"
+                            : "border-purple-600/20 bg-purple-50 text-purple-700 hover:bg-purple-100"
                       }
                     `}
                   >
@@ -1311,8 +1231,6 @@ export default function InterviewPractice() {
             </div>
           </section>
         )}
-
-      
       </main>
     </div>
   );

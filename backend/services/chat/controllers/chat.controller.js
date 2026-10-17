@@ -65,7 +65,7 @@ export const SaveMessage = async (req, res) => {
       pptData
     } = req.body;
     
-    console.log("📝 Saving message:", {
+    console.log("Saving message:", {
       conversationId,
       role,
       contentLength: content?.length || 0,

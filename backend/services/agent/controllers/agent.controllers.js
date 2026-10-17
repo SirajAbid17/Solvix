@@ -3,8 +3,8 @@ import axios from "axios";
 import { graph } from "../graph/AgentNodeGraph.js";
 
 import {
-  getConversationMessages,  
-saveConversationMessage,
+  getConversationMessages,
+  saveConversationMessage,
   saveConversationMessages,
 } from "../utlis/RedisMemory.js";
 
@@ -12,7 +12,17 @@ dotenv.config();
 
 export const Agents = async (req, res) => {
   try {
-    const { prompt, conversationId, agent } = req.body;
+    const {
+      prompt,
+      conversationId,
+      agent,
+      fileId,
+      fileContext,
+      imageBase64,
+      imageMimeType,
+      fileName,
+      fileType,
+    } = req.body;
 
     if (!prompt || !conversationId) {
       return res.status(400).json({
@@ -20,22 +30,29 @@ export const Agents = async (req, res) => {
       });
     }
 
-    // ✅ Get user info from headers (passed by gateway)
     const userId = req.headers["x-user-id"];
     const remainingCredits = req.headers["x-remaining-credits"];
 
-    console.log(`👤 User: ${userId} | Credits Remaining: ${remainingCredits}`);
+   
+    console.log(` User: ${userId}`);
+    console.log(`Prompt: ${String(prompt).slice(0, 100)}`);
+    console.log(`Selected Agent: ${agent || "Auto"}`);
+    console.log(`File ID: ${fileId || "none"}`);
+    console.log(
+      `File Context: ${fileContext ? `${fileContext.length} chars` : "none"}`
+    );
+    console.log(`Image Base64: ${imageBase64 ? `${Math.round(imageBase64.length / 1024)}KB` : "no"}`);
+    console.log(`File Name: ${fileName || "none"}`);
 
-    // =====================================================
-    // GET PREVIOUS MESSAGES
-    // =====================================================
-
+  
     let previousMessages = await getConversationMessages(conversationId);
 
     if (!previousMessages || previousMessages.length === 0) {
       try {
         const messagesResponse = await axios.get(
-          `${process.env.CHAT_SERVICES_URL || 'http://localhost:5002'}/chat/get-messages/${conversationId}`
+          `${
+            process.env.CHAT_SERVICES_URL || "http://localhost:5002"
+          }/chat/get-messages/${conversationId}`
         );
         previousMessages = messagesResponse.data || [];
         if (previousMessages.length > 0) {
@@ -47,13 +64,12 @@ export const Agents = async (req, res) => {
       }
     }
 
-    // =====================================================
-    // SAVE USER MESSAGE
-    // =====================================================
-
+   
     try {
       await axios.post(
-        `${process.env.CHAT_SERVICES_URL || 'http://localhost:5002'}/chat/save-messages`,
+        `${
+          process.env.CHAT_SERVICES_URL || "http://localhost:5002"
+        }/chat/save-messages`,
         {
           conversationId,
           role: "user",
@@ -69,26 +85,66 @@ export const Agents = async (req, res) => {
       content: prompt,
     });
 
-    // =====================================================
-    // RUN MULTI AGENT GRAPH
-    // =====================================================
+   
+    const imageContext =
+      imageBase64 && imageMimeType
+        ? {
+            imageBase64,
+            imageMimeType,
+            imageFileName: fileName || "image",
+          }
+        : null;
 
+    
     const result = await graph.invoke({
       prompt,
       messages: previousMessages,
       conversationId,
       agent: agent || "Auto",
-      userId, // ✅ Pass userId for tracking
+      userId,
+      fileId: fileId || null,
+      fileContext: fileContext || "",
+      imageBase64: imageBase64 || null,
+      imageMimeType: imageMimeType || null,
+      imageFileName: fileName || null,
+      imageContext,
+      fileMetadata:
+        fileId || imageBase64
+          ? {
+              fileName: fileName || "uploaded-file",
+              fileType: fileType || (imageBase64 ? "image" : "document"),
+            }
+          : null,
     });
 
-    console.log("GRAPH RESULT:", result);
+   
+    console.log("Agent:", result?.agent);
+    console.log("Has aiResponse:", !!result?.aiResponse);
+    console.log(
+      "aiResponse length:",
+      String(result?.aiResponse || "").length
+    );
+    console.log(
+      "aiResponse preview:",
+      String(result?.aiResponse || "").slice(0, 200)
+    );
+   
 
-    const aiResponse = result?.aiResponse || "";
+    let aiResponse = result?.aiResponse;
+
+    if (Array.isArray(aiResponse)) {
+      aiResponse = aiResponse
+        .map((i) => (typeof i === "string" ? i : i?.text || ""))
+        .join("");
+    }
+
+    aiResponse = String(aiResponse || "").trim();
+
+    if (!aiResponse) {
+      aiResponse = "Sorry, I couldn't generate a response. Please try again.";
+    }
+
     const images = result?.images || [];
-
-    // =====================================================
-    // FORMAT IMAGES
-    // =====================================================
 
     const formattedImages = images.map((img) => {
       if (typeof img === "string") {
@@ -108,88 +164,73 @@ export const Agents = async (req, res) => {
       return img;
     });
 
-    // =====================================================
-    // PDF - Get URL and base64 from result
-    // =====================================================
-
     const pdfGenerated = result?.pdfGenerated || false;
     const pdfUrl = result?.pdfUrl || null;
-    const pdfBase64 = result?.pdfBase64 || (result?.pdfBuffer ? Buffer.from(result.pdfBuffer).toString("base64") : null);
-
-    // =====================================================
-    // PPT - Get URL and base64 from result
-    // =====================================================
+    const pdfBase64 =
+      result?.pdfBase64 ||
+      (result?.pdfBuffer
+        ? Buffer.from(result.pdfBuffer).toString("base64")
+        : null);
 
     const pptGenerated = result?.pptGenerated || false;
     const pptFileName = result?.pptFileName || "solvix-presentation.pptx";
     const pptData = result?.pptData || result?.ppt || null;
     const pptUrl = result?.pptUrl || null;
-    const pptBase64 = result?.pptBase64 || (result?.pptBuffer ? Buffer.from(result.pptBuffer).toString("base64") : null);
+    const pptBase64 =
+      result?.pptBase64 ||
+      (result?.pptBuffer
+        ? Buffer.from(result.pptBuffer).toString("base64")
+        : null);
 
-    // =====================================================
-    // SAVE ASSISTANT MESSAGE
-    // =====================================================
-
-    if (aiResponse) {
-      try {
-        await axios.post(
-          `${process.env.CHAT_SERVICES_URL || 'http://localhost:5002'}/chat/save-messages`,
-          {
-            conversationId,
-            role: "assistant",
-            content: aiResponse,
-            images: formattedImages,
-            pdfGenerated,
-            pdf: pdfUrl || pdfBase64,
-            pptGenerated,
-            ppt: pptUrl || pptBase64,
-            pptFileName,
-            pptData: pptData,
-          },
-          {
-            timeout: 10000,
-          }
-        );
-        console.log("✅ Assistant message saved to Chat Service");
-      } catch (error) {
-        console.log("⚠️ Chat service save skipped:", error.message);
-      }
-
-      await saveConversationMessage(conversationId, {
-        role: "assistant",
-        content: aiResponse,
-        images: formattedImages,
-        pdfGenerated,
-        pdf: pdfUrl || pdfBase64,
-        pptGenerated,
-        ppt: pptUrl || pptBase64,
-        pptFileName,
-        pptData: pptData,
-      });
-      console.log("✅ Assistant message saved to Redis");
+    
+    try {
+      await axios.post(
+        `${
+          process.env.CHAT_SERVICES_URL || "http://localhost:5002"
+        }/chat/save-messages`,
+        {
+          conversationId,
+          role: "assistant",
+          content: aiResponse,
+          images: formattedImages,
+          pdfGenerated,
+          pdf: pdfUrl || pdfBase64,
+          pptGenerated,
+          ppt: pptUrl || pptBase64,
+          pptFileName,
+          pptData,
+        },
+        { timeout: 10000 }
+      );
+      console.log("Assistant message saved to Chat Service");
+    } catch (error) {
+      console.log("Chat service save skipped:", error.message);
     }
 
-    // =====================================================
-    // FINAL RESPONSE
-    // =====================================================
-
-    return res.status(200).json({
-      response: aiResponse || "No response generated",
-      images: formattedImages,
-      pdfUrl: pdfUrl,
-      pdf: pdfBase64,
-      pdfGenerated: pdfGenerated,
-      pptUrl: pptUrl,
-      ppt: pptBase64,
-      pptGenerated: pptGenerated,
-      pptFileName: pptFileName,
-      pptData: pptData,
-      creditsRemaining: remainingCredits, // ✅ Send remaining credits back
+    await saveConversationMessage(conversationId, {
+      role: "assistant",
+      content: aiResponse,
     });
+    console.log("Assistant message saved to Redis");
 
+   
+    return res.status(200).json({
+      response: aiResponse,
+      images: formattedImages,
+      pdfUrl,
+      pdf: pdfBase64,
+      pdfGenerated,
+      pptUrl,
+      ppt: pptBase64,
+      pptGenerated,
+      pptFileName,
+      pptData,
+      creditsRemaining: remainingCredits,
+    });
   } catch (error) {
     console.error("AGENTS CONTROLLER ERROR:", error);
     return res.status(500).json({
+      response: `Error: ${error.message}`,
       error: error.response?.data?.error || error.message,
     });
   }

@@ -47,9 +47,7 @@ export default function AllResume() {
   };
 
   const handleDelete = async (id, name) => {
-    const ok = window.confirm(
-      `Are you sure you want to delete "${name}"?`
-    );
+    const ok = window.confirm(`Are you sure you want to delete "${name}"?`);
 
     if (!ok) return;
 
@@ -110,51 +108,31 @@ export default function AllResume() {
         }`}
       >
         <div className="mx-auto max-w-7xl px-4 py-8">
-
-          {/* Header */}
-
           <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-
             <div>
-              <h1 className="text-3xl font-bold">
-                My Resumes
-              </h1>
+              <h1 className="text-3xl font-bold">My Resumes</h1>
 
-              <p
-                className={`mt-2 ${
-                  dark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              <p className={`mt-2 ${dark ? "text-gray-400" : "text-gray-600"}`}>
                 {cvs.length} {cvs.length === 1 ? "resume" : "resumes"} created
               </p>
             </div>
 
             <button
               onClick={() => navigate("/cv-generator")}
-            className="flex items-center gap-2 rounded-md border border-white bg-black px-6 py-3 font-semibold text-white transition hover:bg-gray-900"
+              className="flex items-center gap-2 rounded-md border border-white bg-black px-6 py-3 font-semibold text-white transition hover:bg-gray-900"
             >
               <FaPlus />
               Create New Resume
             </button>
-
           </div>
 
-          {/* Search */}
-
           <div className="mb-8">
-
             <div
               className={`flex items-center gap-3 rounded-md border px-4 py-3 ${
-                dark
-                  ? "border-white/10 bg-white/5"
-                  : "border-gray-200 bg-white"
+                dark ? "border-white/10 bg-white/5" : "border-gray-200 bg-white"
               }`}
             >
-              <FaSearch
-                className={
-                  dark ? "text-gray-400" : "text-gray-500"
-                }
-              />
+              <FaSearch className={dark ? "text-gray-400" : "text-gray-500"} />
 
               <input
                 value={searchTerm}
@@ -167,30 +145,19 @@ export default function AllResume() {
                 }`}
               />
             </div>
-
           </div>
-
-          {/* Empty State */}
 
           {filteredCVs.length === 0 ? (
             <div
               className={`rounded-2xl border p-12 text-center ${
-                dark
-                  ? "border-white/10 bg-white/5"
-                  : "border-gray-200 bg-white"
+                dark ? "border-white/10 bg-white/5" : "border-gray-200 bg-white"
               }`}
             >
               <FaFileAlt className="mx-auto mb-4 text-5xl text-gray-400" />
 
-              <h2 className="text-2xl font-semibold">
-                No resumes found
-              </h2>
+              <h2 className="text-2xl font-semibold">No resumes found</h2>
 
-              <p
-                className={`mt-2 ${
-                  dark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              <p className={`mt-2 ${dark ? "text-gray-400" : "text-gray-600"}`}>
                 {searchTerm
                   ? "Try another keyword."
                   : "Create your first professional resume."}
@@ -207,7 +174,7 @@ export default function AllResume() {
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {filteredCVs.map((cv) => {
+              {filteredCVs.map((cv) => {
                 const fullName = cv.personal?.fullName || "Unnamed";
                 const jobTitle = cv.personal?.jobTitle || "No title";
                 const email = cv.personal?.email || "";
@@ -222,10 +189,8 @@ export default function AllResume() {
                         : "border-gray-200 bg-white"
                     }`}
                   >
-                    {/* Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-4">
-
                         {cv.profileImage?.url ? (
                           <img
                             src={cv.profileImage.url}
@@ -249,15 +214,11 @@ export default function AllResume() {
                         )}
 
                         <div>
-                          <h2 className="text-lg font-bold">
-                            {fullName}
-                          </h2>
+                          <h2 className="text-lg font-bold">{fullName}</h2>
 
                           <p
                             className={`text-sm ${
-                              dark
-                                ? "text-gray-400"
-                                : "text-gray-600"
+                              dark ? "text-gray-400" : "text-gray-600"
                             }`}
                           >
                             {jobTitle}
@@ -272,40 +233,27 @@ export default function AllResume() {
                       )}
                     </div>
 
-                    {/* Email */}
-
                     {email && (
                       <p
                         className={`mt-4 text-sm ${
-                          dark
-                            ? "text-gray-400"
-                            : "text-gray-600"
+                          dark ? "text-gray-400" : "text-gray-600"
                         }`}
                       >
                         {email}
                       </p>
                     )}
 
-                    {/* Date */}
-
                     <div
                       className={`mt-3 flex items-center gap-2 text-sm ${
-                        dark
-                          ? "text-gray-500"
-                          : "text-gray-500"
+                        dark ? "text-gray-500" : "text-gray-500"
                       }`}
                     >
                       <FaCalendarAlt />
 
                       <span>
-                        Updated{" "}
-                        {new Date(
-                          cv.updatedAt
-                        ).toLocaleDateString()}
+                        Updated {new Date(cv.updatedAt).toLocaleDateString()}
                       </span>
                     </div>
-
-                    {/* Skills */}
 
                     {skills.length > 0 && (
                       <div className="mt-5 flex flex-wrap gap-2">
@@ -325,9 +273,7 @@ export default function AllResume() {
                         {skills.length > 3 && (
                           <span
                             className={`text-xs ${
-                              dark
-                                ? "text-gray-400"
-                                : "text-gray-500"
+                              dark ? "text-gray-400" : "text-gray-500"
                             }`}
                           >
                             +{skills.length - 3} more
@@ -336,14 +282,9 @@ export default function AllResume() {
                       </div>
                     )}
 
-                    {/* Buttons */}
-
                     <div className="mt-6 flex gap-2 border-t pt-5">
-
                       <button
-                        onClick={() =>
-                          navigate(`/cv/${cv._id}`)
-                        }
+                        onClick={() => navigate(`/cv/${cv._id}`)}
                         className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2 transition ${
                           dark
                             ? "bg-white/10 hover:bg-white/20"
@@ -354,11 +295,9 @@ export default function AllResume() {
                         View
                       </button>
 
-                    
-
-                     <button
-  onClick={() => handleDelete(cv._id, fullName)}
-  className={`
+                      <button
+                        onClick={() => handleDelete(cv._id, fullName)}
+                        className={`
     flex 
     flex-1 
     items-center 
@@ -369,18 +308,18 @@ export default function AllResume() {
     px-4
     transition-all 
     duration-200
-    ${dark 
-      ? "bg-white/10 hover:bg-white/20 text-white" 
-      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+    ${
+      dark
+        ? "bg-white/10 hover:bg-white/20 text-white"
+        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
     }
     hover:scale-105
     active:scale-95
   `}
->
-  <FaTrash className="h-4 w-4" />
-  <span>Delete</span>
-</button>
-
+                      >
+                        <FaTrash className="h-4 w-4" />
+                        <span>Delete</span>
+                      </button>
                     </div>
                   </div>
                 );

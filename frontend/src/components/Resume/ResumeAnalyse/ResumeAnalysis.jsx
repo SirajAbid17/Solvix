@@ -69,7 +69,7 @@ export default function ResumeAnalysis() {
     }
   };
 
-  // Process functions
+
   const processRoadmap = (roadmapData) => {
     if (!roadmapData || !Array.isArray(roadmapData)) return [];
     return roadmapData.map((item, index) => {
@@ -167,7 +167,7 @@ export default function ResumeAnalysis() {
       dark ? "bg-black text-white" : "bg-white text-gray-900"
     }`}>
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
+       
         <div className="mb-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
