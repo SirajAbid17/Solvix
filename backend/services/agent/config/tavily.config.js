@@ -1,13 +1,12 @@
 import { TavilySearch } from "@langchain/tavily";
 
-
 export const jobSearchTavily = new TavilySearch({
   apiKey: process.env.TAVILY_API_KEY,
-  maxResults: 10,             
+  maxResults: 15,
   includeImages: false,
-  includeRawContent: false,
-  searchDepth: "advanced",    
-  includeDomains: [          
+  includeRawContent: "markdown",
+  searchDepth: "advanced",
+  includeDomains: [
     "linkedin.com",
     "indeed.com",
     "glassdoor.com",

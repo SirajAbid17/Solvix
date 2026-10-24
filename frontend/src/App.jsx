@@ -30,6 +30,8 @@ import Contact from "./pages/Contact";
 import Loading from "./components/Loading/Loading";
 import AdminDashboard from "./pages/AdminDashboard";
 import InterviewPractice from "./pages/InterviewPractice";
+import AutoReply from "./pages/AutoReply";
+import RoadMap from "./pages/RoadMap";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -92,6 +94,24 @@ export default function App() {
           element={
             <ProtectedRoute>
               <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+          <Route
+          path="/autoapply"
+          element={
+            <ProtectedRoute>
+              <AutoReply />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/roadmap"
+          element={
+            <ProtectedRoute>
+              <RoadMap />
             </ProtectedRoute>
           }
         />
