@@ -15,7 +15,7 @@ export default function JobApply() {
 
   const [showSearch, setShowSearch] = useState(true);
   const [searchPrompt, setSearchPrompt] = useState(
-    "Find MERN Stack Developer jobs in Lahore, Pakistan"
+    "Find worldwide Full-Stack, MERN, React, Node.js, Python, AI/ML, and GenAI jobs, prioritizing remote opportunities."
   );
   const [jobLimit, setJobLimit] = useState(5);
   const [searching, setSearching] = useState(false);

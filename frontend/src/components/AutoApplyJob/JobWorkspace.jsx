@@ -332,13 +332,13 @@ export default function JobWorkspace({
                   <textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
-                    rows={14}
+                    rows={8}
                     placeholder={
                       generatingEmail
                         ? "AI is drafting your email..."
                         : "Write your application..."
                     }
-                    className="w-full resize-y rounded-2xl border border-white/10 bg-black px-4 py-4 text-sm leading-7 text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-emerald-300/60 focus:ring-4 focus:ring-emerald-300/[0.07]"
+                    className="w-full resize-none rounded-2xl border border-white/10 bg-black px-4 py-3.5 text-sm leading-6 text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-emerald-300/60 focus:ring-4 focus:ring-emerald-300/[0.07]"
                   />
                   <p className="mt-2 text-right text-xs text-slate-500">
                     {body.length} characters

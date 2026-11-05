@@ -12,8 +12,6 @@ import { useNavigate } from "react-router-dom";
 export default function JobSearchScreen({
   searchPrompt,
   setSearchPrompt,
-  jobLimit,
-  setJobLimit,
   searching,
   onSearch,
   cooldownInfo,
@@ -101,28 +99,6 @@ export default function JobSearchScreen({
             className="w-full resize-none rounded-2xl border border-white/10 bg-black p-4 text-sm leading-6 text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300/60 focus:ring-4 focus:ring-emerald-300/[0.08]"
           />
 
-          <div className="mt-3">
-            <p className="mb-2 text-xs font-medium text-slate-300">
-              How many jobs?
-            </p>
-            <div className="grid grid-cols-2 gap-2.5">
-              {[5, 10].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setJobLimit(n)}
-                  className={`rounded-lg border py-2 text-xs font-semibold transition ${
-                    jobLimit === n
-                      ? "border-emerald-400 bg-emerald-400/10 text-emerald-300"
-                      : "border-white/10 bg-black text-slate-400 hover:border-white/20"
-                  }`}
-                >
-                  {n} Jobs
-                </button>
-              ))}
-            </div>
-          </div>
-
           <button
             type="submit"
             disabled={searching || !searchPrompt.trim()}
@@ -136,7 +112,7 @@ export default function JobSearchScreen({
             ) : (
               <>
                 <FiSearch size={16} />
-                Find {jobLimit} Fresh Jobs
+                Find Jobs
               </>
             )}
           </button>

@@ -1,37 +1,44 @@
 import { signInWithPopup } from "firebase/auth";
-import React from "react";
+import React, { useState } from "react";
 import api from "../utlis/axios";
 import { auth, googleProvider } from "../utlis/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { setuserData } from "../redux/userSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../BgContext/ThemeContext";
 import { clearConversations } from "../redux/conversationSlice";
+
 export default function Register() {
-
-  const LogoutUser = async () => {
-  try {
-    await api.post("/auth/logout");
-
-    dispatch(setuserData(null));
-    dispatch(clearConversations());
-
-    navigate("/");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
   const { userdata } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { dark } = useTheme();
+
+  const [loading, setLoading] = useState(false);
+
+ 
+  const from = location.state?.from || "/agent";
+
+  const LogoutUser = async () => {
+    try {
+      await api.post("/auth/logout");
+
+      dispatch(setuserData(null));
+      dispatch(clearConversations());
+
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleData = async (token) => {
     try {
       const { data } = await api.post("/auth/login", { token });
       dispatch(setuserData(data));
+      navigate(from, { replace: true }); 
     } catch (error) {
       console.log(error);
     }
@@ -43,12 +50,15 @@ export default function Register() {
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
 
       await handleData(token);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -134,47 +144,44 @@ export default function Register() {
 
             {}
             <div className="text-right">
-             <button
-             onClick={LogoutUser}
-  className={`
-    w-full
-    px-4 py-2.5
-    rounded-lg
-    text-sm
-    font-semibold
-    border
-    transition-all duration-200
-    active:scale-95
+              <button
+                onClick={LogoutUser}
+                className={`
+                  w-full
+                  px-4 py-2.5
+                  rounded-lg
+                  text-sm
+                  font-semibold
+                  border
+                  transition-all duration-200
+                  active:scale-95
 
-    ${
-      dark
-        ? `
-          text-white
-          bg-white/5
-          border-white/10
-          hover:bg-white
-          hover:text-black
-          hover:border-white
-        `
-        : `
-          text-gray-900
-          bg-gray-100
-          border-gray-200
-          hover:bg-black
-          hover:text-white
-          hover:border-black
-        `
-    }
-  `}
->
-  Logout
-</button>
-
-              
+                  ${
+                    dark
+                      ? `
+                        text-white
+                        bg-white/5
+                        border-white/10
+                        hover:bg-white
+                        hover:text-black
+                        hover:border-white
+                      `
+                      : `
+                        text-gray-900
+                        bg-gray-100
+                        border-gray-200
+                        hover:bg-black
+                        hover:text-white
+                        hover:border-black
+                      `
+                  }
+                `}
+              >
+                Logout
+              </button>
             </div>
           </div>
 
-         
           <button
             onClick={UDashboard}
             className={`
@@ -211,9 +218,9 @@ export default function Register() {
           </button>
         </div>
       ) : (
-        
         <button
           onClick={handleLogin}
+          disabled={loading}
           className={`
             w-full
             mb-0.5
@@ -223,6 +230,8 @@ export default function Register() {
             shadow-sm
             active:scale-95
             transition-all duration-200
+            disabled:cursor-not-allowed
+            disabled:opacity-60
 
             ${
               dark
@@ -241,15 +250,32 @@ export default function Register() {
             }
           `}
         >
-          <img
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-
-          <span className="font-medium">
-            Continue with Google
-          </span>
+          {loading ? (
+            <>
+              <span
+                className={`
+                  h-5
+                  w-5
+                  animate-spin
+                  rounded-full
+                  border-2
+                  ${dark ? "border-white/20 border-t-white" : "border-black/20 border-t-black"}
+                `}
+              />
+              <span className="font-medium">Signing in...</span>
+            </>
+          ) : (
+            <>
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              <span className="font-medium">
+                Continue with Google
+              </span>
+            </>
+          )}
         </button>
       )}
     </div>

@@ -32,6 +32,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import InterviewPractice from "./pages/InterviewPractice";
 import AutoReply from "./pages/AutoReply";
 import RoadMap from "./pages/RoadMap";
+import SelfAgent from "./pages/SelfAgent";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ export default function App() {
           dispatch(setuserData(null));
         }
       } catch (error) {
-        console.error(" Error in getuser:", error);
+        console.error("Error in getuser:", error);
         dispatch(setuserData(null));
       }
     };
@@ -90,6 +91,15 @@ export default function App() {
         />
 
         <Route
+          path="/agent"
+          element={
+            <ProtectedRoute>
+              <SelfAgent />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/user-dashboard"
           element={
             <ProtectedRoute>
@@ -98,7 +108,7 @@ export default function App() {
           }
         />
 
-          <Route
+        <Route
           path="/autoapply"
           element={
             <ProtectedRoute>

@@ -4,15 +4,13 @@ import fileRoutes from "./file.routes.js";
 import jobRoutes from "./job.routes.js";
 import { uploadRateLimit } from "../../../shared/rateLimit.js";
 import roadmapRoutes from "./roadmap.routes.js";
+import customAgentRoutes from "./customAgent.routes.js";
 
 const router = express.Router();
 router.use("/roadmap", roadmapRoutes);
 router.post("/chat", uploadRateLimit, Agents);
-
-
 router.use("/file", fileRoutes);
-
-
 router.use("/jobs", jobRoutes);
+router.use("/custom-agents", customAgentRoutes);     
 
 export default router;

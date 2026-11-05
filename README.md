@@ -1,4 +1,4 @@
-# 🚀 Solvix — Multi-Agent AI Platform
+# Solvix — Multi-Agent AI Platform
 
 Solvix is a production-grade Multi-Agent AI Platform designed to bring multiple AI-powered capabilities into a unified intelligent ecosystem. Built with a scalable MERN + Microservices architecture, Solvix leverages LangChain, LangGraph, RAG, Docker, Redis, Nginx, and AWS to orchestrate intelligent agent workflows and deliver powerful AI automation. As a full-stack AI platform, it brings conversational AI, specialized AI agents, document tools, retrieval-augmented generation (RAG), and career-development utilities into one application, using a React frontend, a Node.js/Express microservices backend, MongoDB, Redis, and integrations with AI and cloud services.
 
@@ -17,28 +17,27 @@ relevant backend service.
 
 ## Highlights
 
-- **Multi-agent AI:** Separate agents handle chat, coding, web search,
-  file analysis, image generation, job search, PDF creation,
-  presentation generation, and RAG-related tasks.
-- **Career toolkit:** Resume analysis, ATS-oriented feedback, CV
-  generation, portfolio-related workflows, job recommendations, and
-  mock-interview practice.
-- **Microservices architecture:** Authentication, chat, agent
-  workflows, resume tools, portfolio tools, mock interviews, and
-  billing are separated into backend services.
-- **Central API Gateway:** Routes requests to services and contains
-  middleware for authentication, credit checks, admin access, and
-  proxy handling.
-- **Persistent application data:** MongoDB/Mongoose are used by
-  several services; Redis is included for caching, session/memory, and
-  related shared functionality where configured.
-- **AI provider integrations:** LangChain/LangGraph integrations,
-  Groq, Google Gemini, Tavily, Pinecone, and Cloudinary appear in the
-  project dependencies/configuration.
-- **Modern frontend:** React 19, Vite, Tailwind CSS, Redux Toolkit,
-  and React Router.
-- **Payments:** A Stripe-based billing service and payment-related
-  models/routes are present in the repository.
+- **Multi-Agent AI System:** Specialized AI agents for chat, coding, web search, file analysis, image generation, job search, PDF and presentation creation, and RAG-based tasks.
+
+- **Custom AI Agent Builder:** Users can create, customize, and train their own AI agents by defining agent names, personalities, system prompts, instructions, and selecting their preferred AI models.
+
+- **AI-Powered Learning Roadmaps:** Generate complete, personalized learning roadmaps for any topic, including structured phases, step-by-step tasks, learning resources, YouTube video recommendations, notes, and progress tracking.
+
+- **AI Career Toolkit:** Resume analysis, ATS scoring, CV generation, portfolio creation, job recommendations, and AI-powered mock interview practice.
+
+- **Automated Job Search & Application:** Discover worldwide job opportunities using Tavily-powered search, filter jobs by skills and preferences, and automate job application workflows.
+
+- **Microservices Architecture:** Independent backend services for authentication, chat, AI agents, resume management, portfolio generation, mock interviews, and billing.
+
+- **Central API Gateway:** Centralized request routing with authentication, credit management, admin authorization, and proxy middleware.
+
+- **Persistent Data & Caching:** MongoDB, Mongoose, and Redis for application data, caching, session management, and memory functionality.
+
+- **AI Provider Integrations:** LangChain, LangGraph, Groq, Google Gemini, Tavily, Pinecone, and Cloudinary integrations.
+
+- **Modern Frontend:** React 19, Vite, Tailwind CSS, Redux Toolkit, and React Router.
+
+- **Payment & Subscription System:** Stripe integration with subscription plans, credit-based usage, payment processing, and billing management.
 
 ## Features
 
@@ -154,6 +153,173 @@ routes, and middleware.
 
 Admin endpoints and UI should be accessible only to authorized
 administrators. Verify role checks and permissions before deployment.
+
+### 9. AI Auto Job Apply (Tavily-Powered Job Search)
+
+Solvix includes an AI-powered job application system that uses **Tavily Search** to discover relevant job opportunities from across the web.
+
+Key features:
+
+- **Live Job Search:** Search for relevant job opportunities using Tavily.
+- **AI Job Matching:** Find opportunities based on job titles, skills, technologies, and experience.
+- **Job Details:** Display job titles, descriptions, company information, and source links when available.
+- **AI Email Generation:** Use Gemini AI to generate professional job application emails.
+- **Editable Applications:** Customize the recipient, subject, and email content before sending.
+- **CV Upload:** Upload your PDF resume to include with job applications.
+- **Gmail Integration:** Send applications directly through the connected Gmail account.
+- **Application Tracking:** Track application activity and submitted applications.
+
+**Application Workflow:**
+
+1. Enter a job title, skills, or search keywords.
+2. Tavily searches the web for relevant job opportunities.
+3. Solvix processes and displays the search results.
+4. Select a suitable job opportunity.
+5. Gemini generates a personalized application email.
+6. Review and edit the email details.
+7. Upload your CV and send the application through Gmail.
+8. Track your application activity.
+
+**Technologies:**
+- Tavily Search API – Web-based job discovery.
+- Google Gemini – AI-generated application emails.
+- Gmail API – Sending job applications.
+- Node.js & Express – Backend processing.
+- React – Interactive frontend.
+
+> Job availability, application links, and employer requirements depend on the search results. Always review application details before sending.
+
+### 10. AI Career Roadmap Generator
+
+Solvix provides an AI-powered career roadmap generator that creates personalized, structured learning paths based on a user's chosen skill and experience level.
+
+**Key Features:**
+
+- **Personalized Roadmaps:** Generate learning paths for any skill or technology.
+- **Multiple Skill Levels:** Beginner, Intermediate, and Advanced.
+- **AI-Generated Phases:** Break learning into structured weekly phases.
+- **Real Web Resources:** Fetch relevant tutorials, YouTube videos, and documentation.
+- **Task Management:** Each phase includes practical learning tasks.
+- **Progress Tracking:** Track completed tasks and overall learning progress.
+- **Cloud Storage:** Save generated roadmaps and continue learning later.
+- **Search & Filtering:** Search tasks and resources within a roadmap.
+- **Interactive Learning:** Expand phases, view resources, and manage tasks.
+- **Roadmap Reset:** Reset progress and start learning again.
+
+**Example Learning Paths:**
+
+- Advanced Multi-Agent AI
+- Full-Stack MERN
+- System Design
+- LangGraph & RAG
+- DevOps & Cloud
+- Data Science & Machine Learning
+- Blockchain Development
+- React Native Development
+
+**Roadmap Structure:**
+
+Each generated roadmap contains:
+- 8 structured learning phases.
+- Weekly learning objectives.
+- Practical tasks and exercises.
+- Curated web resources.
+- Estimated completion time.
+- Progress tracking.
+
+**Example: HTML Fundamentals Roadmap**
+
+| Metric | Example |
+|---|---:|
+| Learning Phases | 8 |
+| Resources | 24 |
+| Tasks | 24 |
+| Completed Tasks | 2 |
+| Progress | 8% |
+| Estimated Time | 84 Hours |
+
+**Learning Workflow:**
+
+1. Enter a skill or technology.
+2. Select your experience level.
+3. Generate a personalized AI roadmap.
+4. Explore weekly phases and learning objectives.
+5. Access real learning resources.
+6. Complete tasks and track progress.
+7. Save your roadmap and continue anytime.
+
+**Technologies:**
+- Generative AI – Roadmap generation.
+- Tavily Search – Real web resource discovery.
+- LangChain / LangGraph – AI workflow orchestration.
+- React – Interactive roadmap interface.
+- Node.js & Express – Backend services.
+- MongoDB – Roadmap and progress storage.
+
+> Resource availability, roadmap structure, and estimated completion times depend on the generated learning path.
+
+### 11. Custom AI Agent Builder
+
+Solvix allows users to create and manage their own personalized AI agents with custom personalities, instructions, and AI model configurations.
+
+Users can build specialized AI assistants for coding, education, resume reviewing, interview preparation, research, writing, and productivity.
+
+**Key Features:**
+
+- **Custom Agent Creation:** Create AI agents with personalized names and descriptions.
+- **Custom System Prompts:** Define each agent's personality, behavior, instructions, and responsibilities.
+- **Model Selection:** Choose from available AI models.
+- **Temperature Control:** Adjust the model's creativity and response behavior.
+- **Prompt Templates:** Start with predefined prompts or write custom instructions.
+- **Instant AI Chat:** Start conversations with created agents.
+- **Agent Management:** Search, edit, and delete custom agents.
+- **Category Organization:** Organize agents into different categories.
+- **Responsive Interface:** Manage and interact with agents across devices.
+
+**Available Agent Categories:**
+
+- General
+- Coding
+- Writing
+- Resume / CV
+- Interview Preparation
+- Research
+- Productivity
+- Custom
+
+**Example Custom Agents:**
+
+1. **EduMaster AI:** A personal education assistant for learning, studying, assignments, exam preparation, programming, and academic guidance.
+2. **SirajVerse:** A personalized coding agent designed to review and improve project details, technologies, features, and technical descriptions.
+
+**Agent Creation Workflow:**
+
+1. Open the Custom AI Agent Builder.
+2. Enter your agent's name and description.
+3. Select a category.
+4. Write a custom system prompt or choose a prompt template.
+5. Select an available AI model.
+6. Configure the temperature.
+7. Create your AI agent.
+8. Start chatting, edit its configuration, or delete it whenever needed.
+
+**Technologies:**
+
+- React – Agent builder interface.
+- Node.js & Express – Backend APIs.
+- MongoDB – Agent configuration and storage.
+- Groq – AI model integration.
+- Google Gemini – Generative AI integration.
+
+**Why Custom AI Agents?**
+
+- Build specialized AI assistants for different tasks.
+- Customize AI behavior through system prompts.
+- Use different models for different purposes.
+- Manage multiple specialized agents in one workspace.
+- Get started without requiring a credit card.
+
+> Users can create, customize, and manage multiple AI agents. Available models and capabilities depend on the configured AI integrations.
 
 ## Architecture
 

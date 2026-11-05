@@ -27,8 +27,9 @@ export const PublicRoute = ({ children }) => {
     return null;
   }
 
+ 
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/agent" replace />;
   }
 
   return children;

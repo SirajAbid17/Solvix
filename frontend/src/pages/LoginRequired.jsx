@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-
 import { FcGoogle } from "react-icons/fc";
 import { FiArrowRight } from "react-icons/fi";
 
@@ -28,7 +27,6 @@ export default function LoginRequired() {
 
   const [loading, setLoading] = useState(false);
 
- 
   const currentYear = new Date().getFullYear();
 
   useGSAP(
@@ -161,7 +159,8 @@ export default function LoginRequired() {
 
       dispatch(setuserData(data));
 
-      navigate("/");
+     
+      navigate("/agent", { replace: true });
     } catch (error) {
       console.error("Login API Error:", error);
 
@@ -211,8 +210,6 @@ export default function LoginRequired() {
         selection:text-black
       "
     >
-      
-
       <div
         className="
           pointer-events-none
@@ -227,8 +224,6 @@ export default function LoginRequired() {
         }}
       />
 
-     
-
       <div
         className="
           pointer-events-none
@@ -237,8 +232,6 @@ export default function LoginRequired() {
           bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05),transparent_55%)]
         "
       />
-
-      
 
       <div
         className="
@@ -285,8 +278,6 @@ export default function LoginRequired() {
         "
       />
 
-    
-
       <div
         className="
           pointer-events-none
@@ -303,8 +294,6 @@ export default function LoginRequired() {
         <div className="stairs h-full w-1/5 bg-white" />
       </div>
 
-      
-
       <header
         className="
           absolute
@@ -319,8 +308,6 @@ export default function LoginRequired() {
         "
       >
         <div className="flex items-center justify-between">
-        
-
           <div className="small-item flex items-center gap-3">
             <div>
               <p
@@ -344,8 +331,6 @@ export default function LoginRequired() {
               </p>
             </div>
           </div>
-
-         
 
           <button
             type="button"
@@ -380,8 +365,6 @@ export default function LoginRequired() {
               md:px-5
             "
           >
-           
-
             <span
               className="
                 flex
@@ -414,7 +397,6 @@ export default function LoginRequired() {
         </div>
       </header>
 
-    
       <main
         className="
           relative
@@ -437,8 +419,6 @@ export default function LoginRequired() {
             max-w-6xl
           "
         >
-       
-
           <div
             className="
               login-card
@@ -456,8 +436,6 @@ export default function LoginRequired() {
               md:p-10
             "
           >
-          
-
             <div
               className="
                 pointer-events-none
@@ -473,8 +451,6 @@ export default function LoginRequired() {
               "
             />
 
-          
-
             <div
               className="
                 pointer-events-none
@@ -486,8 +462,6 @@ export default function LoginRequired() {
                 ring-white/[0.035]
               "
             />
-
-          
 
             <div
               className="
@@ -504,8 +478,6 @@ export default function LoginRequired() {
               <LoginCard handleLogin={handleLogin} loading={loading} />
             </div>
           </div>
-
-         
 
           <div
             className="

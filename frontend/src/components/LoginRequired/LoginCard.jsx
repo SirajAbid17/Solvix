@@ -14,7 +14,7 @@ import {
 export default function LoginCard({ handleLogin, loading }) {
   return (
     <section className="small-item relative">
-      {}
+      
 
       <div
         className="
@@ -27,7 +27,6 @@ export default function LoginCard({ handleLogin, loading }) {
         "
       />
 
-      {}
 
       <div
         className="
@@ -43,7 +42,7 @@ export default function LoginCard({ handleLogin, loading }) {
           sm:p-8
         "
       >
-        {}
+        
 
         <div
           className="
@@ -60,7 +59,7 @@ export default function LoginCard({ handleLogin, loading }) {
           "
         />
 
-        {}
+        
 
         <div
           className="
@@ -82,7 +81,7 @@ export default function LoginCard({ handleLogin, loading }) {
           <FiUserCheck className="text-2xl text-gray-200" />
         </div>
 
-        {}
+        
 
         <h2
           className="
@@ -107,7 +106,7 @@ export default function LoginCard({ handleLogin, loading }) {
           Sign in to continue to your personalized AI workspace.
         </p>
 
-        {}
+      
 
         <button
           type="button"
@@ -185,7 +184,7 @@ export default function LoginCard({ handleLogin, loading }) {
           )}
         </button>
 
-        {}
+        
 
         <div className="my-7 flex items-center gap-3">
           <div className="h-px flex-1 bg-white/10" />
@@ -205,7 +204,7 @@ export default function LoginCard({ handleLogin, loading }) {
           <div className="h-px flex-1 bg-white/10" />
         </div>
 
-        {}
+        
 
         <div
           className="
@@ -223,7 +222,7 @@ export default function LoginCard({ handleLogin, loading }) {
           <span>Secure authentication powered by Google</span>
         </div>
 
-        {}
+        
 
         <div
           className="
@@ -236,7 +235,7 @@ export default function LoginCard({ handleLogin, loading }) {
             pt-6
           "
         >
-          {}
+          
 
           <div className="flex flex-col items-center gap-2">
             <FiFileText className="text-gray-600" />
@@ -244,7 +243,7 @@ export default function LoginCard({ handleLogin, loading }) {
             <span className="text-[10px] text-gray-700">Resume</span>
           </div>
 
-          {}
+          
 
           <div className="flex flex-col items-center gap-2">
             <FiBriefcase className="text-gray-600" />
@@ -252,7 +251,7 @@ export default function LoginCard({ handleLogin, loading }) {
             <span className="text-[10px] text-gray-700">Portfolio</span>
           </div>
 
-          {}
+      
 
           <div className="flex flex-col items-center gap-2">
             <FiCpu className="text-gray-600" />
@@ -262,8 +261,7 @@ export default function LoginCard({ handleLogin, loading }) {
         </div>
       </div>
 
-      {}
-
+      
       <div
         className="
           pointer-events-none
