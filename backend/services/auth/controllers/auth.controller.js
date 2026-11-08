@@ -29,9 +29,7 @@ export const Login = async (req, res) => {
 
     const decoded = await getAuth(app).verifyIdToken(token);
 
-    let user = await User.findOne({
-      firebaseId: decoded.uid,
-    });
+    let user = await User.findOne({ firebaseId: decoded.uid });
 
     if (!user) {
       const isAdmin = checkIsAdmin(decoded.email);
@@ -85,21 +83,24 @@ export const Login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    const flatUser = {
+      _id: user._id,
+      firebaseId: user.firebaseId,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      plan: user.plan,
+      credits: user.credits,
+      totalcredits: user.totalcredits,
+      isAdmin: user.isAdmin || false,
+      status: user.status || "active",
+    };
+
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      user: {
-        _id: user._id,
-        firebaseId: user.firebaseId,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        plan: user.plan,
-        credits: user.credits,
-        totalcredits: user.totalcredits,
-        isAdmin: user.isAdmin || false,
-        status: user.status || "active",
-      },
+      user: flatUser,
+      ...flatUser,
     });
   } catch (error) {
     console.error("Login Error:", error);

@@ -1,30 +1,22 @@
 import mongoose from "mongoose";
 
+const AVAILABLE_TOOLS = [
+  "chat",
+  "search",
+  "coding",
+  "pdf",
+  "ppt",
+  "image",
+  "file",
+  "rag",
+];
+
 const CustomAgentSchema = new mongoose.Schema(
   {
-    userId: {
-      type: String,
-      required: true,
-      index: true,
-    },
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 60,
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 300,
-    },
-    systemPrompt: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 8000,
-    },
+    userId: { type: String, required: true, index: true },
+    name: { type: String, required: true, trim: true, maxlength: 60 },
+    description: { type: String, required: true, trim: true, maxlength: 300 },
+    systemPrompt: { type: String, required: true, trim: true, maxlength: 8000 },
     category: {
       type: String,
       enum: [
@@ -52,28 +44,20 @@ const CustomAgentSchema = new mongoose.Schema(
       ],
       default: "openai/gpt-oss-20b",
     },
-    temperature: {
-      type: Number,
-      min: 0,
-      max: 1,
-      default: 0.7,
+    temperature: { type: Number, min: 0, max: 1, default: 0.7 },
+
+   
+    tools: {
+      type: [String],
+      enum: AVAILABLE_TOOLS,
+      default: ["chat"],
     },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    totalChats: {
-      type: Number,
-      default: 0,
-    },
-    lastUsedAt: {
-      type: Date,
-      default: null,
-    },
+
+    isActive: { type: Boolean, default: true },
+    totalChats: { type: Number, default: 0 },
+    lastUsedAt: { type: Date, default: null },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 CustomAgentSchema.index({ userId: 1, createdAt: -1 });

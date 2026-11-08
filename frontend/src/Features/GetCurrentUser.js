@@ -4,12 +4,8 @@ const GetcurrentUser = async () => {
   try {
     const response = await api.get("/me");
 
-    console.log("/me STATUS:", response.status);
-    console.log("/me RESPONSE:", response.data);
-
     const data = response.data;
 
-    
     if (!data?.success) {
       console.log("/me returned success:false");
       return null;
@@ -23,12 +19,10 @@ const GetcurrentUser = async () => {
       plan: data.plan || "free",
       credits: Number(data.credits ?? 0),
       totalcredits: Number(data.totalcredits ?? 0),
-      isAdmin: data.isAdmin || false, 
+      isAdmin: data.isAdmin === true,
     };
 
     console.log("User data with isAdmin:", userData);
-    console.log("isAdmin value:", userData.isAdmin);
-
     return userData;
   } catch (error) {
     console.error(

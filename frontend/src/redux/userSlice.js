@@ -11,14 +11,15 @@ const UserSlice = createSlice({
   initialState,
   reducers: {
     setuserData: (state, action) => {
-      const data = action.payload;
+      const payload = action.payload;
+
+      const data = payload?.user ?? payload;
 
       console.log("setuserData called with:", data);
 
       if (data) {
-        
         const isAdminValue = data.isAdmin === true;
-        
+
         state.userdata = {
           _id: data._id || data.userId || "",
           name: data.name || "",
@@ -29,10 +30,9 @@ const UserSlice = createSlice({
           totalcredits: Number(data.totalcredits ?? 0),
           isAdmin: isAdminValue,
         };
-        
-        
+
         state.isAdmin = isAdminValue;
-        
+
         console.log(" isAdmin set to:", state.isAdmin);
         console.log("userdata.isAdmin:", state.userdata.isAdmin);
       } else {
@@ -46,8 +46,7 @@ const UserSlice = createSlice({
     setUserLoading: (state, action) => {
       state.loading = action.payload;
     },
-    
-    
+
     setAdminStatus: (state, action) => {
       state.isAdmin = action.payload;
       if (state.userdata) {
@@ -57,10 +56,7 @@ const UserSlice = createSlice({
   },
 });
 
-export const {
-  setuserData,
-  setUserLoading,
-  setAdminStatus, 
-} = UserSlice.actions;
+export const { setuserData, setUserLoading, setAdminStatus } =
+  UserSlice.actions;
 
 export default UserSlice.reducer;

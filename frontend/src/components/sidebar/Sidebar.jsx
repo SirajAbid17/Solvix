@@ -27,6 +27,7 @@ export default function Sidebar() {
 
   const [open, setOpen] = useState(true);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
 
   const { dark } = useTheme();
 
@@ -74,6 +75,10 @@ export default function Sidebar() {
 
   const avatar =
     userdata?.avatar && userdata.avatar.trim() !== "" ? userdata.avatar : null;
+
+  useEffect(() => {
+    setAvatarFailed(false);
+  }, [avatar]);
 
   return (
     <aside
@@ -297,17 +302,18 @@ export default function Sidebar() {
                   }
                 `}
               >
-                {avatar ? (
+                {avatar && !avatarFailed ? (
                   <img
                     src={avatar}
                     alt={userdata.name || "User"}
+                    onError={() => setAvatarFailed(true)}
                     className={`h-8 w-8 shrink-0 rounded-full border object-cover sm:h-9 sm:w-9 ${dark ? "border-white/10" : "border-gray-200"}`}
                   />
                 ) : (
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold sm:h-9 sm:w-9 sm:text-xs ${dark ? "border-white/10 bg-white/10 text-white" : "border-gray-200 bg-gray-100 text-gray-700"}`}
                   >
-                    {userdata.name?.charAt(0)?.toUpperCase() || "U"}
+                    <FiUser className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                 )}
 
@@ -342,17 +348,18 @@ export default function Sidebar() {
                 onClick={() => setShowUserModal(true)}
                 className="relative z-[30] flex w-full items-center justify-center"
               >
-                {avatar ? (
+                {avatar && !avatarFailed ? (
                   <img
                     src={avatar}
                     alt={userdata.name || "User"}
+                    onError={() => setAvatarFailed(true)}
                     className={`h-9 w-9 rounded-full border-2 object-cover transition-all duration-200 hover:scale-105 ${dark ? "border-white/20 hover:border-white/40" : "border-gray-300 hover:border-gray-500"}`}
                   />
                 ) : (
                   <div
                     className={`flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold ${dark ? "border-white/20 bg-white/10 text-white" : "border-gray-300 bg-gray-100 text-gray-700"}`}
                   >
-                    {userdata.name?.charAt(0)?.toUpperCase() || "U"}
+                    <FiUser className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                 )}
               </button>
@@ -409,17 +416,18 @@ export default function Sidebar() {
             </button>
 
             <div className="flex flex-col items-center text-center">
-              {avatar ? (
+              {avatar && !avatarFailed ? (
                 <img
                   src={avatar}
                   alt={userdata.name || "User"}
+                  onError={() => setAvatarFailed(true)}
                   className={`mb-3 h-16 w-16 rounded-full border-4 object-cover sm:mb-4 sm:h-20 sm:w-20 ${dark ? "border-white/10" : "border-gray-200"}`}
                 />
               ) : (
                 <div
                   className={`mb-3 flex h-16 w-16 items-center justify-center rounded-full border-4 text-xl font-bold sm:mb-4 sm:h-20 sm:w-20 sm:text-2xl ${dark ? "border-white/10 bg-white/10 text-white" : "border-gray-200 bg-gray-100 text-gray-700"}`}
                 >
-                  {userdata.name?.charAt(0)?.toUpperCase() || "U"}
+                  <FiUser className="h-8 w-8 sm:h-10 sm:w-10" />
                 </div>
               )}
 

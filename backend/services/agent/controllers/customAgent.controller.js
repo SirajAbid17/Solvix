@@ -6,8 +6,18 @@ import {
 } from "../utlis/customAgentMemory.js";
 
 const MAX_AGENTS_PER_USER = 50;
-const DEFAULT_USER_ID = "test-user"; 
+const DEFAULT_USER_ID = "test-user";
 
+const VALID_TOOLS = [
+  "chat",
+  "search",
+  "coding",
+  "pdf",
+  "ppt",
+  "image",
+  "file",
+  "rag",
+];
 
 const getUserId = (req) =>
   req.headers["x-user-id"] ||
@@ -18,6 +28,12 @@ const getUserId = (req) =>
 const sanitize = (str, max = 2000) => {
   if (typeof str !== "string") return "";
   return str.trim().slice(0, max);
+};
+
+const sanitizeTools = (tools) => {
+  if (!Array.isArray(tools)) return ["chat"];
+  const cleaned = tools.filter((t) => VALID_TOOLS.includes(t));
+  return cleaned.length > 0 ? [...new Set(cleaned)] : ["chat"];
 };
 
 const validateAgentInput = (body, { partial = false } = {}) => {
@@ -47,7 +63,6 @@ const validateAgentInput = (body, { partial = false } = {}) => {
   return errors;
 };
 
-
 export const createCustomAgent = async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -76,6 +91,7 @@ export const createCustomAgent = async (req, res) => {
         typeof req.body.temperature === "number"
           ? Math.min(1, Math.max(0, req.body.temperature))
           : 0.7,
+      tools: sanitizeTools(req.body.tools),
     });
 
     return res.status(201).json({
@@ -91,7 +107,6 @@ export const createCustomAgent = async (req, res) => {
     });
   }
 };
-
 
 export const listCustomAgents = async (req, res) => {
   try {
@@ -130,6 +145,7 @@ export const listCustomAgents = async (req, res) => {
         category: a.category,
         model: a.model,
         temperature: a.temperature,
+        tools: a.tools || ["chat"],
         totalChats: a.totalChats || 0,
         lastUsedAt: a.lastUsedAt,
         createdAt: a.createdAt,
@@ -147,7 +163,6 @@ export const listCustomAgents = async (req, res) => {
     });
   }
 };
-
 
 export const getCustomAgent = async (req, res) => {
   try {
@@ -170,7 +185,6 @@ export const getCustomAgent = async (req, res) => {
     });
   }
 };
-
 
 export const updateCustomAgent = async (req, res) => {
   try {
@@ -199,6 +213,9 @@ export const updateCustomAgent = async (req, res) => {
     if (typeof req.body.temperature === "number") {
       agent.temperature = Math.min(1, Math.max(0, req.body.temperature));
     }
+    if (req.body.tools !== undefined) {
+      agent.tools = sanitizeTools(req.body.tools);
+    }
     if (typeof req.body.isActive === "boolean") {
       agent.isActive = req.body.isActive;
     }
@@ -218,7 +235,6 @@ export const updateCustomAgent = async (req, res) => {
     });
   }
 };
-
 
 export const deleteCustomAgent = async (req, res) => {
   try {
@@ -245,13 +261,24 @@ export const deleteCustomAgent = async (req, res) => {
   }
 };
 
-
 export const chatWithCustomAgent = async (req, res) => {
   try {
     const userId = getUserId(req);
     const { id } = req.params;
-    const { prompt, conversationId } = req.body;
+    const {
+      prompt,
+      conversationId,
+      forceTool,
+      fileId,
+      fileContext,
+      fileName,
+      fileType,
+      imageBase64,
+      imageMimeType,
+    } = req.body;
     const remainingCredits = req.headers["x-remaining-credits"];
+
+   
 
     if (!prompt || !String(prompt).trim()) {
       return res
@@ -272,35 +299,75 @@ export const chatWithCustomAgent = async (req, res) => {
         .json({ success: false, message: "This agent is disabled" });
     }
 
-    
     const conversationKey = conversationId || `conv_${Date.now()}`;
-    const history = await getAgentChatHistory(
-      userId,
-      agent._id.toString(),
-      conversationKey
-    );
 
-    
+   
+    const hasFile = !!(fileId || fileContext);
+    const history = hasFile
+      ? []
+      : await getAgentChatHistory(
+          userId,
+          agent._id.toString(),
+          conversationKey
+        );
+
+  
+
     await saveAgentChatMessage(userId, agent._id.toString(), conversationKey, {
       role: "user",
       content: String(prompt).trim(),
     });
 
-  
+   
     const result = await CustomAgentNode({
       prompt: String(prompt).trim(),
       messages: history,
       customAgent: agent,
       userId,
+      forceTool: forceTool || null,
+      fileId: fileId || null,
+      fileContext: fileContext || "",
+      fileName: fileName || null,
+      fileType: fileType || null,
+      imageBase64: imageBase64 || null,
+      imageMimeType: imageMimeType || null,
     });
 
-   
+    const images = Array.isArray(result?.images) ? result.images : [];
+    const pdfGenerated = result?.pdfGenerated === true;
+    const pdfUrl = result?.pdfUrl || null;
+    const pdfBase64 =
+      result?.pdfBase64 ||
+      (result?.pdfBuffer
+        ? Buffer.from(result.pdfBuffer).toString("base64")
+        : null);
+
+    const pptGenerated = result?.pptGenerated === true;
+    const pptUrl = result?.pptUrl || null;
+    const pptFileName = result?.pptFileName || "solvix-presentation.pptx";
+    const pptData = result?.pptData || result?.ppt || null;
+    const pptBase64 =
+      result?.pptBase64 ||
+      (result?.pptBuffer
+        ? Buffer.from(result.pptBuffer).toString("base64")
+        : null);
+
+    let aiResponse = result?.aiResponse;
+    if (Array.isArray(aiResponse)) {
+      aiResponse = aiResponse
+        .map((i) => (typeof i === "string" ? i : i?.text || ""))
+        .join("");
+    }
+    aiResponse = String(aiResponse || "").trim();
+    if (!aiResponse) {
+      aiResponse = "Sorry, I couldn't generate a response. Please try again.";
+    }
+
     await saveAgentChatMessage(userId, agent._id.toString(), conversationKey, {
       role: "assistant",
-      content: result.aiResponse,
+      content: aiResponse,
     });
 
-    
     CustomAgent.updateOne(
       { _id: agent._id },
       {
@@ -311,13 +378,28 @@ export const chatWithCustomAgent = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      response: result.aiResponse,
+      response: aiResponse,
       model: agent.model,
       temperature: agent.temperature,
+      tools: agent.tools || ["chat"],
+      toolExecuted: result?.toolExecuted || null,
+      ragUsed: result?.ragUsed || false,
+      ragSources: result?.ragSources || [],
       creditsRemaining: remainingCredits || null,
       agentId: agent._id.toString(),
       agentName: agent.name,
       conversationId: conversationKey,
+      images,
+      pdfGenerated,
+      pdfUrl,
+      pdf: pdfBase64,
+      pdfBase64,
+      pptGenerated,
+      pptUrl,
+      ppt: pptBase64,
+      pptBase64,
+      pptFileName,
+      pptData,
     });
   } catch (error) {
     console.error("chatWithCustomAgent error:", error);
@@ -327,7 +409,6 @@ export const chatWithCustomAgent = async (req, res) => {
     });
   }
 };
-
 
 export const clearCustomAgentChat = async (req, res) => {
   try {
@@ -351,7 +432,6 @@ export const clearCustomAgentChat = async (req, res) => {
     });
   }
 };
-
 
 export const getCustomAgentChatHistory = async (req, res) => {
   try {
