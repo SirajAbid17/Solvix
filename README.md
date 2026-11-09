@@ -236,7 +236,7 @@ Each generated roadmap contains:
 | Tasks | 24 |
 | Completed Tasks | 2 |
 | Progress | 8% |
-| Estimated Time | 84 Hours |
+| Estimated Time | 24 Hours |
 
 **Learning Workflow:**
 
