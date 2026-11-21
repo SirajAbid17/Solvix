@@ -15,8 +15,6 @@ const UserSlice = createSlice({
 
       const data = payload?.user ?? payload;
 
-      console.log("setuserData called with:", data);
-
       if (data) {
         const isAdminValue = data.isAdmin === true;
 
@@ -32,9 +30,6 @@ const UserSlice = createSlice({
         };
 
         state.isAdmin = isAdminValue;
-
-        console.log(" isAdmin set to:", state.isAdmin);
-        console.log("userdata.isAdmin:", state.userdata.isAdmin);
       } else {
         state.userdata = null;
         state.isAdmin = false;

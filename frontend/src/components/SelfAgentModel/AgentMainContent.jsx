@@ -76,9 +76,9 @@ export default function AgentMainContent({
         <p
           className={`sa-desc mt-4 max-w-2xl text-[13px] leading-6 sm:mt-6 sm:text-sm sm:leading-7 lg:text-base ${textSecondary}`}
         >
-          Design a custom AI agent in seconds — give it a name, a personality, a
-          system prompt, the model of your choice, and pick exactly which tools
-          it can use: web search, coding, PDF, PPT, images, and more.
+          Design a custom AI agent in seconds — give it a name, a personality,
+          a system prompt, the model of your choice, and pick exactly which
+          tools it can use: web search, coding, PDF, PPT, images, and more.
         </p>
 
         <div className="mt-6 grid grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-3">

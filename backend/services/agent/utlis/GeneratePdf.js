@@ -26,7 +26,6 @@ const generatePdf = async (data) => {
       });
       doc.on("error", (error) => reject(error));
 
-      
       const COLORS = {
         primary: "#2563EB",
         primaryDark: "#1D4ED8",
@@ -51,29 +50,50 @@ const generatePdf = async (data) => {
       const MARGIN = 35;
       const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
+     
+      const cleanText = (text) => {
+        if (!text) return "";
+        return String(text)
+          .replace(/\r\n/g, "\n")
+          .replace(/\r/g, "\n")
+       
+          .replace(/\*\*(.*?)\*\*/g, "$1")
+          .replace(/\*(.*?)\*/g, "$1")
+          .replace(/^#{1,6}\s+/gm, "")
+          .replace(/^[-*•]\s+/gm, "")
+          .replace(/`{1,3}(.*?)`{1,3}/g, "$1")
+          .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+          
+          .replace(/<br\s*\/?>/gi, " ")
+          .replace(/<\/?[a-z][^>]*>/gi, "")
+          .replace(/&nbsp;/gi, " ")
+          .replace(/&amp;/gi, "&")
+          .replace(/&lt;/gi, "<")
+          .replace(/&gt;/gi, ">")
+          .replace(/&quot;/gi, '"')
+          .replace(/&#39;/gi, "'")
+          
+          .replace(/[ \t]+/g, " ")
+          .replace(/[ \t]+\n/g, "\n")
+          .replace(/\n[ \t]+/g, "\n")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim();
+      };
+
       
       const drawMainHeader = () => {
-       
-        doc
-          .rect(0, 0, PAGE_WIDTH, 90)
-          .fill(COLORS.primary);
+        doc.rect(0, 0, PAGE_WIDTH, 90).fill(COLORS.primary);
+        doc.rect(0, 0, PAGE_WIDTH, 6).fill(COLORS.accent);
 
-       
-        doc
-          .rect(0, 0, PAGE_WIDTH, 6)
-          .fill(COLORS.accent);
-
-        
         doc
           .fillColor(COLORS.white)
           .fontSize(20)
           .font("Helvetica-Bold")
-          .text(title, MARGIN, 30, {
+          .text(cleanText(title), MARGIN, 30, {
             width: CONTENT_WIDTH,
             align: "left",
             lineGap: 2,
             ellipsis: true,
-            height: 30,
           });
 
         if (subtitle) {
@@ -81,16 +101,14 @@ const generatePdf = async (data) => {
             .fillColor(COLORS.subtitle)
             .fontSize(10)
             .font("Helvetica")
-            .text(subtitle, MARGIN, doc.y + 2, {
+            .text(cleanText(subtitle), MARGIN, doc.y + 4, {
               width: CONTENT_WIDTH,
               align: "left",
               lineGap: 2,
               ellipsis: true,
-              height: 15,
             });
         }
 
-       
         doc
           .fillColor(COLORS.white)
           .fontSize(9)
@@ -103,7 +121,7 @@ const generatePdf = async (data) => {
         doc.y = 110;
       };
 
-      
+     
       const drawCompactHeader = () => {
         doc
           .fillColor(COLORS.primary)
@@ -112,6 +130,7 @@ const generatePdf = async (data) => {
           .text("SOLVIX", MARGIN, 20, {
             width: CONTENT_WIDTH / 2,
             align: "left",
+            lineBreak: false,
           });
 
         doc
@@ -122,6 +141,7 @@ const generatePdf = async (data) => {
             width: CONTENT_WIDTH / 2,
             align: "right",
             ellipsis: true,
+            lineBreak: false,
           });
 
         doc
@@ -134,11 +154,17 @@ const generatePdf = async (data) => {
         doc.y = 45;
       };
 
+    
+      const addNewPage = () => {
+        doc.addPage({ size: "A4", margin: MARGIN });
+        drawCompactHeader();
+      };
+
       
       const drawHeading = (heading, index) => {
-      
-        if (doc.y > PAGE_HEIGHT - 120) {
-          addPage2();
+        
+        if (doc.y > PAGE_HEIGHT - 100) {
+          addNewPage();
         }
 
         const startY = doc.y;
@@ -147,44 +173,38 @@ const generatePdf = async (data) => {
           .fillColor(COLORS.primary)
           .fontSize(10)
           .font("Helvetica-Bold")
-          .text(
-            String(index + 1).padStart(2, "0"),
-            MARGIN,
-            startY + 3,
-            { width: 22, align: "left" }
-          );
+          .text(String(index + 1).padStart(2, "0"), MARGIN, startY + 3, {
+            width: 22,
+            align: "left",
+            lineBreak: false,
+          });
 
-       
         doc
           .fillColor(COLORS.heading)
           .fontSize(13)
           .font("Helvetica-Bold")
-          .text(heading, MARGIN + 26, startY, {
+          .text(cleanText(heading), MARGIN + 26, startY, {
             width: CONTENT_WIDTH - 26,
             align: "left",
             lineGap: 1,
             ellipsis: true,
-            height: 20,
           });
 
         
+        const underlineY = doc.y + 3;
         doc
           .strokeColor(COLORS.primary)
           .lineWidth(1.5)
-          .moveTo(MARGIN + 26, doc.y + 2)
-          .lineTo(MARGIN + 80, doc.y + 2)
+          .moveTo(MARGIN + 26, underlineY)
+          .lineTo(MARGIN + 80, underlineY)
           .stroke();
 
-        doc.y += 8;
+        doc.y = underlineY + 8;
       };
 
-      
+     
       const drawParagraph = (content) => {
-        const para = String(content)
-          .replace(/\n+/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-
+        const para = cleanText(content).replace(/\n+/g, " ").trim();
         if (!para) return;
 
         const textHeight = doc.heightOfString(para, {
@@ -194,7 +214,7 @@ const generatePdf = async (data) => {
         });
 
         if (doc.y + textHeight > PAGE_HEIGHT - 50) {
-          addPage2();
+          addNewPage();
         }
 
         doc
@@ -203,20 +223,17 @@ const generatePdf = async (data) => {
           .font("Helvetica")
           .text(para, MARGIN, doc.y, {
             width: CONTENT_WIDTH,
-            align: "justify",
+            align: "left",         
             lineGap: 3,
           });
 
-        doc.y += 6;
+        doc.y += 8;
       };
 
-      
+     
       const drawBullets = (points) => {
         points.forEach((point) => {
-          const clean = String(point)
-            .replace(/\n+/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
+          const clean = cleanText(point).replace(/\n+/g, " ").trim();
           if (!clean) return;
 
           const textWidth = CONTENT_WIDTH - 20;
@@ -227,27 +244,23 @@ const generatePdf = async (data) => {
             fontSize: 10,
           });
 
-          const rowHeight = textHeight + 4;
+          const rowHeight = textHeight + 6;
 
           if (doc.y + rowHeight > PAGE_HEIGHT - 50) {
-            addPage2();
+            addNewPage();
           }
 
           const rowY = doc.y;
 
-       
-          doc
-            .circle(MARGIN + 5, rowY + 6, 2.2)
-            .fill(COLORS.primary);
+          doc.circle(MARGIN + 5, rowY + 6, 2.2).fill(COLORS.primary);
 
-          
           doc
             .fillColor(COLORS.text)
             .fontSize(10)
             .font("Helvetica")
             .text(clean, MARGIN + 16, rowY, {
               width: textWidth,
-              align: "justify",
+              align: "left",      
               lineGap: 2,
             });
 
@@ -269,15 +282,6 @@ const generatePdf = async (data) => {
         doc.y += 8;
       };
 
-    
-      let page2Added = false;
-      const addPage2 = () => {
-        if (page2Added) return;
-        doc.addPage({ size: "A4", margin: MARGIN });
-        drawCompactHeader();
-        page2Added = true;
-      };
-
      
       drawMainHeader();
 
@@ -286,25 +290,21 @@ const generatePdf = async (data) => {
         const content = section?.content || "";
         const points = Array.isArray(section?.points) ? section.points : [];
 
-       
         drawHeading(heading, index);
 
         if (content && String(content).trim()) {
           drawParagraph(content);
         }
 
-        
         if (points.length > 0) {
           drawBullets(points);
         }
 
-       
         if (index < sections.length - 1) {
           drawDivider();
         }
       });
 
-      
       if (sections.length === 0) {
         doc
           .fillColor(COLORS.text)

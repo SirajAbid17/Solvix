@@ -79,9 +79,10 @@ const buildToolsInstructions = (tools = []) => {
   if (tools.includes("chat")) lines.push("-  Chat: normal reply.");
   if (tools.includes("search"))
     lines.push("-  Search: `[NEEDS_SEARCH] <query>`");
-  if (tools.includes("coding")) lines.push("-  Coding: fenced code blocks.");
+  if (tools.includes("coding"))
+    lines.push("-  Coding: fenced code blocks.");
   if (tools.includes("pdf")) lines.push("-  PDF: `[CREATE_PDF] <topic>`");
-  if (tools.includes("ppt")) lines.push("- PPT: `[CREATE_PPT] <topic>`");
+  if (tools.includes("ppt")) lines.push("-  PPT: `[CREATE_PPT] <topic>`");
   if (tools.includes("image"))
     lines.push("-  Image: `[CREATE_IMAGE] <prompt>`");
   if (tools.includes("file"))
@@ -93,7 +94,7 @@ const buildToolsInstructions = (tools = []) => {
     "\n## Marker Rules:",
     "- One marker per line.",
     "- Never show markers to user.",
-    "- Never wrap in JSON.",
+    "- Never wrap in JSON."
   );
 
   return lines.join("\n");
@@ -127,16 +128,14 @@ const invokeLLM = async (model, messages) => {
       msg.includes("model called a tool")
     ) {
       console.warn(
-        " Groq rejected fake tool call — retrying with stricter prompt",
+        "Groq rejected fake tool call — retrying with stricter prompt"
       );
 
       const cleaned = messages.map((m) => {
         if (m.role === "assistant") {
           return {
             ...m,
-            content: String(m.content || "")
-              .replace(/\{[\s\S]*\}/g, "")
-              .trim(),
+            content: String(m.content || "").replace(/\{[\s\S]*\}/g, "").trim(),
           };
         }
         return m;
@@ -170,6 +169,9 @@ export const CustomAgentNode = async (state) => {
   try {
     const agent = state.customAgent;
 
+   
+   
+
     if (!agent) {
       return { ...state, aiResponse: "Custom agent not provided." };
     }
@@ -190,6 +192,7 @@ export const CustomAgentNode = async (state) => {
       { role: "user", content: state.prompt },
     ];
 
+    
     const hasFileContext =
       state.fileContext && String(state.fileContext).trim().length > 0;
     const hasFileId = !!state.fileId;
@@ -202,6 +205,7 @@ export const CustomAgentNode = async (state) => {
         forceTool: state.forceTool || "none",
       });
 
+     
       if (hasFileId) {
         try {
           const { queryRAG } = await import("../utlis/ragStore.js");
@@ -213,13 +217,13 @@ export const CustomAgentNode = async (state) => {
           });
 
           const matches = ragResult?.matches || [];
-          console.log(`RAG returned ${matches.length} matches`);
+         
 
           if (matches.length > 0) {
             const context = matches
               .map(
                 (m, i) =>
-                  `[Source ${i + 1}: ${m.fileName || state.fileName || "file"}]\n${m.text}`,
+                  `[Source ${i + 1}: ${m.fileName || state.fileName || "file"}]\n${m.text}`
               )
               .join("\n\n---\n\n");
 
@@ -267,11 +271,12 @@ ${context}
         } catch (ragErr) {
           console.warn(
             "RAG query failed, falling back to fileContext:",
-            ragErr.message,
+            ragErr.message
           );
         }
       }
 
+      
       if (hasFileContext) {
         console.log(" Using full fileContext (not RAG)");
 
@@ -318,6 +323,7 @@ ${truncated}
       }
     }
 
+    
     let response = await invokeLLM(model, messages);
     let aiResponse = normaliseContent(response?.content).trim();
 
@@ -325,7 +331,7 @@ ${truncated}
       aiResponse = "Sorry, I couldn't generate a response. Please try again.";
     }
 
-    console.log(" CustomAgent raw response:", aiResponse.slice(0, 200));
+    console.log("CustomAgent raw response:", aiResponse.slice(0, 200));
 
     aiResponse = aiResponse
       .replace(/^\s*\{[\s\S]*"name"\s*:\s*"[^"]+"[\s\S]*\}\s*$/g, "")
@@ -337,6 +343,7 @@ ${truncated}
 
     const toolCalls = detectToolCalls(aiResponse);
 
+    
     if (toolCalls.search && enabledTools.includes("search")) {
       const searchQuery =
         extractMarkerPayload(aiResponse, "\\[NEEDS_SEARCH\\]") || state.prompt;
@@ -357,7 +364,7 @@ ${truncated}
               (r, i) =>
                 `${i + 1}. **${r.title || "Result"}**\n   URL: ${
                   r.url || "N/A"
-                }\n   ${(r.content || r.snippet || "").slice(0, 500)}`,
+                }\n   ${(r.content || r.snippet || "").slice(0, 500)}`
             )
             .join("\n\n");
 
@@ -391,10 +398,11 @@ ${truncated}
       }
     }
 
+   
     if (toolCalls.pdf && enabledTools.includes("pdf")) {
       const topic =
         extractMarkerPayload(aiResponse, "\\[CREATE_PDF\\]") || state.prompt;
-      console.log(" CustomAgent generating PDF for:", topic);
+      console.log("CustomAgent generating PDF for:", topic);
 
       try {
         const { PdfAgent } = await import("../AllAgents/pdf.agent.js");
@@ -423,10 +431,11 @@ ${truncated}
       }
     }
 
+    
     if (toolCalls.ppt && enabledTools.includes("ppt")) {
       const topic =
         extractMarkerPayload(aiResponse, "\\[CREATE_PPT\\]") || state.prompt;
-      console.log(" CustomAgent generating PPT for:", topic);
+      console.log("CustomAgent generating PPT for:", topic);
 
       try {
         const { pptAgent } = await import("../AllAgents/ppt.agent.js");
@@ -457,10 +466,11 @@ ${truncated}
       }
     }
 
+    
     if (toolCalls.image && enabledTools.includes("image")) {
       const imagePrompt =
         extractMarkerPayload(aiResponse, "\\[CREATE_IMAGE\\]") || state.prompt;
-      console.log(" CustomAgent generating image for:", imagePrompt);
+      console.log("CustomAgent generating image for:", imagePrompt);
 
       try {
         const { ImageAgent } = await import("../AllAgents/image.agent.js");
@@ -485,6 +495,7 @@ ${truncated}
       }
     }
 
+    
     return {
       ...state,
       aiResponse,

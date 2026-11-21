@@ -85,7 +85,7 @@ export default function AgentChatInput({
         accept=".pdf,.docx,.doc,.txt,.md,.csv,.xlsx,.xls,.png,.jpg,.jpeg,.webp,.json"
       />
 
-     
+   
       {attachedFile && (
         <div
           className={`mb-2 flex items-center gap-2.5 rounded-xl border p-2.5 shadow-sm ${
@@ -129,7 +129,7 @@ export default function AgentChatInput({
 
       
       <div className="flex items-center gap-2">
-      
+       
         {canUploadFile && (
           <button
             type="button"
@@ -150,7 +150,7 @@ export default function AgentChatInput({
           </button>
         )}
 
-        
+       
         <div className="flex flex-1 items-center">
           <textarea
             rows={1}

@@ -3,7 +3,6 @@ import api from "../utlis/axios";
 const GetcurrentUser = async () => {
   try {
     const response = await api.get("/me");
-
     const data = response.data;
 
     if (!data?.success) {
@@ -22,14 +21,8 @@ const GetcurrentUser = async () => {
       isAdmin: data.isAdmin === true,
     };
 
-    console.log("User data with isAdmin:", userData);
     return userData;
   } catch (error) {
-    console.error(
-      "Get Current User Error:",
-      error.response?.status,
-      error.response?.data || error.message
-    );
     return null;
   }
 };

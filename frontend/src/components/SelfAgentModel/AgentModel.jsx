@@ -31,6 +31,7 @@ export default function AgentModel() {
   const navigate = useNavigate();
   const container = useRef(null);
   const animatedOnce = useRef(false);
+  const cardsAnimatedKey = useRef("");
 
   const { userdata } = useSelector((s) => s.user);
 
@@ -107,6 +108,7 @@ export default function AgentModel() {
     : filteredAgents.slice(0, VISIBLE_COUNT);
   const hasMore = filteredAgents.length > VISIBLE_COUNT;
 
+
   useGSAP(
     () => {
       if (animatedOnce.current) return;
@@ -123,7 +125,6 @@ export default function AgentModel() {
       gsap.set(".sa-sidebar", { opacity: 0, x: 30 });
       gsap.set(".sa-model-row", { opacity: 0, x: 15 });
       gsap.set(".sa-builder", { opacity: 0, y: 30 });
-      gsap.set(".sa-card", { opacity: 0, y: 25, scale: 0.97 });
       gsap.set(".sa-footer", { opacity: 0, y: 10 });
 
       tl.to(".sa-header", {
@@ -169,18 +170,6 @@ export default function AgentModel() {
           "-=0.2",
         )
         .to(
-          ".sa-card",
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.5,
-            stagger: 0.06,
-            ease: "power3.out",
-          },
-          "-=0.3",
-        )
-        .to(
           ".sa-sidebar",
           { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" },
           "-=0.6",
@@ -203,6 +192,36 @@ export default function AgentModel() {
         );
     },
     { scope: container },
+  );
+
+
+  useGSAP(
+    () => {
+      if (!container.current) return;
+
+      const cards = container.current.querySelectorAll(".sa-card");
+      if (!cards || cards.length === 0) return;
+
+      
+      const currentKey = visibleAgents.map((a) => a._id).join(",");
+      if (cardsAnimatedKey.current === currentKey) return;
+      cardsAnimatedKey.current = currentKey;
+
+      gsap.fromTo(
+        cards,
+        { opacity: 0, y: 25, scale: 0.97 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.5,
+          stagger: 0.06,
+          ease: "power3.out",
+          clearProps: "transform",
+        },
+      );
+    },
+    { scope: container, dependencies: [visibleAgents] },
   );
 
   const openCreate = () => {
@@ -453,6 +472,18 @@ export default function AgentModel() {
     const userText =
       chatInput.trim() || `Analyze this file: ${attachedFile?.fileName || ""}`;
 
+    console.log("sendMessage:", {
+      userText,
+      forceTool,
+      hasFile: !!attachedFile,
+      fileName: attachedFile?.fileName,
+      fileId: attachedFile?.fileId,
+      fileContextLen:
+        attachedFile?.fullText?.length ||
+        attachedFile?.textPreview?.length ||
+        0,
+    });
+
     setMessages((prev) => [...prev, { role: "user", content: userText }]);
     setChatInput("");
     setChatLoading(true);
@@ -475,7 +506,7 @@ export default function AgentModel() {
         attachedFile,
       );
 
-      console.log("🔍 BACKEND RESPONSE:", res);
+      console.log(" BACKEND RESPONSE:", res);
 
       if (res?.success && res.response) {
         const assistantMsg = {

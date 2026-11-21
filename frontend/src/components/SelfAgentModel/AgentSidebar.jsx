@@ -64,7 +64,7 @@ export default function AgentSidebar({ dark }) {
           : PAID_MODELS.map((m) => <ModelRow key={m.id} model={m} dark={dark} />)}
       </div>
 
-     
+  
       <div
         className={`sa-model-row relative overflow-hidden rounded-2xl border p-4 ${
           dark
@@ -112,7 +112,7 @@ export default function AgentSidebar({ dark }) {
         </a>
       </div>
 
-     
+    
       <div
         className={`sa-model-row relative overflow-hidden rounded-2xl border p-4 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-white"
@@ -147,7 +147,7 @@ export default function AgentSidebar({ dark }) {
         </a>
       </div>
 
-      
+     
       <div
         className={`sa-model-row relative overflow-hidden rounded-2xl border p-4 ${
           dark

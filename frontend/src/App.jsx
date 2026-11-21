@@ -46,7 +46,7 @@ export default function App() {
 
         const data = await GetcurrentUser();
 
-        console.log("CURRENT USER FROM APP:", data);
+        
 
         if (data) {
           dispatch(setuserData(data));

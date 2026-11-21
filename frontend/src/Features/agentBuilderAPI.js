@@ -11,16 +11,17 @@ export const createCustomAgent = async (data) => {
     };
 
     const { data: res } = await api.post("/agent/custom-agents", payload);
-    console.log("createCustomAgent:", res);
+    
     return res;
   } catch (error) {
     console.error(
       "createCustomAgent Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
 };
+
 
 export const getCustomAgents = async ({
   category,
@@ -35,8 +36,10 @@ export const getCustomAgents = async ({
     params.append("page", page);
     params.append("limit", limit);
 
-    const { data } = await api.get(`/agent/custom-agents?${params.toString()}`);
-    console.log("getCustomAgents:", data);
+    const { data } = await api.get(
+      `/agent/custom-agents?${params.toString()}`
+    );
+    
 
     if (data?.success && Array.isArray(data.agents)) {
       data.agents = data.agents.map((a) => ({
@@ -50,11 +53,12 @@ export const getCustomAgents = async ({
   } catch (error) {
     console.error(
       "getCustomAgents Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     return { success: false, agents: [], total: 0 };
   }
 };
+
 
 export const getCustomAgent = async (id) => {
   try {
@@ -63,7 +67,7 @@ export const getCustomAgent = async (id) => {
   } catch (error) {
     console.error(
       "getCustomAgent Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
@@ -85,7 +89,7 @@ export const updateCustomAgent = async (id, updates) => {
   } catch (error) {
     console.error(
       "updateCustomAgent Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
@@ -99,11 +103,12 @@ export const deleteCustomAgent = async (id) => {
   } catch (error) {
     console.error(
       "deleteCustomAgent Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
 };
+
 
 export const chatWithCustomAgent = async (
   id,
@@ -111,7 +116,7 @@ export const chatWithCustomAgent = async (
   conversationId,
   history = [],
   forceTool = null,
-  attachedFile = null,
+  attachedFile = null
 ) => {
   try {
     const payload = {
@@ -120,7 +125,8 @@ export const chatWithCustomAgent = async (
       messages: history,
       forceTool: forceTool || null,
       fileId: attachedFile?.fileId || null,
-      fileContext: attachedFile?.fullText || attachedFile?.textPreview || null,
+      fileContext:
+        attachedFile?.fullText || attachedFile?.textPreview || null,
       fileName: attachedFile?.fileName || null,
       fileType: attachedFile?.fileType || null,
       imageBase64: attachedFile?.imageBase64 || null,
@@ -138,7 +144,7 @@ export const chatWithCustomAgent = async (
     const { data } = await api.post(
       `/agent/custom-agents/${id}/chat`,
       payload,
-      { timeout: 180000 },
+      { timeout: 180000 }
     );
 
     console.log("chatWithCustomAgent response:", {
@@ -159,11 +165,13 @@ export const chatWithCustomAgent = async (
       success: data?.success === true,
       response: data?.response || "",
 
+      
       pdfGenerated: data?.pdfGenerated === true,
       pdfUrl: data?.pdfUrl || null,
       pdfBase64: data?.pdfBase64 || null,
       pdf: data?.pdf || null,
 
+     
       pptGenerated: data?.pptGenerated === true,
       pptUrl: data?.pptUrl || null,
       pptBase64: data?.pptBase64 || null,
@@ -171,8 +179,10 @@ export const chatWithCustomAgent = async (
       pptFileName: data?.pptFileName || "solvix-presentation.pptx",
       pptData: data?.pptData || null,
 
+     
       images: Array.isArray(data?.images) ? data.images : [],
 
+     
       toolExecuted: data?.toolExecuted || null,
       model: data?.model || null,
       temperature: data?.temperature || null,
@@ -187,33 +197,35 @@ export const chatWithCustomAgent = async (
   } catch (error) {
     console.error(
       "chatWithCustomAgent Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
 };
 
+
 export const clearCustomAgentChat = async (id, conversationId) => {
   try {
     const { data } = await api.delete(
-      `/agent/custom-agents/${id}/chat/${conversationId}`,
+      `/agent/custom-agents/${id}/chat/${conversationId}`
     );
     return data;
   } catch (error) {
     console.error(
       "clearCustomAgentChat Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
 };
 
+
 export const getCustomAgentChatHistory = async (id, conversationId) => {
   try {
     const { data } = await api.get(
-      `/agent/custom-agents/${id}/chat/${conversationId}`,
+      `/agent/custom-agents/${id}/chat/${conversationId}`
     );
-    console.log("getCustomAgentChatHistory:", data);
+    
 
     if (data?.success && Array.isArray(data.messages)) {
       data.messages = data.messages.map((m) => ({
@@ -238,7 +250,7 @@ export const getCustomAgentChatHistory = async (id, conversationId) => {
   } catch (error) {
     console.error(
       "getCustomAgentChatHistory Error:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     return { success: false, messages: [] };
   }

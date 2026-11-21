@@ -1,16 +1,20 @@
-
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "../../../BgContext/ThemeContext";
-import { getCVById, deleteCV, removeProfileImage } from "../../../Features/CVcreate";
+import {
+  getCVById,
+  deleteCV,
+  removeProfileImage,
+} from "../../../Features/CVcreate";
 import { toast } from "react-hot-toast";
 import { FaSpinner } from "react-icons/fa";
 import ResumeFooter from "../ResumeFooter";
 import ResumeHeader from "../ResumeHeader";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import ResumeContent from "./ResumeContent";
 import ResumeActions from "./ResumeActions";
+import ConfirmDialog from "../ConfirmDialog";
 
 export default function ShowResume() {
   const { id } = useParams();
@@ -23,6 +27,13 @@ export default function ShowResume() {
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState(false);
 
+ 
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    type: null,
+    loading: false,
+  });
+
   useEffect(() => {
     loadResume();
   }, [id]);
@@ -34,89 +45,233 @@ export default function ShowResume() {
       setResume(response.data);
     } catch (err) {
       toast.error("Failed to load resume");
+      setError("Failed to load resume");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this resume?")) return;
+  
+  const handleDeleteClick = () => {
+    setConfirmDialog({
+      open: true,
+      type: "delete",
+      loading: false,
+    });
+  };
+
+
+  const handleRemoveImageClick = () => {
+    setConfirmDialog({
+      open: true,
+      type: "removeImage",
+      loading: false,
+    });
+  };
+
+  
+  const handleConfirmAction = async () => {
+    const { type } = confirmDialog;
+    setConfirmDialog((prev) => ({ ...prev, loading: true }));
+
     try {
-      await deleteCV(id);
-      toast.success("Resume deleted successfully");
-      navigate("/all-resume");
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("Failed to delete resume");
+      if (type === "delete") {
+        await deleteCV(id);
+        toast.success("Resume deleted successfully");
+        setConfirmDialog({ open: false, type: null, loading: false });
+        navigate("/all-resume");
+      } else if (type === "removeImage") {
+        await removeProfileImage(id);
+        toast.success("Image removed successfully");
+        setConfirmDialog({ open: false, type: null, loading: false });
+        loadResume();
+      }
+    } catch (err) {
+      console.error("Action error:", err);
+      toast.error(
+        type === "delete"
+          ? "Failed to delete resume"
+          : "Failed to remove image",
+      );
+      setConfirmDialog((prev) => ({ ...prev, loading: false }));
     }
   };
 
-  const handleRemoveImage = async () => {
-    if (!window.confirm("Remove profile image?")) return;
+  const handleCancelAction = () => {
+    if (confirmDialog.loading) return;
+    setConfirmDialog({ open: false, type: null, loading: false });
+  };
+
+  
+  const imageToBase64 = async (url) => {
     try {
-      await removeProfileImage(id);
-      toast.success("Image removed successfully");
-      loadResume();
-    } catch (error) {
-      console.error("Remove image error:", error);
-      toast.error("Failed to remove image");
+      const response = await fetch(url, {
+        mode: "cors",
+        credentials: "omit",
+      });
+      if (!response.ok) throw new Error("Image fetch failed");
+      const blob = await response.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      console.warn("Base64 conversion failed for:", url, err.message);
+      return null;
     }
   };
 
   const downloadPDF = async () => {
-    if (!resumeRef.current) return;
+    if (!resumeRef.current) {
+      toast.error("Resume not ready");
+      return;
+    }
+
     setDownloading(true);
+    const toastId = toast.loading("Generating PDF...");
+
     try {
-      const element = resumeRef.current;
-      const clone = element.cloneNode(true);
-      clone.style.position = "absolute";
-      clone.style.left = "-9999px";
-      clone.style.top = "0";
-      clone.style.width = "800px";
-      clone.style.background = "white";
-      clone.style.color = "black";
-      clone.style.padding = "50px";
-      document.body.appendChild(clone);
+      const profileImageUrl = resume?.profileImage?.url;
+      let profileImageBase64 = null;
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (profileImageUrl) {
+        toast.loading("Loading profile image...", { id: toastId });
+        profileImageBase64 = await imageToBase64(profileImageUrl);
+      }
 
-      const canvas = await html2canvas(clone, {
+      const canvas = await html2canvas(resumeRef.current, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
-        width: 800,
-        height: clone.scrollHeight,
+        width: 794,
+        windowWidth: 794,
+        imageTimeout: 15000,
+        onclone: (clonedDoc, element) => {
+          clonedDoc.documentElement.classList.remove("dark");
+          clonedDoc.body.classList.remove("dark");
+
+          element.style.padding = "40px";
+          element.style.background = "#ffffff";
+          element.style.color = "#111827";
+          element.style.boxShadow = "none";
+          element.style.borderRadius = "0";
+          element.style.width = "794px";
+          element.style.margin = "0";
+          element.style.position = "relative";
+          element.style.top = "0";
+          element.style.left = "0";
+
+          const images = element.querySelectorAll("img");
+          images.forEach((img) => {
+            if (
+              profileImageBase64 &&
+              (img.src.includes("cloudinary") ||
+                img.src.includes("res.cloudinary") ||
+                img.src === profileImageUrl)
+            ) {
+              img.src = profileImageBase64;
+              img.crossOrigin = "anonymous";
+            }
+
+            img.style.maxWidth = "144px";
+            img.style.width = "144px";
+            img.style.height = "144px";
+            img.style.maxHeight = "144px";
+            img.style.objectFit = "cover";
+            img.style.objectPosition = "center";
+            img.style.borderRadius = "9999px";
+            img.style.border = "4px solid #e5e7eb";
+            img.style.display = "block";
+            img.style.flexShrink = "0";
+          });
+
+          const allElements = element.querySelectorAll("*");
+          allElements.forEach((el) => {
+            try {
+              const style = clonedDoc.defaultView.getComputedStyle(el);
+              if (style.color && style.color.includes("oklch")) {
+                el.style.color = "#111827";
+              }
+              if (
+                style.backgroundColor &&
+                style.backgroundColor.includes("oklch")
+              ) {
+                const bg = style.backgroundColor;
+                if (!bg.includes("rgba(0, 0, 0, 0)")) {
+                  el.style.backgroundColor = "#ffffff";
+                }
+              }
+              if (style.borderColor && style.borderColor.includes("oklch")) {
+                el.style.borderColor = "#e5e7eb";
+              }
+            } catch (e) {}
+          });
+
+          element.querySelectorAll("a").forEach((a) => {
+            a.style.color = "#2563eb";
+            a.style.textDecoration = "none";
+          });
+        },
       });
 
-      document.body.removeChild(clone);
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      let heightLeft = pdfHeight;
-      let position = 0;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pageHeight;
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error("Canvas is empty — render fail");
       }
 
-      const fullName = resume?.personal?.fullName || resume?.title || "Resume";
-      pdf.save(`${fullName}.pdf`);
-      toast.success("PDF downloaded successfully!");
+      toast.loading("Generating PDF...", { id: toastId });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const pdf = new jsPDF("p", "mm", "a4");
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(
+        imgData,
+        "JPEG",
+        0,
+        position,
+        imgWidth,
+        imgHeight,
+        "",
+        "FAST",
+      );
+      heightLeft -= pdfPageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(
+          imgData,
+          "JPEG",
+          0,
+          position,
+          imgWidth,
+          imgHeight,
+          "",
+          "FAST",
+        );
+        heightLeft -= pdfPageHeight;
+      }
+
+      const fullName =
+        resume?.personal?.fullName?.trim() || resume?.title?.trim() || "Resume";
+      const safeName = fullName.replace(/[^a-zA-Z0-9_-]/g, "_");
+      pdf.save(`${safeName}_SIRAJ_ABID.pdf`);
+
+      toast.success("PDF downloaded successfully!", { id: toastId });
     } catch (error) {
       console.error("PDF Download Error:", error);
-      toast.error("Failed to download PDF");
+      toast.error("Failed to download PDF: " + error.message, { id: toastId });
     } finally {
       setDownloading(false);
     }
@@ -130,7 +285,6 @@ export default function ShowResume() {
     }
 
     const content = resumeRef.current;
-    const styles = document.querySelector("style")?.innerHTML || "";
     const fullName = resume?.personal?.fullName || resume?.title || "Resume";
 
     printWindow.document.write(`
@@ -139,60 +293,46 @@ export default function ShowResume() {
         <head>
           <title>${fullName}</title>
           <style>
-            ${styles}
-            body { 
-              padding: 50px; 
-              background: white; 
+            * { box-sizing: border-box; }
+            body {
+              padding: 40px;
+              background: white;
               color: #111827;
               font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-              max-width: 1000px;
+              max-width: 900px;
               margin: 0 auto;
               line-height: 1.6;
+              font-size: 14px;
             }
-            * { 
-              color: #111827 !important;
-              background-color: white !important;
-              background-image: none !important;
-              box-shadow: none !important;
+            img { 
+              max-width: 144px; 
+              width: 144px;
+              height: 144px;
+              object-fit: cover;
+              border-radius: 9999px;
+              border: 4px solid #e5e7eb;
             }
-            .resume-card { 
-              background: white !important;
-              border: none !important;
-              padding: 0 !important;
-            }
-            .section-card {
-              background: white !important;
-              border: none !important;
-              padding: 0 !important;
-              margin-bottom: 24px !important;
-            }
-            .text-gray-600 { color: #4b5563 !important; }
-            .text-gray-500 { color: #6b7280 !important; }
-            .text-gray-400 { color: #9ca3af !important; }
-            .text-blue-600 { color: #2563eb !important; }
-            a { color: #2563eb !important; text-decoration: none !important; }
-            .border-b { border-bottom: 2px solid #e5e7eb !important; }
-            .border-gray-200 { border-color: #e5e7eb !important; }
-            .shadow-lg { box-shadow: none !important; }
-            .shadow-sm { box-shadow: none !important; }
-            .skill-chip {
-              background: #f3f4f6 !important;
-              color: #111827 !important;
-              border-radius: 9999px !important;
-              padding: 4px 16px !important;
-              display: inline-block !important;
-              margin: 4px !important;
-              font-size: 13px !important;
-            }
+            a { color: #2563eb; text-decoration: none; }
+            h1, h2, h3, h4 { margin: 0.5em 0; }
+            .section-card { margin-bottom: 20px; }
             .section-heading {
-              font-size: 22px !important;
-              font-weight: 700 !important;
-              border-bottom: 2px solid #e5e7eb !important;
-              padding-bottom: 8px !important;
-              margin-bottom: 16px !important;
-              text-transform: uppercase !important;
-              letter-spacing: 1px !important;
+              font-size: 20px;
+              font-weight: 700;
+              border-bottom: 2px solid #e5e7eb;
+              padding-bottom: 6px;
+              margin-bottom: 12px;
+              text-transform: uppercase;
             }
+            .skill-chip {
+              background: #f3f4f6;
+              color: #111827;
+              border-radius: 9999px;
+              padding: 3px 12px;
+              display: inline-block;
+              margin: 3px;
+              font-size: 12px;
+            }
+            @page { margin: 15mm; }
           </style>
         </head>
         <body>
@@ -200,10 +340,8 @@ export default function ShowResume() {
           <script>
             window.onload = function() {
               window.print();
-              setTimeout(function() {
-                window.close();
-              }, 1000);
-            }
+              setTimeout(function() { window.close(); }, 500);
+            };
           <\/script>
         </body>
       </html>
@@ -216,7 +354,9 @@ export default function ShowResume() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <FaSpinner className="mb-4 h-12 w-12 animate-spin text-blue-600 mx-auto" />
-          <p className="text-lg font-semibold text-gray-700">Loading resume...</p>
+          <p className="text-lg font-semibold text-gray-700">
+            Loading resume...
+          </p>
         </div>
       </div>
     );
@@ -249,25 +389,61 @@ export default function ShowResume() {
   return (
     <>
       <ResumeHeader />
-      <div className={`min-h-screen p-4 md:p-8 ${dark ? "bg-black" : "bg-gray-50"}`}>
+      <div
+        className={`min-h-screen p-4 md:p-8 ${
+          dark ? "bg-black" : "bg-gray-50"
+        }`}
+      >
         <div className="mx-auto max-w-5xl">
           <ResumeActions
             id={id}
             onEdit={() => navigate(`/edit-resume/${id}`)}
             onPrint={handlePrint}
             onDownload={downloadPDF}
-            onDelete={handleDelete}
-            onRemoveImage={handleRemoveImage}
+            onDelete={handleDeleteClick} // ✅ changed
+            onRemoveImage={handleRemoveImageClick} // ✅ changed
             hasProfileImage={!!resume.profileImage?.url}
             downloading={downloading}
           />
 
-          <div ref={resumeRef} className="resume-card rounded-2xl bg-white p-8 md:p-10 shadow-lg">
+          <div
+            ref={resumeRef}
+            className="resume-card rounded-2xl bg-white p-8 md:p-10 shadow-lg"
+            style={{ color: "#111827", backgroundColor: "#ffffff" }}
+          >
             <ResumeContent resume={resume} />
           </div>
         </div>
       </div>
       <ResumeFooter />
+
+      
+      <ConfirmDialog
+        open={confirmDialog.open && confirmDialog.type === "delete"}
+        title="Delete Resume?"
+        message="Are you sure you want to delete this resume? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        dark={dark}
+        loading={confirmDialog.loading}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
+      />
+
+     
+      <ConfirmDialog
+        open={confirmDialog.open && confirmDialog.type === "removeImage"}
+        title="Remove Profile Image?"
+        message="Are you sure you want to remove the profile image from this resume?"
+        confirmText="Remove Image"
+        cancelText="Cancel"
+        variant="warning"
+        dark={dark}
+        loading={confirmDialog.loading}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
+      />
     </>
   );
 }

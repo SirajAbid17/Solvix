@@ -247,7 +247,7 @@ export default function AgentChatDrawer({
          
           <AgentChatHeader dark={dark} agent={agent} onClose={onClose} />
 
-          
+         
           <div className="relative flex-1 space-y-5 overflow-y-auto px-4 py-5 sm:px-5">
             {dark && (
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.06),transparent_60%)]" />
@@ -270,7 +270,7 @@ export default function AgentChatDrawer({
               />
             ))}
 
-         
+           
             {loading && (
               <div className="flex justify-start">
                 <div
@@ -305,7 +305,7 @@ export default function AgentChatDrawer({
             <div ref={messagesEndRef} />
           </div>
 
-         
+          
           <AgentChatInput
             dark={dark}
             input={input}

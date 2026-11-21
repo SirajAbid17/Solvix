@@ -4,7 +4,6 @@ import { toast } from "react-hot-toast";
 import {
   FaEye,
   FaTrash,
-  FaEdit,
   FaFileAlt,
   FaCalendarAlt,
   FaSpinner,
@@ -16,6 +15,7 @@ import { useTheme } from "../BgContext/ThemeContext";
 import { getMyCVs, deleteCV } from "../Features/CVcreate";
 import ResumeHeader from "../components/Resume/ResumeHeader";
 import ResumeFooter from "../components/Resume/ResumeFooter";
+import ConfirmDialog from "../components/Resume/ConfirmDialog";
 
 export default function AllResume() {
   const navigate = useNavigate();
@@ -24,6 +24,14 @@ export default function AllResume() {
   const [cvs, setCvs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+
+ 
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    cvId: null,
+    cvName: "",
+    loading: false,
+  });
 
   useEffect(() => {
     loadCVs();
@@ -46,21 +54,51 @@ export default function AllResume() {
     }
   };
 
-  const handleDelete = async (id, name) => {
-    const ok = window.confirm(`Are you sure you want to delete "${name}"?`);
+  
+  const handleDeleteClick = (id, name) => {
+    setConfirmDialog({
+      open: true,
+      cvId: id,
+      cvName: name || "this resume",
+      loading: false,
+    });
+  };
 
-    if (!ok) return;
+
+  const handleConfirmDelete = async () => {
+    const { cvId } = confirmDialog;
+    if (!cvId) return;
+
+    setConfirmDialog((prev) => ({ ...prev, loading: true }));
 
     try {
-      await deleteCV(id);
+      await deleteCV(cvId);
 
-      setCvs((prev) => prev.filter((cv) => cv._id !== id));
+      setCvs((prev) => prev.filter((cv) => cv._id !== cvId));
 
-      toast.success("Resume deleted");
+      toast.success("Resume deleted successfully");
+
+      setConfirmDialog({
+        open: false,
+        cvId: null,
+        cvName: "",
+        loading: false,
+      });
     } catch (err) {
       console.error(err);
       toast.error("Delete failed");
+      setConfirmDialog((prev) => ({ ...prev, loading: false }));
     }
+  };
+
+  const handleCancelDelete = () => {
+    if (confirmDialog.loading) return;
+    setConfirmDialog({
+      open: false,
+      cvId: null,
+      cvName: "",
+      loading: false,
+    });
   };
 
   const filteredCVs = useMemo(() => {
@@ -296,7 +334,7 @@ export default function AllResume() {
                       </button>
 
                       <button
-                        onClick={() => handleDelete(cv._id, fullName)}
+                        onClick={() => handleDeleteClick(cv._id, fullName)}
                         className={`
     flex 
     flex-1 
@@ -330,6 +368,20 @@ export default function AllResume() {
       </div>
 
       <ResumeFooter />
+
+      
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title="Delete Resume?"
+        message={`Are you sure you want to delete "${confirmDialog.cvName}"? This action cannot be undone.`}
+        confirmText="Delete Resume"
+        cancelText="Cancel"
+        variant="danger"
+        dark={dark}
+        loading={confirmDialog.loading}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </>
   );
 }

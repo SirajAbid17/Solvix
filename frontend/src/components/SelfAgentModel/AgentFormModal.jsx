@@ -26,10 +26,7 @@ export function AgentFormModal({
 }) {
   const modalRef = useRef(null);
 
-  useEffect(() => {
-    console.log("AgentFormModal RENDERED — form.model =", form?.model);
-    console.log("form.category =", form?.category);
-  });
+ 
 
   useGSAP(
     () => {
@@ -49,7 +46,7 @@ export function AgentFormModal({
         delay: 0.15,
       });
     },
-    { scope: modalRef },
+    { scope: modalRef }
   );
 
   useEffect(() => {
@@ -84,15 +81,11 @@ export function AgentFormModal({
   }));
 
   const selectedModel = AGENT_MODELS.find(
-    (m) => String(m.id) === String(form?.model),
+    (m) => String(m.id) === String(form?.model)
   );
 
-  console.log(
-    "selectedModel:",
-    selectedModel?.label,
-    "| form.model:",
-    form?.model,
-  );
+ 
+  
 
   const toggleTool = (toolId) => {
     setForm((f) => {
@@ -188,18 +181,17 @@ export function AgentFormModal({
               <CustomDropdown
                 value={form?.category}
                 onChange={(val) => {
+                 
                   setForm((f) => {
                     const next = { ...f, category: val };
-
+                    
                     return next;
                   });
                 }}
                 options={categoryOptions}
                 dark={dark}
                 placeholder="Select category"
-                icon={
-                  AGENT_CATEGORIES.find((c) => c.id === form?.category)?.Icon
-                }
+                icon={AGENT_CATEGORIES.find((c) => c.id === form?.category)?.Icon}
               />
             </div>
 
@@ -208,9 +200,10 @@ export function AgentFormModal({
               <CustomDropdown
                 value={form?.model}
                 onChange={(val) => {
+                 
                   setForm((f) => {
                     const next = { ...f, model: val };
-
+                   
                     return next;
                   });
                 }}

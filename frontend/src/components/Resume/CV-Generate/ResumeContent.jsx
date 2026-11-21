@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   FaUser,
@@ -23,13 +22,91 @@ import {
   FaLayerGroup,
 } from "react-icons/fa";
 
-export default function ResumeContent({ resume }) {
+
+const cleanDescription = (text) => {
+  if (!text) return "";
+
+  let cleaned = String(text);
+
+ 
+  cleaned = cleaned.replace(/\\\(/g, "").replace(/\\\)/g, "");
+  cleaned = cleaned.replace(/\\\[/g, "").replace(/\\\]/g, "");
+  cleaned = cleaned.replace(/\\\$/g, "$");
+  cleaned = cleaned.replace(/\\%/g, "%");
+  cleaned = cleaned.replace(/\\&/g, "&");
+  cleaned = cleaned.replace(/\\_/g, "_");
+  cleaned = cleaned.replace(/\\#/g, "#");
+
   
+  cleaned = cleaned.replace(/^#{1,6}\s+/gm, "");
+  cleaned = cleaned.replace(/#{1,6}\s+/g, "");
+
+ 
+  cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, "$1");
+  cleaned = cleaned.replace(/__(.*?)__/g, "$1");
+  cleaned = cleaned.replace(/\*(.*?)\*/g, "$1");
+  cleaned = cleaned.replace(/_(.*?)_/g, "$1");
+
+  
+  cleaned = cleaned.replace(/`{1,3}(.*?)`{1,3}/g, "$1");
+
+  
+  cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+
+  
+  cleaned = cleaned.replace(/^[•●○▪▫\-*+]\s+/gm, "");
+
+ 
+  cleaned = cleaned.replace(/<br\s*\/?>/gi, " ");
+  cleaned = cleaned.replace(/<\/?[a-z][^>]*>/gi, "");
+
+ 
+  cleaned = cleaned.replace(/&nbsp;/gi, " ");
+  cleaned = cleaned.replace(/&amp;/gi, "&");
+  cleaned = cleaned.replace(/&lt;/gi, "<");
+  cleaned = cleaned.replace(/&gt;/gi, ">");
+  cleaned = cleaned.replace(/&quot;/gi, '"');
+  cleaned = cleaned.replace(/&#39;/gi, "'");
+
+
+  cleaned = cleaned.replace(/(\w)-\s+(\w)/g, "$1-$2");
+
+  
+  cleaned = cleaned.replace(/\s+/g, " ");
+
+
+  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+
+  return cleaned.trim();
+};
+
+const cleanArray = (arr) => {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((item) => {
+      if (typeof item === "string") return cleanDescription(item);
+      if (typeof item === "object" && item !== null) {
+        const cleaned = {};
+        Object.keys(item).forEach((key) => {
+          cleaned[key] =
+            typeof item[key] === "string"
+              ? cleanDescription(item[key])
+              : item[key];
+        });
+        return cleaned;
+      }
+      return item;
+    })
+    .filter(Boolean);
+};
+
+export default function ResumeContent({ resume }) {
   const personal = resume.personal || {};
   const social = resume.social || {};
   const aiData = resume.ai || {};
   const summary = aiData.generatedSummary || resume.summary || "";
 
+  
   let skills = [];
   if (resume.skills) {
     if (Array.isArray(resume.skills)) {
@@ -44,29 +121,21 @@ export default function ResumeContent({ resume }) {
       skills = allSkills;
     }
   }
+  skills = cleanArray(skills);
 
-  const experience = Array.isArray(resume.workExperience)
-    ? resume.workExperience
-    : [];
-  const education = Array.isArray(resume.education) ? resume.education : [];
-  const projects = Array.isArray(resume.projects) ? resume.projects : [];
-  const certifications = Array.isArray(resume.certifications)
-    ? resume.certifications
-    : [];
-  const languages = Array.isArray(resume.languages) ? resume.languages : [];
-  const interests = Array.isArray(resume.interests) ? resume.interests : [];
-  const hobbies = Array.isArray(resume.hobbies) ? resume.hobbies : [];
-  const awards = Array.isArray(resume.awards) ? resume.awards : [];
-  const volunteering = Array.isArray(resume.volunteering)
-    ? resume.volunteering
-    : [];
-  const references = Array.isArray(resume.references) ? resume.references : [];
-  const publications = Array.isArray(resume.publications)
-    ? resume.publications
-    : [];
-  const customSections = Array.isArray(resume.customSections)
-    ? resume.customSections
-    : [];
+ 
+  const experience = cleanArray(resume.workExperience);
+  const education = cleanArray(resume.education);
+  const projects = cleanArray(resume.projects);
+  const certifications = cleanArray(resume.certifications);
+  const languages = cleanArray(resume.languages);
+  const interests = cleanArray(resume.interests);
+  const hobbies = cleanArray(resume.hobbies);
+  const awards = cleanArray(resume.awards);
+  const volunteering = cleanArray(resume.volunteering);
+  const references = cleanArray(resume.references);
+  const publications = cleanArray(resume.publications);
+  const customSections = cleanArray(resume.customSections);
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -78,50 +147,43 @@ export default function ResumeContent({ resume }) {
     }
   };
 
-  const cleanDescription = (text) => {
-    if (!text) return "";
-    let cleaned = text.replace(/\*\*/g, "").replace(/##/g, "").trim();
-    cleaned = cleaned.replace(/^[•●○\-*]\s*/gm, "");
-    cleaned = cleaned.replace(/\s+/g, " ");
-    return cleaned;
-  };
-
   const formatTechnologies = (tech) => {
     if (!tech) return [];
-    if (Array.isArray(tech)) {
-      return tech;
-    }
+    if (Array.isArray(tech)) return cleanArray(tech);
     if (typeof tech === "string") {
       return tech
-        .replace(/[•●○\-*]\s*/g, ",")
+        .replace(/[•●○\-*]/g, ",")
         .split(",")
+        .map((t) => cleanDescription(t))
         .filter((t) => t.trim());
     }
     return [];
   };
 
-  const fullName = personal.fullName || resume.title || "Full Name";
-  const jobTitle = personal.jobTitle || "";
-  const email = personal.email || "";
-  const phone = personal.phone || "";
-  const city = personal.city || "";
-  const country = personal.country || "";
+  const fullName = cleanDescription(
+    personal.fullName || resume.title || "Full Name"
+  );
+  const jobTitle = cleanDescription(personal.jobTitle || "");
+  const email = cleanDescription(personal.email || "");
+  const phone = cleanDescription(personal.phone || "");
+  const city = cleanDescription(personal.city || "");
+  const country = cleanDescription(personal.country || "");
   const profileImage = resume.profileImage || null;
   const hasProfileImage =
     profileImage && profileImage.url && profileImage.url.trim() !== "";
 
   return (
     <div style={{ backgroundColor: "#ffffff", color: "#111827" }}>
-      {}
+      {/* HEADER */}
       <div className="mb-8 flex flex-col items-start gap-6 border-b-2 border-gray-200 pb-8 md:flex-row md:items-center">
-        {hasProfileImage ? (
+        {hasProfileImage && (
           <img
             src={profileImage.url}
             alt={profileImage.alt || "Profile"}
             className="h-28 w-28 md:h-36 md:w-36 rounded-full object-cover border-4 border-gray-200 shadow-sm flex-shrink-0"
             crossOrigin="anonymous"
           />
-        ) : ""}
+        )}
         <div className="flex-1 min-w-0">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight break-words">
             {fullName}
@@ -186,7 +248,7 @@ export default function ResumeContent({ resume }) {
         </div>
       </div>
 
-      {}
+     
       {summary && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -199,7 +261,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+     
       {education.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -226,7 +288,9 @@ export default function ResumeContent({ resume }) {
                   {(edu.year || (edu.startDate && edu.endDate)) && (
                     <p className="text-sm text-gray-500 font-medium mt-1 md:mt-0 flex-shrink-0">
                       {edu.year ||
-                        `${formatDate(edu.startDate)} — ${formatDate(edu.endDate)}`}
+                        `${formatDate(edu.startDate)} — ${formatDate(
+                          edu.endDate
+                        )}`}
                     </p>
                   )}
                 </div>
@@ -236,7 +300,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+      
       {experience.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -258,7 +322,9 @@ export default function ResumeContent({ resume }) {
                   {(exp.duration || (exp.startDate && exp.endDate)) && (
                     <p className="text-sm text-gray-500 font-medium mt-1 md:mt-0 flex-shrink-0">
                       {exp.duration ||
-                        `${formatDate(exp.startDate)} — ${formatDate(exp.endDate)}`}
+                        `${formatDate(exp.startDate)} — ${formatDate(
+                          exp.endDate
+                        )}`}
                     </p>
                   )}
                 </div>
@@ -268,7 +334,7 @@ export default function ResumeContent({ resume }) {
                       {cleanDescription(
                         exp.description ||
                           (Array.isArray(exp.responsibilities) &&
-                            exp.responsibilities.join(" ")),
+                            exp.responsibilities.join(" "))
                       )}
                     </p>
                   </div>
@@ -279,7 +345,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+    
       {skills.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -293,7 +359,7 @@ export default function ResumeContent({ resume }) {
                 className="skill-chip px-4 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
               >
                 {typeof skill === "object"
-                  ? skill.name || skill.language || JSON.stringify(skill)
+                  ? cleanDescription(skill.name || skill.language || "")
                   : skill}
               </span>
             ))}
@@ -301,7 +367,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+    
       {projects.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-5 uppercase tracking-wide flex items-center gap-3">
@@ -327,7 +393,7 @@ export default function ResumeContent({ resume }) {
                         key={i}
                         className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-100"
                       >
-                        {tech.trim()}
+                        {tech}
                       </span>
                     ))}
                   </div>
@@ -371,7 +437,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+     
       {certifications.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -387,7 +453,7 @@ export default function ResumeContent({ resume }) {
               return (
                 <span
                   key={index}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200"
                 >
                   {cleanDescription(certTitle)}
                 </span>
@@ -397,7 +463,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+     
       {languages.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -414,7 +480,7 @@ export default function ResumeContent({ resume }) {
               return (
                 <span
                   key={index}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all flex items-center gap-2"
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200 flex items-center gap-2"
                 >
                   <span>{cleanDescription(langName)}</span>
                   {langLevel && (
@@ -429,7 +495,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+      
       {interests.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -440,16 +506,18 @@ export default function ResumeContent({ resume }) {
             {interests.map((interest, index) => (
               <span
                 key={index}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200"
               >
-                {cleanDescription(interest)}
+                {typeof interest === "string"
+                  ? interest
+                  : cleanDescription(interest)}
               </span>
             ))}
           </div>
         </div>
       )}
 
-      {}
+     
       {hobbies.length > 0 && (
         <div className="section-card mb-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -460,19 +528,18 @@ export default function ResumeContent({ resume }) {
             {hobbies.map((hobby, index) => (
               <span
                 key={index}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200"
               >
-                {cleanDescription(hobby)}
+                {typeof hobby === "string" ? hobby : cleanDescription(hobby)}
               </span>
             ))}
           </div>
         </div>
       )}
 
-      {}
+     
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-8">
-          {}
           {awards.length > 0 && (
             <div className="section-card">
               <h2 className="section-heading text-xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -500,7 +567,6 @@ export default function ResumeContent({ resume }) {
             </div>
           )}
 
-          {}
           {volunteering.length > 0 && (
             <div className="section-card">
               <h2 className="section-heading text-xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -530,7 +596,6 @@ export default function ResumeContent({ resume }) {
         </div>
 
         <div className="space-y-8">
-          {}
           {references.length > 0 && (
             <div className="section-card">
               <h2 className="section-heading text-xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -570,7 +635,7 @@ export default function ResumeContent({ resume }) {
         </div>
       </div>
 
-      {}
+     
       {publications.length > 0 && (
         <div className="section-card mt-8">
           <h2 className="section-heading text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-4 uppercase tracking-wide flex items-center gap-3">
@@ -581,7 +646,7 @@ export default function ResumeContent({ resume }) {
             {publications.map((pub, index) => (
               <div
                 key={index}
-                className="publication-item rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                className="publication-item rounded-xl border border-gray-200 p-4"
               >
                 <h4 className="font-bold text-gray-900 text-base break-words">
                   {cleanDescription(pub.title || "Publication")}
@@ -594,7 +659,7 @@ export default function ResumeContent({ resume }) {
                   <p className="text-gray-500 text-xs mt-1 break-words">
                     Authors:{" "}
                     {Array.isArray(pub.authors)
-                      ? pub.authors.join(", ")
+                      ? pub.authors.map(cleanDescription).join(", ")
                       : cleanDescription(pub.authors)}
                   </p>
                 )}
@@ -615,7 +680,7 @@ export default function ResumeContent({ resume }) {
         </div>
       )}
 
-      {}
+    
       {customSections.length > 0 && (
         <div className="section-card mt-8">
           {customSections.map((section, index) => (

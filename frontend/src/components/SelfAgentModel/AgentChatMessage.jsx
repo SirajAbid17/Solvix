@@ -295,7 +295,7 @@ export default function AgentChatMessage({
             </div>
           )}
 
-        
+         
           {hasPdf && (
             <div
               className={`mt-4 rounded-xl border overflow-hidden ${
@@ -345,7 +345,7 @@ export default function AgentChatMessage({
             </div>
           )}
 
-        
+          
           {hasPpt && (
             <div
               className={`mt-4 rounded-xl border overflow-hidden ${
@@ -395,7 +395,7 @@ export default function AgentChatMessage({
             </div>
           )}
 
-        
+          
           {msgImages.length > 0 && (
             <div className="mt-4">
               <div

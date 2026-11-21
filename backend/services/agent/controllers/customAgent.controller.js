@@ -100,7 +100,7 @@ export const createCustomAgent = async (req, res) => {
       agent,
     });
   } catch (error) {
-    console.error("createCustomAgent error:", error);
+    
     return res.status(500).json({
       success: false,
       message: error.message || "Failed to create agent",
@@ -278,7 +278,17 @@ export const chatWithCustomAgent = async (req, res) => {
     } = req.body;
     const remainingCredits = req.headers["x-remaining-credits"];
 
-   
+    
+    console.log(" chatWithCustomAgent request:", {
+      agentId: id,
+      prompt: String(prompt || "").slice(0, 80),
+      forceTool: forceTool || "none",
+      fileId: fileId || "none",
+      fileName: fileName || "none",
+      fileContextLen: fileContext?.length || 0,
+      hasImage: !!imageBase64,
+      bodyKeys: Object.keys(req.body),
+    });
 
     if (!prompt || !String(prompt).trim()) {
       return res
@@ -301,7 +311,7 @@ export const chatWithCustomAgent = async (req, res) => {
 
     const conversationKey = conversationId || `conv_${Date.now()}`;
 
-   
+    
     const hasFile = !!(fileId || fileContext);
     const history = hasFile
       ? []
@@ -311,14 +321,14 @@ export const chatWithCustomAgent = async (req, res) => {
           conversationKey
         );
 
-  
+ 
 
     await saveAgentChatMessage(userId, agent._id.toString(), conversationKey, {
       role: "user",
       content: String(prompt).trim(),
     });
 
-   
+    
     const result = await CustomAgentNode({
       prompt: String(prompt).trim(),
       messages: history,
@@ -453,7 +463,7 @@ export const getCustomAgentChatHistory = async (req, res) => {
       conversationId,
     });
   } catch (error) {
-    console.error("getCustomAgentChatHistory error:", error);
+    
     return res.status(500).json({
       success: false,
       message: error.message || "Failed to fetch chat history",

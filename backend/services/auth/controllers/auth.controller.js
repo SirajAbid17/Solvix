@@ -53,7 +53,7 @@ export const Login = async (req, res) => {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "7d" }
     );
 
     await redis.set(
@@ -72,7 +72,7 @@ export const Login = async (req, res) => {
         status: user.status || "active",
       }),
       "EX",
-      7 * 24 * 60 * 60,
+      7 * 24 * 60 * 60
     );
 
     res.cookie("sessionid", sessionid, {
@@ -96,11 +96,12 @@ export const Login = async (req, res) => {
       status: user.status || "active",
     };
 
+    
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      user: flatUser,
-      ...flatUser,
+      user: flatUser,     
+      ...flatUser,        
     });
   } catch (error) {
     console.error("Login Error:", error);

@@ -39,6 +39,7 @@ export {
   AgentFormModal,
 };
 
+
 export function CustomDropdown({
   value,
   onChange,
@@ -55,6 +56,7 @@ export function CustomDropdown({
 
   const selected = options.find((o) => String(o.value) === String(value));
 
+ 
   useEffect(() => {
     if (!open) return;
 
@@ -67,6 +69,7 @@ export function CustomDropdown({
       }
     };
 
+    
     const timer = setTimeout(() => {
       document.addEventListener("mousedown", handleClick);
     }, 0);
@@ -77,6 +80,7 @@ export function CustomDropdown({
     };
   }, [open]);
 
+  
   useEffect(() => {
     if (!open) return;
     const updatePosition = () => {
@@ -105,7 +109,7 @@ export function CustomDropdown({
   }, [open]);
 
   const handleSelect = (val) => {
-    console.log(" CustomDropdown handleSelect:", val);
+    
     onChange(val);
     setOpen(false);
   };
@@ -186,6 +190,7 @@ export function CustomDropdown({
         typeof document !== "undefined" &&
         createPortal(
           <>
+            
             <div
               className="fixed inset-0 z-[99998]"
               onMouseDown={(e) => {
@@ -195,6 +200,7 @@ export function CustomDropdown({
               }}
             />
 
+          
             <div
               ref={dropdownRef}
               className={`fixed z-[99999] max-h-72 overflow-y-auto rounded-xl border shadow-2xl ${
@@ -307,11 +313,12 @@ export function CustomDropdown({
               </div>
             </div>
           </>,
-          document.body,
+          document.body
         )}
     </div>
   );
 }
+
 
 export function ConfirmModal({
   dark,
@@ -357,7 +364,7 @@ export function ConfirmModal({
       });
       gsap.from(".cm-backdrop", { opacity: 0, duration: 0.2 });
     },
-    { scope: modalRef, dependencies: [open] },
+    { scope: modalRef, dependencies: [open] }
   );
 
   if (!open) return null;
@@ -452,6 +459,7 @@ export function ConfirmModal({
   );
 }
 
+
 export function LoadingState({ dark }) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
@@ -516,6 +524,7 @@ export function LoadingState({ dark }) {
   );
 }
 
+
 export function Benefit({ dark, Icon, title, text }) {
   return (
     <div
@@ -547,6 +556,7 @@ export function Benefit({ dark, Icon, title, text }) {
     </div>
   );
 }
+
 
 export function CategoryChip({ active, onClick, dark, Icon, label, count }) {
   return (
@@ -583,6 +593,7 @@ export function CategoryChip({ active, onClick, dark, Icon, label, count }) {
   );
 }
 
+
 export function Badge({ children, dark }) {
   return (
     <span
@@ -612,6 +623,7 @@ export function IconBtn({ children, onClick, dark, title }) {
     </button>
   );
 }
+
 
 export function AgentCard({ agent, dark, onChat, onEdit, onDelete }) {
   const cat = AGENT_CATEGORIES.find((c) => c.id === agent.category);
@@ -733,6 +745,7 @@ export function AgentCard({ agent, dark, onChat, onEdit, onDelete }) {
   );
 }
 
+
 export function EmptyState({ dark, onCreate }) {
   return (
     <div
@@ -771,6 +784,7 @@ export function EmptyState({ dark, onCreate }) {
   );
 }
 
+
 export function Tab({ active, onClick, dark, label }) {
   return (
     <button
@@ -789,6 +803,7 @@ export function Tab({ active, onClick, dark, label }) {
     </button>
   );
 }
+
 
 export function ModelRow({ model, dark }) {
   const { label, description, Icon, path, badge } = model;
