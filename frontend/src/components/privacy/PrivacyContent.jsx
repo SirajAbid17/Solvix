@@ -35,12 +35,12 @@ import { Link } from "react-router-dom";
 const PrivacyContent = () => {
   return (
     <main className="relative w-full overflow-hidden">
-      {}
+      
       <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[500px] w-[850px] -translate-x-1/2 rounded-full bg-[#c9a468]/[0.025] blur-[140px]" />
 
       <div className="mx-auto w-full max-w-[1200px] px-5 py-16 sm:px-8 sm:py-2 lg:px-10 lg:py-8">
         <div className="w-full">
-          {}
+          
           <div className="mb-2 border-b border-white/[0.08] pb-12 sm:mb-20">
             <div className="mb-5 flex items-center gap-3">
               <span className="h-px w-8 bg-[#c9a468]/60" />
@@ -61,9 +61,9 @@ const PrivacyContent = () => {
             </p>
           </div>
 
-          {}
+          
           <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-            {}
+            
             <PrivacySection
               id="section-01"
               number="01"
@@ -103,7 +103,7 @@ const PrivacyContent = () => {
               </dl>
             </PrivacySection>
 
-            {}
+            
             <PrivacySection
               id="section-02"
               number="02"
@@ -143,9 +143,9 @@ const PrivacyContent = () => {
             </PrivacySection>
           </div>
 
-          {}
+          
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-            {}
+            
             <PrivacySection
               id="section-03"
               number="03"
@@ -244,7 +244,7 @@ const PrivacyContent = () => {
               </div>
             </PrivacySection>
 
-            {}
+            
             <PrivacySection
               id="section-04"
               number="04"
@@ -324,9 +324,9 @@ const PrivacyContent = () => {
             </PrivacySection>
           </div>
 
-          {}
+          
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-            {}
+            
             <PrivacySection
               id="section-05"
               number="05"
@@ -384,7 +384,7 @@ const PrivacyContent = () => {
               </div>
             </PrivacySection>
 
-            {}
+            
             <PrivacySection
               id="section-06"
               number="06"
@@ -443,9 +443,9 @@ const PrivacyContent = () => {
             </PrivacySection>
           </div>
 
-          {}
+          
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-            {}
+            
             <PrivacySection
               id="section-07"
               number="07"
@@ -502,7 +502,7 @@ const PrivacyContent = () => {
               </div>
             </PrivacySection>
 
-            {}
+            
             <PrivacySection
               id="section-08"
               number="08"
@@ -561,9 +561,9 @@ const PrivacyContent = () => {
             </PrivacySection>
           </div>
 
-          {}
+          
           <div className="mt-6 grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
-            {}
+            
             <PrivacySection
               id="section-09"
               number="09"
@@ -614,7 +614,7 @@ const PrivacyContent = () => {
               </p>
             </PrivacySection>
 
-            {}
+            
             <PrivacySection
               id="section-10"
               number="10"
@@ -665,7 +665,7 @@ const PrivacyContent = () => {
             </PrivacySection>
           </div>
 
-          {}
+          
           <section className="relative mt-16 w-full overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.035] p-7 sm:mt-20 sm:p-10 lg:p-12">
             <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-[#c9a468]/[0.06] blur-[110px]" />
 
@@ -705,7 +705,7 @@ const PrivacyContent = () => {
             </div>
           </section>
 
-          {}
+          
         </div>
       </div>
     </main>

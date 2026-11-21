@@ -149,7 +149,7 @@ export default function CodeBlock({ language, code, darkMode }) {
 
   return (
     <div className="relative my-3 group/code rounded-xl overflow-hidden border border-white/10">
-      {}
+      
       <div
         className="
           absolute
@@ -183,7 +183,7 @@ export default function CodeBlock({ language, code, darkMode }) {
         {displayLanguage}
       </div>
 
-      {}
+      
       <button
         type="button"
         onClick={handleCopy}
@@ -227,7 +227,7 @@ export default function CodeBlock({ language, code, darkMode }) {
         )}
       </button>
 
-      {}
+      
       <div className="code-scroll-area max-h-[600px] overflow-auto">
         <div
           className="code-wrapper"
@@ -236,7 +236,7 @@ export default function CodeBlock({ language, code, darkMode }) {
             minWidth: "100%",
           }}
         >
-          {}
+          
           <div
             className="line-numbers"
             style={{
@@ -270,7 +270,7 @@ export default function CodeBlock({ language, code, darkMode }) {
             ))}
           </div>
 
-          {}
+          
           <div
             style={{
               flex: 1,
@@ -314,7 +314,7 @@ export default function CodeBlock({ language, code, darkMode }) {
         </div>
       </div>
 
-      {}
+      
       <style>
         {`
           .code-scroll-area {

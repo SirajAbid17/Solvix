@@ -497,7 +497,7 @@ export default function ResumeDetailsForm({
 
   return (
     <div className="space-y-6 overflow-y-auto custom-scrollbar">
-      {}
+      
       <div className="flex items-center gap-3 scrollbar-hide">
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}
@@ -515,7 +515,7 @@ export default function ResumeDetailsForm({
       </div>
 
       <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2">
-        {}
+        
         <div className={cardStyle}>
           <div className="mb-4 flex items-center gap-3">
             <div

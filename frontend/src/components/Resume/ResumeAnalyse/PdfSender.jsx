@@ -206,7 +206,7 @@ export default function PdfSender() {
       <div className="mx-auto flex min-h-[calc(100vh-150px)] max-w-4xl items-center justify-center">
         <div className="w-full">
 
-          {}
+          
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold sm:text-3xl">
               Upload Your Resume
@@ -224,14 +224,14 @@ export default function PdfSender() {
             </p>
           </div>
 
-          {}
+          
           {analysisComplete && analysisData && (
             <div className="mx-auto max-w-2xl mb-6">
               <div className={`
                 relative overflow-hidden rounded-2xl p-8 text-center
                 ${dark ? "bg-white/[0.05] border border-white/10" : "bg-gray-50 border border-gray-200"}
               `}>
-                {}
+                
                 <div className="absolute inset-0 opacity-5">
                   <div className="absolute top-0 left-1/4 w-64 h-64 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
                   <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-500 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -317,7 +317,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {}
+          
           {!analysisComplete && (
             <div
               onDragOver={(e) => {
@@ -350,7 +350,7 @@ export default function PdfSender() {
                 }
               `}
             >
-              {}
+              
               {loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-10">
                   <div className="text-center">
@@ -368,7 +368,7 @@ export default function PdfSender() {
                 </div>
               )}
 
-              {}
+              
               <div
                 className={`
                   mb-5 flex h-20 w-20
@@ -399,7 +399,7 @@ export default function PdfSender() {
                 )}
               </div>
 
-              {}
+              
               {file ? (
                 <>
                   <div className="flex items-center gap-2">
@@ -462,7 +462,7 @@ export default function PdfSender() {
                     or click anywhere to browse from your computer
                   </p>
 
-                  {}
+                  
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -496,14 +496,14 @@ export default function PdfSender() {
                 </>
               )}
 
-              {}
+              
               {error && (
                 <div className="mt-4 text-red-500 text-sm font-medium">
                   {error}
                 </div>
               )}
 
-              {}
+              
               <input
                 ref={fileInputRef}
                 type="file"
@@ -514,7 +514,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {}
+          
           {!analysisComplete && (
             <div
               className={`
@@ -540,7 +540,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {}
+          
           {file && !analysisComplete && (
             <div className="flex justify-center mt-6">
               <button
@@ -577,7 +577,7 @@ export default function PdfSender() {
             </div>
           )}
 
-          {}
+          
           {resumes && resumes.length > 0 && !analysisComplete && !file && (
             <div className="flex justify-center mt-6">
               <button

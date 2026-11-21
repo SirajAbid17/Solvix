@@ -94,7 +94,7 @@ export default function PricingSection({ full = false }) {
       navigate("/");
       return;
     }
-    navigate(fromFull ? "/pricing" : "/billing", { state: { plan } });
+    navigate(fromFull ? "/pricing" : "/pricing", { state: { plan } });
   };
 
  

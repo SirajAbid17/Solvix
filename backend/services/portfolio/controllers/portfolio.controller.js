@@ -1,7 +1,10 @@
 import { uploadPdf } from "../services/upload.service.js";
 import { extractPdfText } from "../services/pdf.service.js";
 import Portfolio from "../models/portfolio.models.js";
-import { analyzePortfolio } from "../services/analysis.service.js";
+import {
+  analyzePortfolio,
+  regeneratePortfolioCode,
+} from "../services/analysis.service.js";
 import mongoose from "mongoose";
 import redis from "../../../shared/redis/redis.js";
 
@@ -148,6 +151,21 @@ export const analyzePortfolioController = async (req, res) => {
     await redis.del(`portfolio:${portfolio.slug}`);
     await redis.del(`user-portfolios:${userId}`);
 
+    // Analysis succeeded but code generation failed → retryable state
+    if (result && result.warning) {
+      return res.status(207).json({
+        success: true,
+        partial: true,
+        message: result.warning,
+        portfolioId: result.portfolioId || portfolio._id,
+        slug: result.slug || portfolio.slug,
+        title: result.title || portfolio.title,
+        analysis: result.analysis || null,
+        generatedCode: null,
+        canRetryCodeGeneration: true,
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "Portfolio generated successfully",
@@ -167,6 +185,68 @@ export const analyzePortfolioController = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || "Portfolio analysis failed",
+    });
+  }
+};
+
+export const regenerateCodeController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = getUserId(req);
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - User ID not found",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid portfolio ID",
+      });
+    }
+
+    const portfolio = await Portfolio.findOne({ _id: id, userId });
+
+    if (!portfolio) {
+      return res.status(404).json({
+        success: false,
+        message: "Portfolio not found or unauthorized",
+      });
+    }
+
+    if (portfolio.status === "generating") {
+      return res.status(409).json({
+        success: false,
+        message: "Code generation is already in progress",
+      });
+    }
+
+    const result = await regeneratePortfolioCode(portfolio._id);
+
+    await redis.del(`portfolio:${portfolio.slug}`);
+    await redis.del(`user-portfolios:${userId}`);
+
+    return res.status(200).json({
+      success: true,
+      message: "Portfolio code regenerated successfully",
+      portfolioId: result.portfolioId,
+      slug: result.slug,
+      title: result.title,
+      generatedCode: {
+        html: result.generatedCode?.html || "",
+        css: result.generatedCode?.css || "",
+        js: result.generatedCode?.js || "",
+        generatedAt: result.generatedCode?.generatedAt || null,
+      },
+    });
+  } catch (error) {
+    console.error("Regenerate Code Controller Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to regenerate portfolio code",
     });
   }
 };
@@ -202,6 +282,7 @@ export const getPortfolioBySlug = async (req, res) => {
           isPublic: data.isPublic,
           status: data.status,
           analysisStatus: data.analysisStatus,
+          error: data.error || "",
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
         },
@@ -247,6 +328,7 @@ export const getPortfolioBySlug = async (req, res) => {
         isPublic: portfolio.isPublic,
         status: portfolio.status,
         analysisStatus: portfolio.analysisStatus,
+        error: portfolio.error || "",
         createdAt: portfolio.createdAt,
         updatedAt: portfolio.updatedAt,
       },
@@ -307,6 +389,8 @@ export const getAllUserPortfolios = async (req, res) => {
         createdAt: portfolio.createdAt,
         updatedAt: portfolio.updatedAt,
         error: portfolio.error || "",
+        canRetryCodeGeneration:
+          portfolio.status === "code_generation_failed",
         generatedCode: {
           html: portfolio.generatedCode?.html || "",
           css: portfolio.generatedCode?.css || "",

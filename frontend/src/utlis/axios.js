@@ -17,10 +17,10 @@ api.interceptors.request.use((config) => {
       config.headers["x-user-id"] = userId;
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 
   return config;
 });
 
-export default api;  
+export default api;

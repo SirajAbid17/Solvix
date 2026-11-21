@@ -1,5 +1,12 @@
 import { TavilySearch } from "@langchain/tavily";
 
+
+export const serpApiConfig = {
+  apiKey: process.env.SERPAPI_API_KEY,
+  baseUrl: "https://serpapi.com/search",
+  engine: "google_jobs",
+};
+
 export const jobSearchTavily = new TavilySearch({
   apiKey: process.env.TAVILY_API_KEY,
   maxResults: 15,
@@ -23,6 +30,6 @@ export const jobSearchTavily = new TavilySearch({
 
 export const tavilySearch = new TavilySearch({
   apiKey: process.env.TAVILY_API_KEY,
-  maxResults: 4,
+  maxResults: 5,
   includeImages: true,
 });

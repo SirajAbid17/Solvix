@@ -73,9 +73,9 @@ function LearningItem({ item, dark }) {
 export default function ResumeAnalysisOverview({ analysis, dark }) {
   return (
     <>
-      {}
+      
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        {}
+        
         <div className={`rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
         }`}>
@@ -96,7 +96,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
           </div>
         </div>
 
-        {}
+        
         <div className={`rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
         }`}>
@@ -117,7 +117,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
           <p className="mt-2 text-xs text-gray-500">Applicant Tracking System compatibility</p>
         </div>
 
-     {}
+     
 <div
   className={`rounded-2xl border p-5 ${
     dark
@@ -149,7 +149,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
   </p>
 </div>
 
-        {}
+        
         <div className={`rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
         }`}>
@@ -167,7 +167,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       </div>
 
-      {}
+      
       {Object.keys(analysis.sectionScores).length > 0 && (
         <div className={`mt-6 rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
@@ -192,7 +192,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       )}
 
-      {}
+      
       {analysis.missingKeywords.length > 0 && (
         <div className={`mt-6 rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
@@ -219,7 +219,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       )}
 
-      {}
+      
       {analysis.recommendedRoles.length > 0 && (
         <div className={`mt-6 rounded-2xl border p-5 ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
@@ -246,11 +246,11 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       )}
 
-      {}
+      
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {}
+        
         <div className="space-y-6">
-          {}
+          
           <div className={`rounded-2xl border ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -279,7 +279,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
             </div>
           </div>
 
-          {}
+          
           <div className={`rounded-2xl border ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -309,9 +309,9 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
           </div>
         </div>
 
-        {}
+        
         <div className="space-y-6">
-          {}
+          
           <div className={`rounded-2xl border ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -337,7 +337,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
             </div>
           </div>
 
-          {}
+          
           <div className={`rounded-2xl border p-5 ${
             dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
           }`}>
@@ -370,7 +370,7 @@ export default function ResumeAnalysisOverview({ analysis, dark }) {
         </div>
       </div>
 
-      {}
+      
       {analysis.nextLearning.length > 0 && (
         <div className={`mt-6 rounded-2xl border ${
           dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"

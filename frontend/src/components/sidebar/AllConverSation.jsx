@@ -132,7 +132,7 @@ export default function AllConverSation() {
       setEditingId(null);
     } catch (error) {
       console.error("Failed to update title:", error);
-      alert("Failed to update title. Please try again.");
+      
     } finally {
       setTitleLoading(false);
     }

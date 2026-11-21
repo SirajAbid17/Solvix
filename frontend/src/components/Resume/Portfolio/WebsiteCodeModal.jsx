@@ -397,7 +397,7 @@ export default function WebsiteCodeModal({
         }
       }}
     >
-      {}
+      
 
       <div
         className="
@@ -414,7 +414,7 @@ export default function WebsiteCodeModal({
           shadow-2xl
         "
       >
-        {}
+        
 
         <header
           className="
@@ -430,7 +430,7 @@ export default function WebsiteCodeModal({
             sm:px-5
           "
         >
-          {}
+          
 
           <div
             className="
@@ -482,7 +482,7 @@ export default function WebsiteCodeModal({
             </div>
           </div>
 
-          {}
+          
 
           <button
             type="button"
@@ -507,7 +507,7 @@ export default function WebsiteCodeModal({
           </button>
         </header>
 
-        {}
+        
 
         <div
           className="
@@ -523,7 +523,7 @@ export default function WebsiteCodeModal({
             px-3
           "
         >
-          {}
+          
 
           <div
             className="
@@ -568,7 +568,7 @@ export default function WebsiteCodeModal({
             )}
           </div>
 
-          {}
+          
 
           <button
             type="button"
@@ -618,7 +618,7 @@ export default function WebsiteCodeModal({
           </button>
         </div>
 
-        {}
+        
 
         <main
           className="
@@ -712,7 +712,7 @@ export default function WebsiteCodeModal({
           )}
         </main>
 
-        {}
+        
 
         <footer
           className="
@@ -780,7 +780,7 @@ export default function WebsiteCodeModal({
         </footer>
       </div>
 
-      {}
+      
 
       <style>
         {`

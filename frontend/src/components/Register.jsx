@@ -7,7 +7,7 @@ import { setuserData } from "../redux/userSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../BgContext/ThemeContext";
 import { clearConversations } from "../redux/conversationSlice";
-import GetcurrentUser from "../Features/GetcurrentUser";
+import GetcurrentUser from "../Features/GetCurrentUser.js";
 
 export default function Register() {
   const { userdata } = useSelector((state) => state.user);
@@ -38,7 +38,6 @@ export default function Register() {
     try {
       const { data } = await api.post("/auth/login", { token });
 
-      
       let user = data?.user || data?.data?.user || null;
 
       if (!user) {
@@ -47,14 +46,13 @@ export default function Register() {
       }
 
       if (user) {
-        dispatch(setuserData(user)); 
+        dispatch(setuserData(user));
       }
 
       navigate(from, { replace: true });
     } catch (error) {
       console.log("Login error:", error?.response?.data || error.message);
 
-     
       try {
         const fallback = await GetcurrentUser();
         if (fallback) dispatch(setuserData(fallback));

@@ -193,7 +193,7 @@ const PrivacyHero = ({ orbRef, gridRef, onBack }) => {
             <div className="hero-line mt-8 h-px max-w-xl origin-left scale-x-0 bg-white/15" />
           </div>
 
-          {}
+          
 
           <div className="privacy-visual w-full">
             <div className="rounded-3xl border border-white/[0.08] bg-[#111214] p-5 shadow-[0_30px_80px_rgba(0,0,0,0.3)] sm:p-6">
@@ -240,7 +240,7 @@ const PrivacyHero = ({ orbRef, gridRef, onBack }) => {
           </div>
         </div>
 
-        {}
+        
 
         <div className="mt-16 grid border-t border-white/[0.08] sm:grid-cols-3">
           {[

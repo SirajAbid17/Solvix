@@ -270,7 +270,7 @@ export default function CVGenerate() {
       <ResumeHeader />
       
       <div className="container mx-auto max-w-6xl px-4 py-8">
-        {}
+        
         <div className={`${cardClass} mb-8`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
@@ -294,9 +294,9 @@ export default function CVGenerate() {
           </div>
         </div>
 
-        {}
+        
         <div className="space-y-8">
-          {}
+          
           <div className={cardClass}>
             <PersonalInformation
               personalInfo={personalInfo}
@@ -307,7 +307,7 @@ export default function CVGenerate() {
             />
           </div>
 
-          {}
+          
           <div className={cardClass}>
             <ResumeDetailsForm
               resumeDetails={resumeDetails}
@@ -318,7 +318,7 @@ export default function CVGenerate() {
             />
           </div>
 
-          {}
+          
           <div className={`${cardClass} flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end bottom-4`}>
             <button
               onClick={() => navigate(editMode ? `/cv/${existingResume?._id}` : '/resume')}

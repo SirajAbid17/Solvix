@@ -12,21 +12,19 @@ import ConfirmModal from "./ConfirmModal";
 export default function JobApply() {
   const user = useSelector((s) => s.user.userdata);
 
-
   const [showSearch, setShowSearch] = useState(true);
-  const [searchPrompt, setSearchPrompt] = useState(
-    "Find worldwide Full-Stack, MERN, React, Node.js, Python, AI/ML, and GenAI jobs, prioritizing remote opportunities."
-  );
-  const [jobLimit, setJobLimit] = useState(5);
+
+
+  const [searchPrompt, setSearchPrompt] = useState("MERN Stack Developer");
+
+  const [jobLimit, setJobLimit] = useState(15);
   const [searching, setSearching] = useState(false);
   const [cooldownInfo, setCooldownInfo] = useState(null);
 
-  
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [currentQuery, setCurrentQuery] = useState("");
 
-  
   const [cvFile, setCvFile] = useState(null);
   const [cvName, setCvName] = useState("");
   const [cvUploading, setCvUploading] = useState(false);
@@ -34,18 +32,15 @@ export default function JobApply() {
   const [cvFileContext, setCvFileContext] = useState("");
   const fileInputRef = useRef(null);
 
-
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [activeTab, setActiveTab] = useState("edit");
   const [generatingEmail, setGeneratingEmail] = useState(false);
 
-  
   const [applying, setApplying] = useState(false);
   const [appliedJobs, setAppliedJobs] = useState({});
   const [showConfirm, setShowConfirm] = useState(false);
 
-  
   const [notice, setNotice] = useState({ type: "", text: "" });
 
   useEffect(() => {
@@ -124,9 +119,10 @@ export default function JobApply() {
         return;
       }
 
+      
       const normalized = res.jobs.slice(0, jobLimit).map((j, i) => ({
         ...j,
-        id: j.url || i + 1,
+        id: j.url || j.id || i + 1,
         status: "Draft ready",
       }));
 
@@ -137,7 +133,7 @@ export default function JobApply() {
       setShowSearch(false);
       setNotice({
         type: "success",
-        text: res.message || `Found ${normalized.length} fresh jobs.`,
+        text: res.message || `Found ${normalized.length} fresh jobs (last 10 days).`,
       });
     } catch (err) {
       setNotice({

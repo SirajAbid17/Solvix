@@ -149,7 +149,7 @@ export default function UploadInterviewPdf() {
         dark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"
       }`}
     >
-      {}
+      
       <div>
         <h2
           className={`text-2xl font-bold ${dark ? "text-white" : "text-black"}`}
@@ -167,7 +167,7 @@ export default function UploadInterviewPdf() {
         </p>
       </div>
 
-      {}
+      
       <div
         onClick={() => !loading && inputRef.current?.click()}
         onDragOver={handleDragOver}
@@ -183,7 +183,7 @@ export default function UploadInterviewPdf() {
               : "border-gray-300 bg-white hover:border-black hover:bg-gray-100"
         } ${loading ? "cursor-not-allowed opacity-70" : ""}`}
       >
-        {}
+        
         <div
           className={`mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full transition-transform duration-300 ${
             isDragging ? "scale-110" : ""
@@ -204,7 +204,7 @@ export default function UploadInterviewPdf() {
           )}
         </div>
 
-        {}
+        
         <h3
           className={`text-xl font-semibold ${
             dark ? "text-white" : "text-black"
@@ -217,7 +217,7 @@ export default function UploadInterviewPdf() {
               : "Upload Resume PDF"}
         </h3>
 
-        {}
+        
         {loading && (
           <div className="mt-4">
             <div className="h-2 w-full max-w-md mx-auto overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
@@ -236,7 +236,7 @@ export default function UploadInterviewPdf() {
           </div>
         )}
 
-        {}
+        
         {!loading && !selectedFile && (
           <p className={`mt-3 ${dark ? "text-gray-400" : "text-gray-500"}`}>
             Click here or drag & drop your PDF file.
@@ -253,12 +253,12 @@ export default function UploadInterviewPdf() {
           </p>
         )}
 
-        {}
+        
         {error && !loading && (
           <p className="mt-3 text-sm text-red-500">{error}</p>
         )}
 
-        {}
+        
         {!loading && selectedFile ? (
           <div
             onClick={(event) => event.stopPropagation()}
@@ -319,7 +319,7 @@ export default function UploadInterviewPdf() {
           )
         )}
 
-        {}
+        
         <input
           ref={inputRef}
           type="file"
@@ -330,7 +330,7 @@ export default function UploadInterviewPdf() {
         />
       </div>
 
-      {}
+      
       <div className="mt-8 flex justify-end">
         <button
           type="button"

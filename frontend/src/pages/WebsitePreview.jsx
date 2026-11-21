@@ -275,10 +275,10 @@ ${js}
 
   return (
     <div className="flex h-screen flex-col bg-neutral-950">
-      {}
+      
 
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 bg-neutral-950 px-4 sm:px-5">
-        {}
+        
 
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <button
@@ -302,7 +302,7 @@ ${js}
           </div>
         </div>
 
-        {}
+        
 
         <div className="flex items-center gap-2 sm:gap-3">
           {isReady && (
@@ -311,7 +311,7 @@ ${js}
             </span>
           )}
 
-          {}
+          
 
           <button
             type="button"
@@ -323,7 +323,7 @@ ${js}
             <span className="hidden sm:inline">Code View</span>
           </button>
 
-          {}
+          
 
           <button
             type="button"
@@ -337,7 +337,7 @@ ${js}
         </div>
       </header>
 
-      {}
+      
 
       <main className="relative min-h-0 flex-1 overflow-hidden bg-white">
         {!isReady && (
@@ -360,7 +360,7 @@ ${js}
         />
       </main>
 
-      {}
+      
 
       <WebsiteCodeModal
         portfolio={portfolio}

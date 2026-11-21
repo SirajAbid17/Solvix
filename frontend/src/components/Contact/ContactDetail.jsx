@@ -148,16 +148,16 @@ const ContactDetail = () => {
       ref={sectionRef}
       className="min-h-screen overflow-hidden bg-[#050607] text-white selection:bg-white selection:text-black"
     >
-      {}
+      
 
       <div className="pointer-events-none fixed inset-0 -z-10">
-        {}
+        
         <div className="absolute left-1/2 top-[-220px] h-[460px] w-[620px] -translate-x-1/2 rounded-full bg-white/[0.025] blur-[120px]" />
 
-        {}
+        
         <div className="absolute right-[-180px] top-[30%] h-[380px] w-[380px] rounded-full bg-[#c9a468]/[0.025] blur-[120px]" />
 
-        {}
+        
         <div
           className="absolute inset-0 opacity-[0.02]"
           style={{
@@ -168,17 +168,17 @@ const ContactDetail = () => {
         />
       </div>
 
-      {}
+      
 
       <ContactHeader />
 
-      {}
+      
 
       <main className="mx-auto flex w-full max-w-[1400px] flex-col items-center px-5 pb-0 pt-[96px] sm:px-8 lg:px-12 lg:pt-[108px]">
-        {}
+        
 
         <section className="flex w-full max-w-4xl flex-col items-center text-center">
-          {}
+          
           <div className="contact-badge inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.025] px-3 py-1.5">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c9a468]/60" />
@@ -191,13 +191,13 @@ const ContactDetail = () => {
             </span>
           </div>
 
-          {}
+          
           <h1 className="contact-title mt-5 max-w-3xl font-serif text-[clamp(40px,6vw,76px)] font-medium leading-[0.92] tracking-[-0.045em] text-white">
             Let’s start a
             <span className="block text-white/30">conversation.</span>
           </h1>
 
-          {}
+          
           <p className="contact-description mt-5 max-w-2xl text-[13px] leading-6 text-white/35 sm:text-sm">
             Have a question, need help with Solvix, or want to explore what
             intelligent workflows can do for your team? Send us a message and
@@ -205,14 +205,14 @@ const ContactDetail = () => {
           </p>
         </section>
 
-        {}
+        
 
         <div className="mt-9 flex w-full justify-center lg:mt-11">
           <ContactForm onSuccess={() => setShowSuccessModal(true)} />
         </div>
       </main>
 
-      {}
+      
 
       <footer className="mt-12 border-t border-white/[0.07] bg-[#090a0c]">
         <div className="mx-auto max-w-[1400px] px-5 py-6 sm:px-8 lg:px-12">
@@ -230,7 +230,7 @@ const ContactDetail = () => {
         </div>
       </footer>
 
-      {}
+      
 
       {showSuccessModal && (
         <div
@@ -248,10 +248,10 @@ const ContactDetail = () => {
             aria-labelledby="contact-success-title"
             className="relative w-full max-w-sm overflow-hidden rounded-[24px] border border-white/[0.1] bg-[#0c0d10] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.65)]"
           >
-            {}
+            
             <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-[#c9a468]/10 blur-[65px]" />
 
-            {}
+            
             <button
               type="button"
               onClick={closeModal}
@@ -261,12 +261,12 @@ const ContactDetail = () => {
               <FiX size={13} />
             </button>
 
-            {}
+            
             <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06]">
               <FiCheckCircle size={22} className="text-emerald-400/80" />
             </div>
 
-            {}
+            
             <div className="relative mt-5">
               <p className="text-[8px] font-medium uppercase tracking-[0.2em] text-white/25">
                 Message received
@@ -285,7 +285,7 @@ const ContactDetail = () => {
               </p>
             </div>
 
-            {}
+            
             <div className="relative mt-5 flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.025] p-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.035]">
                 <FiClock size={13} className="text-white/40" />
@@ -302,7 +302,7 @@ const ContactDetail = () => {
               </div>
             </div>
 
-            {}
+            
             <button
               type="button"
               onClick={closeModal}

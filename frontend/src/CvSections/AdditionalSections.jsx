@@ -87,7 +87,7 @@ export default function AdditionalSections({
 }) {
   return (
     <>
-      {}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -116,7 +116,7 @@ export default function AdditionalSections({
         </div>
       </div>
 
-      {}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -145,7 +145,7 @@ export default function AdditionalSections({
         </div>
       </div>
 
-      {}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -223,7 +223,7 @@ export default function AdditionalSections({
         </div>
       </div>
 
-      {}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -295,7 +295,7 @@ export default function AdditionalSections({
         </div>
       </div>
 
-      {}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -362,7 +362,7 @@ export default function AdditionalSections({
         </div>
       </div>
 
-      {}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>
@@ -439,7 +439,7 @@ export default function AdditionalSections({
         </div>
       </div>
 
-      {}
+      
       <div className={cardStyle}>
         <div className="mb-4 flex items-center gap-3">
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${dark ? "bg-white text-black" : "bg-black text-white"}`}>

@@ -186,20 +186,20 @@ export default function ResumeAnalysis() {
           </div>
         </div>
 
-        {}
+        
         <ResumeAnalysisOverview 
           analysis={analysis} 
           dark={dark} 
         />
 
-        {}
+        
         <ResumeAnalysisJobs 
           jobs={jobs}
           dark={dark}
           initialShowCount={4}
         />
 
-        {}
+        
         <div className="mt-5 flex items-start gap-3 rounded-xl border border-dashed border-gray-200 p-4 dark:border-white/10">
           <FaStar className="mt-0.5 text-gray-400" />
           <p className="text-xs leading-5 text-gray-500">

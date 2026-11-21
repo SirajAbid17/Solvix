@@ -354,7 +354,7 @@ export default function InterviewPractice() {
 
   return (
     <div className={styles.container(dark)}>
-      {}
+      
       <header
         className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
           dark
@@ -404,9 +404,9 @@ export default function InterviewPractice() {
         </div>
       </header>
 
-      {}
+      
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {}
+        
         <section
           className={`relative overflow-hidden rounded-3xl border p-6 sm:p-8 lg:p-10 ${
             dark
@@ -454,7 +454,7 @@ export default function InterviewPractice() {
                 language-specific solutions.
               </p>
 
-              {}
+              
               <div className="mt-6 flex flex-wrap gap-2.5">
                 <div
                   className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
@@ -467,7 +467,7 @@ export default function InterviewPractice() {
                   {allQuestions.length} Problems
                 </div>
 
-                {}
+                
                 {interview?.dsaQuestions?.some((q) => q.javascript) && (
                   <div
                     className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
@@ -481,7 +481,7 @@ export default function InterviewPractice() {
                   </div>
                 )}
 
-                {}
+                
                 {interview?.dsaQuestions?.some((q) => q.python) && (
                   <div
                     className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
@@ -497,7 +497,7 @@ export default function InterviewPractice() {
               </div>
             </div>
 
-            {}
+            
             <div
               className={`rounded-2xl border p-5 shadow-sm ${
                 dark
@@ -567,7 +567,7 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {}
+        
         <section className="mt-8">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
@@ -616,10 +616,10 @@ export default function InterviewPractice() {
           </div>
         </section>
 
-        {}
+        
         <section className="mt-8">
           <div className={styles.card(dark)}>
-            {}
+            
             <div
               className={`border-b p-5 sm:p-7 ${
                 dark ? "border-white/[0.08]" : "border-black/[0.07]"
@@ -702,7 +702,7 @@ export default function InterviewPractice() {
               </div>
             </div>
 
-            {}
+            
             <div className="p-5 sm:p-7 lg:p-9">
               <div className="max-w-4xl">
                 <p
@@ -759,11 +759,11 @@ export default function InterviewPractice() {
                   )}
               </div>
 
-              {}
+            
               {currentQuestion?.type === "dsa" && (
                 <div className="mt-8">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                    {}
+                   
                     <div
                       className={`inline-flex rounded-xl border p-1 ${
                         dark
@@ -833,7 +833,7 @@ export default function InterviewPractice() {
                     />
                   )}
 
-                  {}
+                 
                   {!currentQuestion?.javascript && !currentQuestion?.python && (
                     <div
                       className={`rounded-xl border border-dashed p-6 text-center text-sm ${
@@ -848,7 +848,7 @@ export default function InterviewPractice() {
                 </div>
               )}
 
-              {}
+            
               {currentQuestion?.followUps &&
                 currentQuestion.followUps.length > 0 && (
                   <div className="mt-7">
@@ -871,7 +871,7 @@ export default function InterviewPractice() {
                   </div>
                 )}
 
-              {}
+            
               <div
                 className={`mt-7 rounded-2xl border p-5 ${
                   dark
@@ -912,7 +912,7 @@ export default function InterviewPractice() {
                 </div>
               </div>
 
-              {}
+             
               {currentQuestion?.type === "dsa" &&
                 currentQuestion?.testCases &&
                 currentQuestion.testCases.length > 0 && (

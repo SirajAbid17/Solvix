@@ -53,7 +53,7 @@ export default function PortfolioHero() {
           }
         `}
       >
-        {}
+        
         <div
           className={`
             pointer-events-none
@@ -73,7 +73,7 @@ export default function PortfolioHero() {
         />
 
         <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
-          {}
+          
           <div
             className={`
               mb-6
@@ -97,7 +97,7 @@ export default function PortfolioHero() {
             <FaGlobe className="text-3xl" />
           </div>
 
-          {}
+          
           <div
             className="
               mb-5
@@ -117,7 +117,7 @@ export default function PortfolioHero() {
             AI Powered Portfolio Builder
           </div>
 
-          {}
+          
           <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
             Build Your Portfolio
 
@@ -136,7 +136,7 @@ export default function PortfolioHero() {
             </span>
           </h1>
 
-          {}
+          
           <p
             className={`
               mt-6
@@ -159,7 +159,7 @@ export default function PortfolioHero() {
             ready to deploy in minutes.
           </p>
 
-          {}
+          
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {features.map((feature) => {
               const Icon = feature.icon;
@@ -212,7 +212,7 @@ export default function PortfolioHero() {
         </div>
       </div>
 
-      {}
+      
       <GetAllWebsite />
     </>
   );

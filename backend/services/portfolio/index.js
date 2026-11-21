@@ -13,6 +13,12 @@ DbConnect();
 app.use(express.json());
 app.use("/api/portfolio", PortfolioRouter);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+server.requestTimeout = 0;
+server.headersTimeout = 0;
+server.keepAliveTimeout = 0;
+server.timeout = 0;

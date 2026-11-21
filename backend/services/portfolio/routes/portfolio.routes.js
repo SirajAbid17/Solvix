@@ -3,6 +3,7 @@ import express from "express";
 import {
   uploadPortfolio,
   analyzePortfolioController,
+  regenerateCodeController,
   getPortfolioBySlug,
   getAllUserPortfolios,
   deletePortfolio,
@@ -12,11 +13,9 @@ import { upload } from "../middlewares/upload.middleware.js";
 import { portfolioUser } from "../middlewares/user.middleware.js";
 import { uploadRateLimit } from "../../../shared/rateLimit.js";
 
-
-
 const router = express.Router();
 
-router.get("/:slug", getPortfolioBySlug);
+router.get("/user/all", portfolioUser, getAllUserPortfolios);
 
 router.post(
   "/upload",
@@ -33,16 +32,15 @@ router.post(
   analyzePortfolioController
 );
 
-router.get(
-  "/user/all",
+router.post(
+  "/:id/regenerate-code",
   portfolioUser,
-  getAllUserPortfolios
+  uploadRateLimit,
+  regenerateCodeController
 );
 
-router.delete(
-  "/:id",
-  portfolioUser,
-  deletePortfolio
-);
+router.get("/:slug", getPortfolioBySlug);
+
+router.delete("/:id", portfolioUser, deletePortfolio);
 
 export default router;

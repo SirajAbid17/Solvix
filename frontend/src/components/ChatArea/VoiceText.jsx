@@ -83,7 +83,7 @@ export default function VoiceText({
       }
       
       if (event.error === 'not-allowed') {
-        alert('Please allow microphone access to use voice input.');
+        
         setIsListening(false);
       } else if (event.error === 'audio-capture') {
         setIsListening(false);
@@ -144,7 +144,7 @@ export default function VoiceText({
 
   const startListening = () => {
     if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in your browser.');
+     
       return;
     }
 
@@ -253,7 +253,7 @@ export default function VoiceText({
     >
       <FiMic size={19} />
       
-      {}
+      
       {isListening && (
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>

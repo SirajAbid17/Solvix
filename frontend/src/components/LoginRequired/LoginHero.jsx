@@ -11,7 +11,7 @@ import { HiSparkles } from "react-icons/hi2";
 export default function LoginHero() {
   return (
     <section className="small-item">
-      {}
+      
 
       <div
         className="
@@ -60,7 +60,7 @@ export default function LoginHero() {
         <HiSparkles className="text-gray-500" />
       </div>
 
-      {}
+      
 
       <h1
         className="
@@ -91,8 +91,7 @@ export default function LoginHero() {
         </span>
       </h1>
 
-      {}
-
+      
       <p
         className="
           mt-7
@@ -111,11 +110,11 @@ export default function LoginHero() {
         workspace.
       </p>
 
-      {}
+      
 
       <div className="mt-8 grid grid-cols-2 gap-3">
 
-        {}
+        
 
         <div
           className="
@@ -160,7 +159,7 @@ export default function LoginHero() {
           </p>
         </div>
 
-        {}
+        
 
         <div
           className="
@@ -207,7 +206,7 @@ export default function LoginHero() {
 
       </div>
 
-      {}
+      
 
       <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2">
 

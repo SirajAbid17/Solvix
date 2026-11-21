@@ -28,7 +28,7 @@ export default function PersonalInformation({
           : "border border-gray-200 bg-white text-black shadow-sm"
       }`}
     >
-      {}
+      
       <div className="mb-8 flex items-center gap-4">
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-xl ${
@@ -48,7 +48,7 @@ export default function PersonalInformation({
         </div>
       </div>
 
-      {}
+      
       <div className="mb-8 flex justify-center">
         <label
           className={`relative flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-full border-2 border-dashed transition overflow-hidden ${
@@ -91,7 +91,7 @@ export default function PersonalInformation({
         </label>
       </div>
 
-      {}
+      
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div>
           <label className={labelStyle}>Full Name *</label>

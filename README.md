@@ -1,233 +1,334 @@
-# Solvix — Multi-Agent AI Platform
+# SOLVIX — AI-Powered Multi-Agent Productivity & Career Platform
 
-Solvix is a production-grade Multi-Agent AI Platform designed to bring multiple AI-powered capabilities into a unified intelligent ecosystem. Built with a scalable MERN + Microservices architecture, Solvix leverages LangChain, LangGraph, RAG, Docker, Redis, Nginx, and AWS to orchestrate intelligent agent workflows and deliver powerful AI automation. As a full-stack AI platform, it brings conversational AI, specialized AI agents, document tools, retrieval-augmented generation (RAG), and career-development utilities into one application, using a React frontend, a Node.js/Express microservices backend, MongoDB, Redis, and integrations with AI and cloud services.
+<p align="center">
+  <strong>A Unified Workspace for AI, Productivity, Learning, and Career Development</strong>
+</p>
 
-The project is organized as a monorepo with a frontend application and
-independently runnable backend services. The API Gateway provides a
-single entry point for the frontend and forwards requests to the
-relevant backend service.
+Solvix is a full-stack, AI-powered multi-agent platform designed to bring intelligent tools, career development utilities, and productivity workflows into one unified workspace.
 
-> **Project status:** This README documents the structure and
-> capabilities represented by the project audit and project description.
-> Provider credentials, environment-variable names, deployment behavior,
-> and individual feature availability depend on the current source code
-> and service configuration. Review each service's configuration before
-> deploying.
+Built using a modern **MERN + Microservices architecture**, Solvix combines specialized AI agents, conversational AI, Retrieval-Augmented Generation (RAG), document processing, AI-powered career tools, personalized learning roadmaps, and custom AI agent creation.
 
+The platform uses **React 19, Node.js, Express 5, MongoDB, Redis, LangChain, LangGraph, Groq, Google Gemini, Tavily, Pinecone, Stripe, Firebase, Cloudinary, and Docker** to deliver an extensible AI ecosystem.
 
-## Highlights
+Rather than relying on a single chatbot, Solvix organizes different capabilities into specialized services and AI workflows. Users can interact with AI assistants, generate documents, analyze resumes, build portfolios, practice interviews, discover job opportunities, and create personalized learning paths from one application.
 
-- **Multi-Agent AI System:** Specialized AI agents for chat, coding, web search, file analysis, image generation, job search, PDF and presentation creation, and RAG-based tasks.
+---
 
-- **Custom AI Agent Builder:** Users can create, customize, and train their own AI agents by defining agent names, personalities, system prompts, instructions, and selecting their preferred AI models.
+## Table of Contents
 
-- **AI-Powered Learning Roadmaps:** Generate complete, personalized learning roadmaps for any topic, including structured phases, step-by-step tasks, learning resources, YouTube video recommendations, notes, and progress tracking.
+- [Project Overview](#project-overview)
+- [Key Highlights](#key-highlights)
+- [Core Features](#core-features)
+  - [AI Chat and Multi-Agent System](#1-ai-chat-and-multi-agent-system)
+  - [Document and File Processing](#2-document-and-file-processing)
+  - [AI Resume and ATS Tools](#3-ai-resume-and-ats-tools)
+  - [AI Portfolio Builder](#4-ai-portfolio-builder)
+  - [AI Mock Interview](#5-ai-mock-interview)
+  - [Authentication and User Accounts](#6-authentication-and-user-accounts)
+  - [Credits, Subscriptions, and Payments](#7-credits-subscriptions-and-payments)
+  - [Admin Dashboard](#8-admin-dashboard)
+  - [AI Job Search and Application Workflow](#9-ai-job-search-and-application-workflow)
+  - [AI Learning Roadmap Generator](#10-ai-learning-roadmap-generator)
+  - [Custom AI Agent Builder](#11-custom-ai-agent-builder)
+- [System Architecture](#system-architecture)
+- [Request Lifecycle](#request-lifecycle)
+- [Technology Stack](#technology-stack)
+- [Microservices and Ports](#microservices-and-ports)
+- [Project Folder Structure](#project-folder-structure)
+- [Prerequisites](#prerequisites)
+- [Installation and Setup](#installation-and-setup)
+- [Environment Configuration](#environment-configuration)
+- [Running the Application](#running-the-application)
+- [Docker Deployment](#docker-deployment)
+- [AI and External Integrations](#ai-and-external-integrations)
+- [Security Considerations](#security-considerations)
+- [Troubleshooting](#troubleshooting)
+- [Development Guidelines](#development-guidelines)
+- [Future Improvements](#future-improvements)
+- [Author](#author)
 
-- **AI Career Toolkit:** Resume analysis, ATS scoring, CV generation, portfolio creation, job recommendations, and AI-powered mock interview practice.
+---
 
-- **Automated Job Search & Application:** Discover worldwide job opportunities using Tavily-powered search, filter jobs by skills and preferences, and automate job application workflows.
+## Project Overview
 
-- **Microservices Architecture:** Independent backend services for authentication, chat, AI agents, resume management, portfolio generation, mock interviews, and billing.
+Solvix is designed as an AI-powered productivity and career ecosystem.
 
-- **Central API Gateway:** Centralized request routing with authentication, credit management, admin authorization, and proxy middleware.
+Its architecture consists of:
 
-- **Persistent Data & Caching:** MongoDB, Mongoose, and Redis for application data, caching, session management, and memory functionality.
+- A React-based frontend application.
+- An Express API Gateway.
+- Independent backend microservices.
+- MongoDB for persistent application data.
+- Redis for caching and shared infrastructure.
+- LangChain and LangGraph for AI integration and agent orchestration.
+- External AI, search, storage, and payment providers.
 
-- **AI Provider Integrations:** LangChain, LangGraph, Groq, Google Gemini, Tavily, Pinecone, and Cloudinary integrations.
+The API Gateway acts as the central entry point for frontend requests. It applies relevant middleware and forwards requests to the appropriate backend service.
 
-- **Modern Frontend:** React 19, Vite, Tailwind CSS, Redux Toolkit, and React Router.
+Each microservice is responsible for a specific application domain, making the platform easier to maintain, extend, and develop independently.
 
-- **Payment & Subscription System:** Stripe integration with subscription plans, credit-based usage, payment processing, and billing management.
+## Key Highlights
 
-## Features
+- **Multi-Agent AI Architecture:** Specialized agents for chat, coding, web search, file analysis, image generation, job search, PDF creation, presentations, and RAG.
+- **Custom AI Agent Builder:** Create personalized AI assistants with custom prompts, personalities, model selection, and temperature configuration.
+- **AI Career Ecosystem:** Resume analysis, ATS-oriented feedback, CV generation, portfolio workflows, job discovery, and interview practice.
+- **AI Learning Roadmaps:** Generate structured learning paths with phases, tasks, resources, and progress tracking.
+- **AI Job Search:** Discover job opportunities through web search and generate personalized application emails.
+- **Document Processing:** Work with PDFs, DOCX documents, spreadsheets, and images through available file-processing utilities.
+- **Microservices Backend:** Separate services for authentication, chat, agents, resumes, portfolios, billing, and mock interviews.
+- **Central API Gateway:** Centralized routing, authentication checks, credit middleware, admin authorization, and proxy handling.
+- **Persistent Storage:** MongoDB, Mongoose, and Redis integrations.
+- **Payment Integration:** Stripe-based billing and credit-oriented usage workflows.
+- **Modern Frontend:** React 19, Vite, Tailwind CSS 4, Redux Toolkit, and React Router.
+- **Containerization:** Docker and Docker Compose support, with Nginx configuration for the frontend.
 
-### 1. AI Chat and Agent Workflows
+---
 
-SOLVIX includes a chat interface and a collection of specialized agents.
-The agent directory includes modules for:
+# Core Features
 
-- Conversational chat
-- Coding assistance
-- Web search
-- File analysis
-- Image generation
-- Job search
-- PDF generation
-- PowerPoint generation
-- Retrieval-augmented generation (RAG)
-- Agent routing
+## 1. AI Chat and Multi-Agent System
 
-The agent service also includes graph/state modules, allowing agent
-workflows to be organized around routing and shared state. Exact model
-selection and workflow behavior are controlled by the service
-implementation and environment configuration.
+Solvix provides a unified AI workspace powered by specialized agents.
 
-### 2. File and Document Utilities
+The agent service contains modules for:
 
-The agent service includes file routes, upload utilities, parsers, and
-storage directories. The listed dependencies support working with common
-document and data formats, including PDF, DOCX, spreadsheets, and
-images.
+| Agent | Purpose |
+|---|---|
+| Chat Agent | General conversational AI |
+| Coding Agent | Programming assistance and code-related tasks |
+| Search Agent | Web search and information discovery |
+| File Agent | File and document analysis |
+| Image Agent | Image generation workflows |
+| Job Search Agent | Job discovery and related tasks |
+| PDF Agent | PDF-related generation workflows |
+| PPT Agent | PowerPoint presentation generation |
+| RAG Agent | Retrieval-Augmented Generation |
+| Router Agent | Routing requests to appropriate agents |
 
-Document-related utilities include:
+### Agent Orchestration
 
-- PDF creation with PDFKit
-- PowerPoint generation with PptxGenJS
-- PDF parsing
-- DOCX text extraction through Mammoth
-- Image text extraction/OCR support through Tesseract.js
-- File upload and generated-file handling
+The agent service includes graph and state modules built around LangGraph-style workflows.
 
-Supported file types, size limits, and output behavior should be checked
-in the relevant controllers and validators before relying on them in
-production.
+These modules organize agent routing, shared state, and execution flow.
 
-### 3. Career and Resume Tools
+The intended architecture allows requests to be directed to specialized agents instead of handling every task through one general-purpose assistant.
 
-The Resume service contains controllers, routes, models, prompts, and
-services for resume analysis and CV generation. The frontend includes
-dedicated pages and components for resume analysis, CV creation, and
-resume-related results.
+### Benefits
 
-Career workflows described for the project include:
+- Multiple specialized AI capabilities in one workspace.
+- Organized agent workflows.
+- AI-powered task execution.
+- Integration with different model providers.
+- Extensible agent architecture.
 
-- Resume analysis and feedback
-- ATS-oriented scoring or analysis
-- CV/resume generation
-- Job recommendations
-- Resume-related PDF workflows
+## 2. Document and File Processing
 
-AI-generated analysis is advisory. Users should review generated resumes
-and recommendations for correctness before submitting them to employers.
+Solvix includes file-upload, storage, parsing, and document-generation utilities.
 
-### 4. AI Portfolio Tools
+Document-related capabilities represented in the project include:
 
-The Portfolio service contains upload middleware, portfolio models,
-analysis services, Gemini-related services, parsing, PDF utilities, and
-upload handling. The frontend includes portfolio pages, website lists,
-upload components, and a website-code preview modal.
+- PDF generation using PDFKit.
+- PowerPoint generation using PptxGenJS.
+- PDF parsing and processing.
+- DOCX text extraction using Mammoth.
+- Image OCR support using Tesseract.js.
+- File upload and generated-file handling.
+- Document-related AI workflows.
 
-Portfolio-generation and analysis capabilities depend on the configured
-provider credentials and the implemented routes.
+The agent service contains storage directories for images, PDFs, presentations, uploads, and generated files.
 
-### 5. Mock Interview Practice
+Supported file types, upload limits, and processing behavior depend on the corresponding routes, controllers, and validators.
 
-The `backend/services/mock-Interview` service contains mock-interview
-controllers, routes, models, prompt utilities, PDF services, and
-Cloudinary integration. The frontend includes interview pages and
-components for uploading interview-related PDFs and displaying code
-blocks.
+## 3. AI Resume and ATS Tools
 
-The project description includes interview practice with
-JavaScript/Python-style coding solutions. Check the active prompts and
-routes for the exact supported languages and interview flow.
+Solvix includes a dedicated Resume microservice for resume-related workflows.
 
-### 6. Authentication and User Accounts
+The service contains controllers, models, prompts, routes, and supporting utilities.
 
-The Auth service contains Firebase Admin configuration, authentication
-controllers/routes, a Mongoose user model, and JWT support in its
-dependencies. The frontend includes Firebase configuration, user state,
-protected routes, and login-required UI.
+### Features
 
-The precise sign-in methods, token lifecycle, cookie settings, and
-account lifecycle are determined by the implementation. Keep Firebase
-credentials and signing secrets out of source control.
+- AI-powered resume analysis.
+- ATS-oriented resume evaluation.
+- Resume feedback and improvement suggestions.
+- AI-assisted CV generation.
+- Resume-related PDF workflows.
+- Career-focused AI assistance.
 
-### 7. Credits, Plans, and Payments
+The frontend provides dedicated resume pages and components for creating, managing, and reviewing resume-related content.
 
-A dedicated Billing service includes Stripe configuration, a billing
-controller, payment model, plan configuration, and billing routes. The
-frontend contains pricing components and payment-success UI.
+AI-generated resume content should always be reviewed before being submitted to employers.
 
-The project description lists a credit-based model and Stripe
-Checkout/webhook workflows. Before publishing prices or promising credit
-amounts, verify the current values in
-`backend/services/billing/plans/plan.js` and the corresponding frontend
-pricing configuration.
+## 4. AI Portfolio Builder
 
-### 8. Admin Dashboard
+The Portfolio microservice handles portfolio-related operations.
 
-The frontend includes an admin dashboard with user, transaction, agent,
-overview, and statistics components. The gateway has admin controllers,
-routes, and middleware.
+Its project structure includes:
 
-Admin endpoints and UI should be accessible only to authorized
-administrators. Verify role checks and permissions before deployment.
+- Portfolio controllers.
+- Portfolio models.
+- Upload middleware.
+- AI analysis services.
+- Gemini-related integration.
+- Parsing utilities.
+- PDF-related utilities.
+- File and media handling.
 
-### 9. AI Auto Job Apply (Tavily-Powered Job Search)
+The frontend includes portfolio pages, website lists, upload components, and website-code preview functionality.
 
-Solvix includes an AI-powered job application system that uses **Tavily Search** to discover relevant job opportunities from across the web.
+Portfolio-generation behavior depends on the configured providers and implemented service routes.
 
-Key features:
+## 5. AI Mock Interview
 
-- **Live Job Search:** Search for relevant job opportunities using Tavily.
-- **AI Job Matching:** Find opportunities based on job titles, skills, technologies, and experience.
-- **Job Details:** Display job titles, descriptions, company information, and source links when available.
-- **AI Email Generation:** Use Gemini AI to generate professional job application emails.
-- **Editable Applications:** Customize the recipient, subject, and email content before sending.
-- **CV Upload:** Upload your PDF resume to include with job applications.
-- **Gmail Integration:** Send applications directly through the connected Gmail account.
+Solvix includes a dedicated Mock Interview microservice.
+
+Its structure contains:
+
+- Interview controllers.
+- Interview routes.
+- Data models.
+- Prompt utilities.
+- Supporting services.
+- PDF-related functionality.
+- Cloudinary integration.
+
+The frontend includes interview pages and components for interview-related workflows, PDF uploads, and code display.
+
+The project also describes coding-oriented interview practice. Exact supported languages and interview flows should be verified against the active prompts and routes.
+
+## 6. Authentication and User Accounts
+
+The Auth microservice manages user-account-related functionality.
+
+Its implementation includes:
+
+- Firebase Admin configuration.
+- Authentication controllers.
+- Authentication routes.
+- Mongoose user model.
+- JWT-related support.
+- Frontend Firebase configuration.
+- User state management.
+- Protected routes.
+
+The exact authentication methods, token lifecycle, cookie configuration, and account-management behavior are determined by the current implementation.
+
+## 7. Credits, Subscriptions, and Payments
+
+Solvix contains a dedicated Billing microservice.
+
+### Billing Components
+
+- Stripe configuration.
+- Billing controller.
+- Payment model.
+- Plan configuration.
+- Billing routes.
+- Frontend pricing components.
+- Payment-success UI.
+
+The project uses a credit-oriented usage model and includes Stripe-related checkout and webhook workflows.
+
+Plan prices, credit allocations, and payment rules should be verified in:
+
+- `backend/services/billing/plans/plan.js`
+- `frontend/src/components/pricing/plans.js`
+
+These source files should be treated as the authoritative configuration for current plans.
+
+## 8. Admin Dashboard
+
+Solvix includes an admin dashboard for managing and monitoring platform activity.
+
+The frontend contains components for:
+
+- Admin overview.
+- User management.
+- Transaction management.
+- Agent-related management.
+- Statistics and analytics.
+
+The API Gateway includes admin controllers, routes, and authorization middleware.
+
+Administrative operations must be protected by server-side authorization checks.
+
+## 9. AI Job Search and Application Workflow
+
+Solvix includes an AI-powered job discovery and application workflow using Tavily Search, Gemini, and Gmail integration.
+
+### Key Features
+
+- **Live Job Search:** Discover job opportunities using Tavily-powered web search.
+- **AI Job Matching:** Search for opportunities based on job titles, skills, technologies, and experience.
+- **Job Details:** Display available job titles, descriptions, company details, and source links.
+- **AI Email Generation:** Generate professional application emails using Gemini.
+- **Editable Applications:** Customize recipients, subjects, and email content.
+- **CV Upload:** Upload a PDF resume for use with applications.
+- **Gmail Integration:** Send applications through a connected Gmail account.
 - **Application Tracking:** Track application activity and submitted applications.
 
-**Application Workflow:**
+### Workflow
 
 1. Enter a job title, skills, or search keywords.
-2. Tavily searches the web for relevant job opportunities.
+2. Tavily searches for relevant job opportunities.
 3. Solvix processes and displays the search results.
-4. Select a suitable job opportunity.
+4. Select a suitable opportunity.
 5. Gemini generates a personalized application email.
-6. Review and edit the email details.
+6. Review and edit the email.
 7. Upload your CV and send the application through Gmail.
-8. Track your application activity.
+8. Track application activity.
 
-**Technologies:**
-- Tavily Search API – Web-based job discovery.
-- Google Gemini – AI-generated application emails.
-- Gmail API – Sending job applications.
-- Node.js & Express – Backend processing.
-- React – Interactive frontend.
+### Technologies
 
-> Job availability, application links, and employer requirements depend on the search results. Always review application details before sending.
+- Tavily Search API.
+- Google Gemini.
+- Gmail API.
+- Node.js and Express.
+- React.
 
-### 10. AI Career Roadmap Generator
+Job availability, employer requirements, and application links depend on external search results. Users should review all application details before sending.
 
-Solvix provides an AI-powered career roadmap generator that creates personalized, structured learning paths based on a user's chosen skill and experience level.
+## 10. AI Learning Roadmap Generator
 
-**Key Features:**
+Solvix provides an AI-powered learning roadmap generator that creates structured learning paths based on a selected topic and experience level.
 
-- **Personalized Roadmaps:** Generate learning paths for any skill or technology.
-- **Multiple Skill Levels:** Beginner, Intermediate, and Advanced.
-- **AI-Generated Phases:** Break learning into structured weekly phases.
-- **Real Web Resources:** Fetch relevant tutorials, YouTube videos, and documentation.
-- **Task Management:** Each phase includes practical learning tasks.
-- **Progress Tracking:** Track completed tasks and overall learning progress.
-- **Cloud Storage:** Save generated roadmaps and continue learning later.
-- **Search & Filtering:** Search tasks and resources within a roadmap.
-- **Interactive Learning:** Expand phases, view resources, and manage tasks.
-- **Roadmap Reset:** Reset progress and start learning again.
+### Key Features
 
-**Example Learning Paths:**
-
-- Advanced Multi-Agent AI
-- Full-Stack MERN
-- System Design
-- LangGraph & RAG
-- DevOps & Cloud
-- Data Science & Machine Learning
-- Blockchain Development
-- React Native Development
-
-**Roadmap Structure:**
-
-Each generated roadmap contains:
-- 8 structured learning phases.
+- Personalized learning roadmaps.
+- Beginner, Intermediate, and Advanced levels.
+- AI-generated learning phases.
 - Weekly learning objectives.
 - Practical tasks and exercises.
-- Curated web resources.
+- Web-based learning resources.
+- YouTube video recommendations.
+- Documentation links.
+- Progress tracking.
+- Saved roadmaps.
+- Search and filtering.
+- Roadmap reset functionality.
+
+### Example Learning Paths
+
+- Advanced Multi-Agent AI.
+- Full-Stack MERN.
+- System Design.
+- LangGraph and RAG.
+- DevOps and Cloud.
+- Data Science and Machine Learning.
+- Blockchain Development.
+- React Native Development.
+
+### Roadmap Structure
+
+A generated roadmap can contain:
+
+- 8 structured learning phases.
+- Learning objectives.
+- Practical tasks.
+- Curated resources.
 - Estimated completion time.
 - Progress tracking.
 
-**Example: HTML Fundamentals Roadmap**
+### Example Roadmap
 
 | Metric | Example |
 |---|---:|
@@ -238,234 +339,294 @@ Each generated roadmap contains:
 | Progress | 8% |
 | Estimated Time | 24 Hours |
 
-**Learning Workflow:**
+*This is an illustrative example; actual roadmap content and estimates depend on the generated result.*
+
+### Learning Workflow
 
 1. Enter a skill or technology.
-2. Select your experience level.
-3. Generate a personalized AI roadmap.
-4. Explore weekly phases and learning objectives.
-5. Access real learning resources.
+2. Select an experience level.
+3. Generate a personalized roadmap.
+4. Explore learning phases and objectives.
+5. Access recommended resources.
 6. Complete tasks and track progress.
-7. Save your roadmap and continue anytime.
+7. Save the roadmap and continue learning later.
 
-**Technologies:**
-- Generative AI – Roadmap generation.
-- Tavily Search – Real web resource discovery.
-- LangChain / LangGraph – AI workflow orchestration.
-- React – Interactive roadmap interface.
-- Node.js & Express – Backend services.
-- MongoDB – Roadmap and progress storage.
+### Technologies
 
-> Resource availability, roadmap structure, and estimated completion times depend on the generated learning path.
+- Generative AI.
+- LangChain.
+- LangGraph.
+- Tavily Search.
+- React.
+- Node.js and Express.
+- MongoDB.
 
-### 11. Custom AI Agent Builder
+## 11. Custom AI Agent Builder
 
-Solvix allows users to create and manage their own personalized AI agents with custom personalities, instructions, and AI model configurations.
+The Custom AI Agent Builder allows users to create and manage personalized AI assistants.
 
-Users can build specialized AI assistants for coding, education, resume reviewing, interview preparation, research, writing, and productivity.
+Users can configure agent behavior, system prompts, categories, and available model settings.
 
-**Key Features:**
+### Key Features
 
-- **Custom Agent Creation:** Create AI agents with personalized names and descriptions.
-- **Custom System Prompts:** Define each agent's personality, behavior, instructions, and responsibilities.
-- **Model Selection:** Choose from available AI models.
-- **Temperature Control:** Adjust the model's creativity and response behavior.
-- **Prompt Templates:** Start with predefined prompts or write custom instructions.
-- **Instant AI Chat:** Start conversations with created agents.
-- **Agent Management:** Search, edit, and delete custom agents.
-- **Category Organization:** Organize agents into different categories.
-- **Responsive Interface:** Manage and interact with agents across devices.
+- Create custom AI agents.
+- Define agent names and descriptions.
+- Write custom system prompts.
+- Configure agent personalities and instructions.
+- Select available AI models.
+- Adjust temperature settings.
+- Use predefined prompt templates.
+- Start conversations with custom agents.
+- Search and manage created agents.
+- Edit and delete agents.
+- Organize agents by category.
+- Responsive agent-management interface.
 
-**Available Agent Categories:**
+### Agent Categories
 
-- General
-- Coding
-- Writing
-- Resume / CV
-- Interview Preparation
-- Research
-- Productivity
-- Custom
+- General.
+- Coding.
+- Writing.
+- Resume / CV.
+- Interview Preparation.
+- Research.
+- Productivity.
+- Custom.
 
-**Example Custom Agents:**
+### Example Custom Agents
 
-1. **EduMaster AI:** A personal education assistant for learning, studying, assignments, exam preparation, programming, and academic guidance.
-2. **SirajVerse:** A personalized coding agent designed to review and improve project details, technologies, features, and technical descriptions.
+**EduMaster AI**
 
-**Agent Creation Workflow:**
+An education-focused assistant for learning, studying, assignments, programming, exam preparation, and academic guidance.
+
+**SirajVerse**
+
+A personalized coding and project assistant designed to help review and improve project details, technologies, features, and technical descriptions.
+
+### Agent Creation Workflow
 
 1. Open the Custom AI Agent Builder.
-2. Enter your agent's name and description.
-3. Select a category.
-4. Write a custom system prompt or choose a prompt template.
+2. Enter an agent name and description.
+3. Select an agent category.
+4. Write a system prompt or choose a template.
 5. Select an available AI model.
-6. Configure the temperature.
-7. Create your AI agent.
-8. Start chatting, edit its configuration, or delete it whenever needed.
+6. Configure temperature.
+7. Create the agent.
+8. Start chatting or manage its configuration.
 
-**Technologies:**
+### Technologies
 
-- React – Agent builder interface.
-- Node.js & Express – Backend APIs.
-- MongoDB – Agent configuration and storage.
-- Groq – AI model integration.
-- Google Gemini – Generative AI integration.
+- React.
+- Node.js and Express.
+- MongoDB.
+- Groq.
+- Google Gemini.
 
-**Why Custom AI Agents?**
+Available models and capabilities depend on the configured provider integrations.
 
-- Build specialized AI assistants for different tasks.
-- Customize AI behavior through system prompts.
-- Use different models for different purposes.
-- Manage multiple specialized agents in one workspace.
-- Get started without requiring a credit card.
+---
 
-> Users can create, customize, and manage multiple AI agents. Available models and capabilities depend on the configured AI integrations.
+# System Architecture
 
-## Architecture
+Solvix follows a microservices-oriented architecture.
+
+The frontend communicates with the API Gateway, which routes requests to the appropriate backend service.
 
 ```text
-┌──────────────────────────────┐
-│       React + Vite UI        │
-│  Pages, components, Redux    │
-└──────────────┬───────────────┘
-               │ HTTP requests
-               ▼
-┌──────────────────────────────┐
-│       API Gateway :5000      │
-│ Auth / credit / admin checks │
-│       Proxy to services      │
-└──────┬────────┬────────┬─────┘
-       │        │        │
-       ▼        ▼        ▼
-   Auth :5001 Chat :5002 Agent :5003
-       │        │        │
-       ▼        ▼        ▼
-   MongoDB    MongoDB  AI / search /
-                      file integrations
-
-Additional services:
-  Resume :5004
-  Portfolio :5005
-  Billing :5006
-  Mock Interview :5007
-
-Shared infrastructure may include MongoDB, Redis, AI providers,
-Cloudinary, Pinecone, Tavily, Firebase, and Stripe.
+                  ┌──────────────────────────┐
+                  │       SOLVIX USER        │
+                  └────────────┬─────────────┘
+                               │
+                               ▼
+                  ┌──────────────────────────┐
+                  │    REACT 19 + VITE       │
+                  │                          │
+                  │ Pages / Components       │
+                  │ Redux / React Router     │
+                  └────────────┬─────────────┘
+                               │ HTTP Requests
+                               ▼
+                  ┌──────────────────────────┐
+                  │     API GATEWAY :5000     │
+                  │                          │
+                  │ Authentication           │
+                  │ Credit Middleware        │
+                  │ Admin Authorization      │
+                  │ Proxy / Request Routing  │
+                  └────────────┬─────────────┘
+                               │
+             ┌─────────────────┼──────────────────┐
+             │                 │                  │
+             ▼                 ▼                  ▼
+       ┌───────────┐     ┌───────────┐      ┌───────────┐
+       │   AUTH    │     │   CHAT    │      │   AGENT   │
+       │   :5001   │     │   :5002   │      │   :5003   │
+       └─────┬─────┘     └─────┬─────┘      └─────┬─────┘
+             │                 │                  │
+             └─────────────────┼──────────────────┘
+                               │
+             ┌─────────────────┼──────────────────┐
+             │                 │                  │
+             ▼                 ▼                  ▼
+       ┌───────────┐     ┌───────────┐      ┌───────────┐
+       │  RESUME   │     │ PORTFOLIO │      │  BILLING  │
+       │   :5004   │     │   :5005   │      │   :5006   │
+       └─────┬─────┘     └─────┬─────┘      └─────┬─────┘
+             │                 │                  │
+             └─────────────────┼──────────────────┘
+                               │
+                               ▼
+                       ┌──────────────┐
+                       │ MOCK INTERVIEW│
+                       │    :5007     │
+                       └──────┬───────┘
+                              │
+                              ▼
+                ┌─────────────────────────────┐
+                │    DATA & AI INFRASTRUCTURE │
+                │                             │
+                │ MongoDB / Mongoose          │
+                │ Redis                       │
+                │ Groq / Google Gemini        │
+                │ LangChain / LangGraph       │
+                │ Pinecone / Tavily           │
+                │ Firebase / Cloudinary       │
+                │ Stripe                      │
+                └─────────────────────────────┘
 ```
 
-This is a logical overview, not a deployment diagram. Actual connections
-and availability depend on each service's configuration and the Docker
-Compose file.
+*This is a logical architecture overview. Actual service connections, dependencies, and deployment behavior are defined by the current service configuration and Docker Compose setup.*
 
-## Technology Stack
+## Request Lifecycle
 
-### Frontend
-
----
-
-Technology Purpose
-
----
-
-React 19 UI components and application
-screens
-
-Vite Development server and production
-build
-
-Tailwind CSS 4 Utility-first styling
-
-Redux Toolkit / React Redux Shared application state
-
-React Router DOM Client-side routing
-
-GSAP / `@gsap/react` UI animation
-
-Firebase Frontend Firebase integration
-
-React Markdown / syntax highlighter Rendering formatted AI responses
-and code
-
-Recharts Charts and dashboard visualizations
-
-React Toastify / React Hot Toast Notifications
+1. A user interacts with the React frontend.
+2. The frontend sends an HTTP request to the configured API Gateway URL.
+3. The Gateway applies the relevant middleware.
+4. The Gateway identifies the destination microservice.
+5. The request is forwarded to the appropriate service.
+6. The service executes its business logic.
+7. The service accesses MongoDB, Redis, or external integrations when required.
+8. The service returns a response through the Gateway.
+9. The frontend updates its UI and application state.
 
 ---
 
-### Backend
+# Technology Stack
 
-Technology Purpose
+## Frontend
+
+| Technology | Purpose |
+|---|---|
+| React 19 | User interface and component architecture |
+| Vite | Development server and production build |
+| Tailwind CSS 4 | Utility-first styling |
+| Redux Toolkit | Application state management |
+| React Redux | Redux integration |
+| React Router DOM | Client-side routing |
+| GSAP | UI animations |
+| `@gsap/react` | GSAP integration with React |
+| Firebase | Frontend Firebase integration |
+| React Markdown | Markdown rendering |
+| Syntax Highlighter | Code display |
+| Recharts | Dashboard charts |
+| React Toastify / React Hot Toast | Notifications |
+
+## Backend
+
+| Technology | Purpose |
+|---|---|
+| Node.js | JavaScript runtime |
+| Express 5 | Backend APIs and microservices |
+| MongoDB | Persistent data storage |
+| Mongoose | MongoDB object modeling |
+| `express-http-proxy` | API Gateway proxying |
+| `jsonwebtoken` | JWT support |
+| `cookie-parser` | Cookie parsing |
+| CORS | Cross-origin configuration |
+| Helmet | Security middleware where configured |
+| Morgan | HTTP request logging |
+| ioredis | Redis connectivity |
+| Multer | File uploads |
+| Stripe | Payment integration |
+| Cloudinary | Media storage and integration |
+
+## AI, Search, and Agent Orchestration
+
+| Technology | Purpose |
+|---|---|
+| LangChain | LLM integration and orchestration |
+| LangGraph | Agent graph and workflow orchestration |
+| Groq | Access to supported AI models |
+| Google Gemini | Generative AI integration |
+| Tavily | Web search and information discovery |
+| Pinecone | Vector database integration for RAG |
+| Firebase | Authentication-related integration |
+
+## Document Processing
+
+| Technology | Purpose |
+|---|---|
+| PDFKit | PDF generation |
+| PptxGenJS | PowerPoint generation |
+| Mammoth | DOCX text extraction |
+| Tesseract.js | OCR support |
+| `pdf-parse` | PDF parsing |
+| `pdfjs-dist` | PDF processing |
+
+## DevOps and Infrastructure
+
+| Technology | Purpose |
+|---|---|
+| Docker | Application containerization |
+| Docker Compose | Multi-container orchestration |
+| Nginx | Frontend serving and reverse-proxy configuration |
+| Redis | Caching and shared infrastructure |
+| AWS | Cloud infrastructure and deployment |
+
+*Package availability does not guarantee that every package is used by every feature. The individual package manifests and source code are the definitive references.*
 
 ---
 
-Node.js JavaScript runtime
-Express 5 HTTP APIs and service endpoints
-Mongoose MongoDB object modeling
-`express-http-proxy` Gateway-to-service proxying
-`jsonwebtoken` JWT support in the authentication service
-`cookie-parser` Cookie parsing
-`cors` Cross-origin request configuration
-Helmet Security middleware where configured
-Morgan HTTP request logging
-ioredis Redis connectivity
-Multer File uploads
-Stripe Payment integration
-Cloudinary Media storage/integration
+# Microservices and Ports
 
-### AI, Search, and Documents
+The project is organized into the following backend services.
 
----
+| Service | Port | Responsibility |
+|---|---:|---|
+| API Gateway | 5000 | Central request routing |
+| Auth | 5001 | User authentication |
+| Chat | 5002 | Conversations and chat data |
+| Agent | 5003 | AI agents and workflows |
+| Resume | 5004 | Resume and CV operations |
+| Portfolio | 5005 | Portfolio generation and management |
+| Billing | 5006 | Payments, plans, and credits |
+| Mock Interview | 5007 | Interview workflows |
+| Redis | 6379 | Cache and shared infrastructure |
 
-Technology Purpose
+Confirm actual ports in the service entry points and environment configuration before running the application.
 
 ---
 
-LangChain LLM integration and orchestration
+# Project Folder Structure
 
-LangGraph Agent graph/workflow orchestration
-
-Groq integrations Access to supported Groq models
-
-Google Gemini integrations Generative AI and
-file/image-related workflows
-
-Tavily Web search integration
-
-Pinecone Vector database integration for RAG
-
-PDFKit PDF generation
-
-PptxGenJS PowerPoint generation
-
-Mammoth DOCX text extraction
-
-Tesseract.js OCR support
-
-`pdf-parse` / `pdfjs-dist` PDF parsing and processing
-
----
-
-Not every package is necessarily used by every feature. The installed
-package manifests and service source files are the definitive
-references.
-
-## Repository Structure
-
-The following is a simplified map of the audited repository. It
-highlights the main application areas rather than listing every UI
-component.
+The following is a simplified overview of the repository. It highlights the important source-code areas rather than generated dependencies and build output.
 
 ```text
 Solvix/
+│
 ├── backend/
+│   │
 │   ├── gateway/
 │   │   ├── config/
 │   │   ├── controllers/
 │   │   ├── middleware/
 │   │   ├── routes/
+│   │   ├── utils/
 │   │   ├── index.js
 │   │   └── package.json
+│   │
 │   ├── services/
+│   │   │
 │   │   ├── agent/
 │   │   │   ├── AllAgents/
 │   │   │   ├── config/
@@ -473,35 +634,33 @@ Solvix/
 │   │   │   ├── graph/
 │   │   │   ├── routes/
 │   │   │   ├── storage/
-│   │   │   ├── utlis/
+│   │   │   ├── uploads/
 │   │   │   └── index.js
+│   │   │
 │   │   ├── auth/
 │   │   │   ├── config/
 │   │   │   ├── controllers/
 │   │   │   ├── models/
 │   │   │   ├── routes/
 │   │   │   └── index.js
-│   │   ├── billing/
-│   │   │   ├── config/
-│   │   │   ├── controllers/
-│   │   │   ├── models/
-│   │   │   ├── plans/
-│   │   │   ├── routes/
-│   │   │   └── index.js
+│   │   │
 │   │   ├── chat/
 │   │   │   ├── config/
 │   │   │   ├── controllers/
 │   │   │   ├── models/
 │   │   │   ├── routes/
 │   │   │   └── index.js
-│   │   ├── mock-Interview/
+│   │   │
+│   │   ├── Resume/
 │   │   │   ├── config/
-│   │   │   ├── controllers/
+│   │   │   ├── controller/
 │   │   │   ├── middleware/
 │   │   │   ├── models/
+│   │   │   ├── prompt/
 │   │   │   ├── routes/
 │   │   │   ├── services/
 │   │   │   └── index.js
+│   │   │
 │   │   ├── portfolio/
 │   │   │   ├── config/
 │   │   │   ├── controllers/
@@ -510,25 +669,38 @@ Solvix/
 │   │   │   ├── routes/
 │   │   │   ├── services/
 │   │   │   └── index.js
-│   │   └── Resume/
+│   │   │
+│   │   ├── billing/
+│   │   │   ├── config/
+│   │   │   ├── controllers/
+│   │   │   ├── models/
+│   │   │   ├── plans/
+│   │   │   ├── routes/
+│   │   │   └── index.js
+│   │   │
+│   │   └── mock-Interview/
 │   │       ├── config/
-│   │       ├── controller/
+│   │       ├── controllers/
 │   │       ├── middleware/
 │   │       ├── models/
-│   │       ├── prompt/
 │   │       ├── routes/
 │   │       ├── services/
 │   │       └── index.js
+│   │
 │   ├── shared/
 │   │   ├── middlewares/
 │   │   ├── redis/
 │   │   ├── authRateLimit.js
 │   │   └── rateLimit.js
-│   ├── docker-compose.yml
+│   │
 │   └── package.json
+│
 ├── frontend/
+│   │
 │   ├── public/
+│   │
 │   ├── src/
+│   │   ├── assets/
 │   │   ├── components/
 │   │   ├── CvSections/
 │   │   ├── Features/
@@ -537,504 +709,588 @@ Solvix/
 │   │   ├── redux/
 │   │   ├── utlis/
 │   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css
 │   │   └── main.jsx
+│   │
+│   ├── Dockerfile
+│   ├── nginx.conf
 │   ├── index.html
+│   ├── vite.config.js
 │   ├── package.json
-│   └── vite.config.js
-└── README.md
+│   └── README.md
+│
+├── docker-compose.yml
+├── README.md
+└── Solvix-Full-Structure.txt
 ```
 
-**Note:** Existing directory names such as `utlis`, `Resume`, and
-`mock-Interview` are retained as they appear in the audited project. Use
-the exact names when navigating the repository on case-sensitive
-systems.
+### Backend Folder Responsibilities
 
-## How Requests Flow
+| Folder | Responsibility |
+|---|---|
+| `gateway/` | Central API entry point, proxying, middleware, and routing |
+| `services/agent/` | Specialized agents, graph workflows, file processing, and AI integration |
+| `services/auth/` | Authentication and user-account operations |
+| `services/chat/` | Chat and conversation management |
+| `services/Resume/` | Resume analysis and CV operations |
+| `services/portfolio/` | Portfolio-related operations |
+| `services/billing/` | Plans, payment, and credit management |
+| `services/mock-Interview/` | Interview-related operations |
+| `shared/` | Reusable middleware, Redis, and rate-limiting utilities |
 
-1.  A user interacts with the React application.
-2.  The frontend sends HTTP requests to the configured gateway URL.
-3.  The gateway applies the relevant middleware and selects the
-    destination service.
-4.  The destination service executes its business logic, accesses its
-    database or external integrations, and returns a response.
-5.  The frontend updates the UI and application state.
+### Frontend Folder Responsibilities
 
-For a request to work end-to-end, the frontend API base URL, gateway
-port, service ports, CORS settings, credentials, and provider
-configuration must agree.
+| Folder | Responsibility |
+|---|---|
+| `components/` | Reusable interface components |
+| `CvSections/` | CV-related UI sections |
+| `Features/` | Feature-specific UI modules |
+| `pages/` | Application pages |
+| `protectedroute/` | Protected route handling |
+| `redux/` | Global application state |
+| `utlis/` | Shared frontend utilities |
+| `App.jsx` | Main application component |
+| `main.jsx` | React entry point |
 
-## Requirements
+**Note:** Existing directory names such as `utlis`, `Resume`, and `mock-Interview` are retained as they appear in the project. Use their exact names when navigating the repository, especially on case-sensitive systems.
 
-Install the following before running the project locally:
+---
 
-- Node.js and npm (use a current Node.js LTS release compatible with
-  the installed packages).
+# Prerequisites
+
+Before running Solvix locally, install:
+
+- Node.js and npm compatible with the installed dependencies.
 - Git.
-- MongoDB, either local or hosted, for services that use MongoDB.
-- Redis for features that require the shared Redis connection.
-- Provider credentials for the specific features you want to test,
-  such as AI models, Firebase, Cloudinary, Pinecone, Tavily, or
-  Stripe.
-- Docker Desktop, if you plan to use the repository's Docker Compose
-  setup.
+- MongoDB (local or hosted).
+- Redis.
+- Docker Desktop, if using Docker Compose.
+- Required provider credentials for the features you intend to run.
 
-## Local Setup
+Depending on the features being tested, provider configuration may include:
 
-### 1. Clone the repository
+- Firebase.
+- Groq.
+- Google Gemini.
+- Tavily.
+- Pinecone.
+- Cloudinary.
+- Stripe.
+- Gmail integration.
+
+---
+
+# Installation and Setup
+
+## 1. Clone the Repository
 
 ```bash
 git clone https://github.com/SirajAbid17/Solvix.git
 cd Solvix
 ```
 
-### 2. Install frontend dependencies
+## 2. Install Frontend Dependencies
 
 ```bash
 cd frontend
 npm install
 ```
 
-### 3. Install backend service dependencies
+## 3. Install Backend Dependencies
 
-Each backend service has its own `package.json`. Install dependencies in
-the gateway and each service directory you intend to run.
+Each backend package has its own `package.json`.
 
-**PowerShell (from the repository root):**
+From the repository root, run this PowerShell script to install dependencies in the individual packages:
 
 ```powershell
 $folders = @(
-  "backend\gateway",
-  "backend\services\auth",
-  "backend\services\chat",
-  "backend\services\agent",
-  "backend\services\Resume",
-  "backend\services\portfolio",
-  "backend\services\billing",
-  "backend\services\mock-Interview"
+    "backend\gateway",
+    "backend\services\auth",
+    "backend\services\chat",
+    "backend\services\agent",
+    "backend\services\Resume",
+    "backend\services\portfolio",
+    "backend\services\billing",
+    "backend\services\mock-Interview"
 )
 
 foreach ($folder in $folders) {
-  Push-Location $folder
-  npm install
-  Pop-Location
+    Write-Host "Installing dependencies in $folder"
+
+    Push-Location $folder
+    npm install
+    Pop-Location
 }
 ```
 
-Run this command from the repository root. If a dependency installation
-fails, enter the affected folder and run `npm install` there to see the
-complete error output.
+If installation fails, run `npm install` inside the affected service directory to inspect the complete error.
 
-### 4. Configure environment variables
+## 4. Configure Environment Variables
 
-Create the required local environment files based on the variables read
-by each service. See [Environment
-Configuration](#environment-configuration). Do not copy credentials into
-this README or commit real `.env` files.
+Create the environment files required by the individual services.
 
-### 5. Start infrastructure
+Use the actual variable names referenced in the source code. Do not assume that every service loads a single root-level `.env` file.
 
-Start MongoDB and Redis using your preferred local or hosted setup. If
-using Docker Compose, first review `backend/docker-compose.yml` and its
-required environment variables, ports, volumes, and service definitions.
-Then run the Compose commands from the `backend` directory:
+See [Environment Configuration](#environment-configuration).
+
+## 5. Start MongoDB and Redis
+
+Start MongoDB and Redis using your local installation or hosted services.
+
+If using Docker Compose, review the root `docker-compose.yml` before starting containers.
+
+## 6. Start the Backend
+
+Start each backend service and the API Gateway in separate terminals.
+
+See [Running the Application](#running-the-application).
+
+## 7. Start the Frontend
 
 ```bash
-docker compose config
-docker compose up --build
+cd frontend
+npm run dev
 ```
 
-`docker compose config` helps validate the Compose configuration before
-startup. These commands only work as intended if the Compose file
-defines the services and environment expected by the current project.
-
-## Environment Configuration
-
-The repository contains service-specific configuration files and
-`.gitignore` files. The audit does not provide the full source of every
-configuration module, so the variable names below are **categories to
-check**, not a guaranteed list of exact environment-variable names.
+Vite will display the local development URL in the terminal.
 
 ---
 
-Service/area Configuration to inspect
+# Environment Configuration
 
----
+Solvix uses service-specific configuration. The exact environment-variable names must be taken from the source code.
 
-Gateway Port, CORS/frontend origin, service
-base URLs, Redis connection,
-cookie/proxy settings
+The following table describes configuration categories to inspect. These are not guaranteed literal environment-variable names.
 
-Auth MongoDB URI, Firebase Admin
-credentials, JWT signing secret,
-cookie/CORS settings
+| Service | Configuration to Check |
+|---|---|
+| Gateway | Port, CORS origins, service URLs, Redis, proxy and cookie settings |
+| Auth | MongoDB URI, Firebase Admin credentials, JWT secret, cookie settings |
+| Chat | MongoDB URI, Redis, model configuration if used |
+| Agent | MongoDB URI, Groq, Gemini, Tavily, Pinecone, Cloudinary, Redis |
+| Resume | MongoDB URI, AI provider credentials, storage and Redis |
+| Portfolio | MongoDB URI, Gemini, Cloudinary and Redis |
+| Billing | MongoDB URI, Stripe secret, webhook secret, plan configuration |
+| Mock Interview | MongoDB URI, AI provider credentials, Cloudinary and Redis |
+| Frontend | Vite API URL, Firebase web configuration and other `VITE_*` values |
 
-Chat MongoDB URI, Redis connection,
-model/provider configuration if
-used
+## Find Exact Environment Variables
 
-Agent MongoDB URI, Groq/Gemini
-credentials, Tavily key, Pinecone
-settings, Cloudinary credentials,
-Redis connection
-
-Resume MongoDB URI, AI provider
-credentials, Tavily settings if
-used, Cloudinary settings, Redis
-connection
-
-Portfolio MongoDB URI, Gemini credentials,
-Cloudinary settings, Redis
-connection
-
-Billing MongoDB URI, Stripe secret key,
-webhook secret, price/plan
-configuration
-
-Mock Interview MongoDB URI, Groq credentials,
-Cloudinary settings, Redis
-connection
-
-Frontend Vite-exposed API URL, Firebase web
-configuration, any other `VITE_*`
-variables used by the code
-
----
-
-### Find the exact variables
-
-Search the project source for environment-variable references. From the
-repository root in PowerShell:
+Run this PowerShell command from the repository root to search source files for environment references:
 
 ```powershell
 Get-ChildItem backend,frontend -Recurse -File |
-  Where-Object {
+Where-Object {
     $_.FullName -notmatch '\\(node_modules|\.git|dist|build)\\' -and
     $_.Name -notlike ".env*"
-  } |
-  Select-String -Pattern 'process\.env\.|import\.meta\.env\.'
+} |
+Select-String -Pattern 'process\.env\.|import\.meta\.env\.'
 ```
 
-Use the exact names found in the code. Create local `.env` files in the
-locations expected by each service; do not assume a single root `.env`
-file is loaded by every service.
+Review the results and create the environment files at the locations expected by each service.
 
-### Firebase service account
+## Firebase Service Account
 
-The audit shows a `serviceAccountKey.json` path under the Auth service.
-Treat service-account files as private credentials. Do not publish the
-file or commit it to Git. If a real service-account key has already been
-pushed to a remote repository, revoke/rotate it in the Firebase/Google
-Cloud console and update the local deployment configuration.
+The Auth service includes Firebase Admin configuration.
 
-## Running the Application
+Treat Firebase service-account JSON files as private credentials. Do not publish them or commit them to Git.
 
-The frontend and each backend package define their own scripts. The
-audited package manifests show `dev` and `start` scripts for the gateway
-and the individual services, and `dev`, `build`, `lint`, and `preview`
-scripts for the frontend.
+If a real credential has been exposed, revoke or rotate it in the Firebase/Google Cloud console and update the deployment configuration.
 
-### Start backend services
+---
 
-Open a separate terminal for each service, from the repository root:
+# Running the Application
 
-**Terminal 1 --- Gateway**
+## Start Backend Services
+
+Run each command in a separate terminal from the repository root.
+
+### Terminal 1 — API Gateway
 
 ```bash
 cd backend/gateway
 npm run dev
 ```
 
-**Terminal 2 --- Authentication**
+### Terminal 2 — Auth Service
 
 ```bash
 cd backend/services/auth
 npm run dev
 ```
 
-**Terminal 3 --- Chat**
+### Terminal 3 — Chat Service
 
 ```bash
 cd backend/services/chat
 npm run dev
 ```
 
-**Terminal 4 --- Agent**
+### Terminal 4 — Agent Service
 
 ```bash
 cd backend/services/agent
 npm run dev
 ```
 
-**Terminal 5 --- Resume**
+### Terminal 5 — Resume Service
 
 ```bash
 cd backend/services/Resume
 npm run dev
 ```
 
-**Terminal 6 --- Portfolio**
+### Terminal 6 — Portfolio Service
 
 ```bash
 cd backend/services/portfolio
 npm run dev
 ```
 
-**Terminal 7 --- Billing**
+### Terminal 7 — Billing Service
 
 ```bash
 cd backend/services/billing
 npm run dev
 ```
 
-**Terminal 8 --- Mock Interview**
+### Terminal 8 — Mock Interview Service
 
 ```bash
 cd backend/services/mock-Interview
 npm run dev
 ```
 
-Start MongoDB, Redis, and any required external services before starting
-dependent application services. Start the gateway only after the target
-services and their URLs are configured. The exact startup order may vary
-with the implementation.
+Start MongoDB, Redis, and any required external dependencies before starting services that rely on them.
 
-### Start the frontend
+Ensure that the Gateway's target URLs match the actual service ports and addresses.
 
-In another terminal:
+## Start Frontend
+
+Open another terminal:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-Vite prints the local development URL in the terminal. Open that URL in
-a browser. Make sure the frontend's configured API base URL points to
-the gateway.
+Open the local URL displayed by Vite.
 
-### Production frontend build
+Make sure the frontend API base URL points to the Gateway.
+
+## Build Frontend for Production
 
 ```bash
 cd frontend
 npm run build
 ```
 
-To serve the generated build locally for a quick check:
+## Preview Production Build
 
 ```bash
 npm run preview
 ```
 
-The preview command is for checking the production build locally; it is
-not, by itself, a complete production deployment strategy.
-
-## Service Ports
-
-The project description specifies the following intended local ports.
-Confirm each service's actual port configuration in its entry point and
-environment files before running the services.
-
-Component Intended port
+The preview command is useful for checking the production build locally. It is not a complete production deployment by itself.
 
 ---
 
-API Gateway `5000`
-Auth service `5001`
-Chat service `5002`
-Agent service `5003`
-Resume service `5004`
-Portfolio service `5005`
-Billing service `5006`
-Mock Interview service `5007`
-Redis `6379` (common local default; verify configuration)
+# Docker Deployment
 
-If a port is already occupied, either stop the conflicting process or
-change the relevant service configuration and update the gateway's
-target URL.
+Solvix includes Docker-related configuration for containerized development and deployment.
 
-## AI and Retrieval Integrations
+The root `docker-compose.yml` is the Compose entry point shown in the project structure.
 
-### Language models and orchestration
+Before starting containers, validate the configuration:
 
-The agent, resume, portfolio, and mock-interview packages include
-LangChain-related packages and/or Google and Groq integrations. The
-project description mentions Groq-hosted models and Google Gemini
-models. Available models may change and must match the model IDs enabled
-for the API key and account.
+```bash
+docker compose config
+```
 
-### Web search
+Build and start the configured services:
 
-Tavily packages and configuration files are present in the agent
-service, and the project description includes search and job-search
-workflows. Search results should be treated as external information and
-reviewed before making important decisions.
+```bash
+docker compose up --build
+```
 
-### Retrieval-augmented generation (RAG)
+Run containers in detached mode:
 
-The agent service contains embedding and RAG utility modules, along with
-a Pinecone configuration file and Pinecone SDK dependency. A working RAG
-setup generally requires a valid provider key, an existing or correctly
-configured index, compatible embedding dimensions, and consistent
-document-ingestion/query logic. Confirm these settings in the actual
-implementation.
+```bash
+docker compose up --build -d
+```
 
-### Media and generated documents
+Check running containers:
 
-Cloudinary integrations appear in the agent, portfolio, resume, and
-mock-interview services. PDFKit and PptxGenJS are present in the agent
-service for document generation. Configure each integration only for the
-features that use it, and avoid storing uploaded user files longer than
-necessary.
+```bash
+docker compose ps
+```
 
-## Billing and Credits
+View logs:
 
-The repository includes a Billing service, a plan configuration file, a
-payment model, and Stripe integration. The frontend includes pricing and
-payment-success components.
+```bash
+docker compose logs -f
+```
 
-Before testing payments:
+View logs for an individual service:
 
-1.  Use Stripe test mode and test credentials.
-2.  Verify the current plan names, amounts, currency, and credit
-    allocation in `backend/services/billing/plans/plan.js` and
-    `frontend/src/components/pricing/plans.js`.
-3.  Configure webhook handling with the endpoint and signing secret
-    expected by the code.
-4.  Verify webhook signature validation and idempotency behavior in the
-    billing controller before relying on payment state.
-5.  Test successful, cancelled, and failed checkout flows.
-6.  Never use client-side UI state alone as proof that a payment
-    succeeded.
+```bash
+docker compose logs -f agent
+```
 
-Pricing and credit amounts are intentionally not hard-coded in this
-README because they should match the current source configuration.
+Stop the Compose application:
 
-## Security Notes
+```bash
+docker compose down
+```
 
-- **Never commit secrets.** Keep `.env` files, Firebase
-  service-account keys, JWT secrets, Stripe keys, and AI-provider API
-  keys out of Git.
-- **Rotate exposed credentials.** Removing a secret from the latest
-  commit does not erase it from Git history or invalidate the
-  credential.
-- **Use HTTPS in production.** Configure secure cookies and trusted
-  origins for the production domain.
-- **Restrict CORS.** Allow only the frontend origins that should
-  access the API.
-- **Protect admin endpoints.** Enforce authorization on the server,
-  not only by hiding frontend pages.
-- **Validate uploads.** Enforce file type, file size, storage policy,
-  and access controls.
-- **Rate-limit public endpoints.** Review the shared rate-limit and
-  authentication-rate-limit middleware.
-- **Validate gateway proxy targets.** Use trusted service URLs and
-  avoid exposing internal services unnecessarily.
-- **Protect payment webhooks.** Verify signatures and handle repeated
-  events safely.
-- **Avoid logging secrets or private documents.** Sanitize logs and
-  error responses.
+Rebuild and restart containers after code changes:
 
-## Troubleshooting
+```bash
+docker compose up --build -d
+```
 
-### Frontend cannot reach the API
+The actual service names and available Compose commands depend on the definitions in `docker-compose.yml`.
 
-- Confirm all required services are running.
-- Verify the frontend API base URL points to the gateway, not to a
-  service that should remain internal.
-- Check CORS settings, browser network errors, and the gateway logs.
-- Confirm service ports and gateway proxy targets agree.
+### Docker Networking Note
 
-### MongoDB connection errors
+Inside a Docker container, `localhost` refers to that same container.
 
-- Confirm MongoDB is running and reachable from the service process.
-- Check the exact MongoDB URI loaded by that service.
-- For Docker, remember that `localhost` inside a container refers to
-  that container itself. Use the Compose service name when the
-  database is another container on the same Compose network.
-- Verify database credentials and network access for a hosted
-  database.
+If MongoDB or Redis runs in another container on the same Compose network, use its Compose service name as the hostname instead of `localhost`.
 
-### Redis connection errors
+---
 
-- Confirm Redis is running and the configured host/port are reachable.
-- A containerized service usually needs the Redis Compose service name
-  rather than `localhost`.
-- Check whether the service treats Redis as mandatory or optional.
+# AI and External Integrations
 
-### AI requests fail
+## Language Models
 
-- Check the API key and model ID for the selected provider.
-- Verify provider quotas, billing, network access, and request limits.
-- Review service logs for provider errors, but do not print secret
-  values.
-- If a feature uses multiple providers, verify the configured fallback
-  behavior in the source.
+Solvix integrates with Groq and Google Gemini for supported AI workflows.
 
-### File upload or document processing fails
+The agent and related services use AI integrations for tasks such as conversational assistance, document workflows, career tools, and custom agents.
 
-- Check the file size/type accepted by the route and middleware.
-- Confirm local storage directories are writable or cloud storage
-  credentials are valid.
-- Verify any OCR/PDF parsing dependency is compatible with the
-  installed Node.js version.
-- Review logs for malformed or unsupported documents.
+Available models depend on the provider account, API key permissions, model identifiers, quotas, and configuration.
 
-### Stripe checkout or webhook fails
+## LangChain and LangGraph
+
+LangChain supports LLM-related integration and orchestration.
+
+LangGraph supports graph-based agent workflows, routing, and state management.
+
+The agent service contains graph and state modules for organizing multi-agent execution.
+
+## Tavily Search
+
+Tavily provides web-search capabilities for search-oriented workflows, including job discovery and learning-resource discovery.
+
+External search results should be reviewed before being used for important decisions.
+
+## Pinecone and RAG
+
+The project includes Pinecone integration and RAG-related agent utilities.
+
+A working RAG setup requires:
+
+- Valid provider credentials.
+- A correctly configured Pinecone index.
+- Compatible embedding dimensions.
+- Consistent document-ingestion logic.
+- Correct retrieval and query workflows.
+
+Verify the active implementation before configuring production data.
+
+## Cloudinary
+
+Cloudinary integrations are present in multiple services for media-related workflows.
+
+Configure the appropriate credentials for services that use it.
+
+## Stripe
+
+Stripe supports the billing and payment workflows.
+
+Use test mode during development and verify webhook configuration before accepting live payments.
+
+## Gmail
+
+The job application workflow includes Gmail integration for sending application emails through a connected account.
+
+Verify the required Gmail authorization, API configuration, and permissions before using this functionality.
+
+---
+
+# Security Considerations
+
+Security is essential when deploying an application that handles user accounts, documents, AI providers, and payments.
+
+- **Protect Secrets:** Never commit `.env` files, Firebase service-account keys, JWT secrets, Stripe keys, or AI-provider credentials.
+- **Rotate Exposed Credentials:** Removing a secret from the latest commit does not remove it from Git history or invalidate it.
+- **Use HTTPS:** Configure HTTPS and secure cookies for production.
+- **Restrict CORS:** Allow only trusted frontend origins.
+- **Protect Admin APIs:** Enforce administrator authorization on the backend.
+- **Validate Uploads:** Enforce file type, file size, access control, and storage policies.
+- **Apply Rate Limits:** Protect public and authentication endpoints.
+- **Secure Gateway Proxying:** Use trusted internal service URLs and avoid unnecessarily exposing internal services.
+- **Verify Stripe Webhooks:** Validate webhook signatures and handle repeated events safely.
+- **Protect User Documents:** Avoid logging private file content or sensitive information.
+- **Sanitize Errors:** Avoid exposing credentials, stack traces, or internal configuration in production responses.
+
+---
+
+# Troubleshooting
+
+## Frontend Cannot Connect to Backend
+
+- Confirm the required backend services are running.
+- Verify the frontend API base URL.
+- Ensure it points to the API Gateway.
+- Check CORS configuration.
+- Review browser Network errors.
+- Check Gateway logs and service target URLs.
+
+## MongoDB Connection Error
+
+- Confirm MongoDB is running.
+- Verify the MongoDB URI loaded by the service.
+- Check database credentials and network access.
+- For Docker, use the correct Compose service hostname instead of container-local `localhost` when appropriate.
+
+## Redis Connection Error
+
+- Confirm Redis is running.
+- Check the configured Redis hostname and port.
+- For Docker, use the Redis Compose service name when containers share a network.
+- Verify whether Redis is mandatory or optional for the affected service.
+
+## AI Provider Errors
+
+- Verify the API key.
+- Check that the configured model ID is available to your account.
+- Review provider quotas and rate limits.
+- Check network connectivity.
+- Review application logs without exposing API keys.
+
+## File Upload or Document Processing Error
+
+- Verify accepted file types and size limits.
+- Confirm the storage directory is writable.
+- Check Cloudinary credentials if cloud storage is used.
+- Verify PDF, DOCX, and OCR dependency compatibility.
+- Review the relevant upload middleware and controller.
+
+## Stripe Checkout or Webhook Error
 
 - Use Stripe test mode while developing.
-- Check the configured webhook endpoint and signing secret.
-- Verify the plan/price identifiers used by the code.
-- Inspect Stripe dashboard events and the billing service logs without
-  exposing private keys.
+- Verify the webhook endpoint.
+- Check the webhook signing secret.
+- Confirm the configured plan and price identifiers.
+- Review Stripe events and Billing service logs.
+- Never rely only on frontend state to confirm payment success.
 
-### `npm install` fails
+## npm Install Error
 
-- Run the command inside the specific package directory.
-- Confirm Node.js/npm compatibility with the dependency versions.
-- Read the first meaningful error in the terminal output before
-  deleting lockfiles or clearing caches.
-- Keep each package's lockfile unless you intentionally plan to
-  regenerate it.
+- Run `npm install` inside the affected package.
+- Check Node.js and npm compatibility.
+- Review the first meaningful error.
+- Avoid deleting lockfiles or clearing caches without understanding the error.
+- Preserve package lockfiles unless you intentionally plan to regenerate them.
 
-## Development Checks
+## Port Already in Use
 
-### Frontend lint
+Check which process is using the required port.
+
+On Windows PowerShell:
+
+```powershell
+netstat -ano | findstr :5000
+```
+
+Stop the conflicting process if appropriate, or change the service port and update the Gateway target URL.
+
+---
+
+# Development Guidelines
+
+## Frontend Checks
+
+Run the frontend linter:
 
 ```bash
 cd frontend
 npm run lint
 ```
 
-### Frontend production build
+Build the frontend:
 
 ```bash
-cd frontend
 npm run build
 ```
 
-The audited backend package manifests do not define automated test
-scripts; the root backend package currently has a placeholder test
-script. Add tests for service routes, gateway middleware, credit
-handling, and billing webhooks before treating the application as
-production-ready.
+## Backend Checks
 
-## Contributing
+Run service-specific scripts from their package directories.
+
+The available scripts are defined by each service's `package.json`.
+
+Add automated tests for:
+
+- Authentication routes.
+- Gateway middleware.
+- Credit handling.
+- Agent workflows.
+- Resume and portfolio APIs.
+- Billing and Stripe webhooks.
+- File-upload validation.
+
+---
+
+# Future Improvements
+
+Potential areas for future development include:
+
+- Advanced autonomous agent planning.
+- Additional AI model integrations.
+- More sophisticated multi-agent collaboration.
+- Real-time collaborative AI workflows.
+- Advanced voice-agent capabilities.
+- Improved AI job matching.
+- Enhanced automated job application workflows.
+- Agent analytics and monitoring.
+- Distributed task queues.
+- Advanced observability and logging.
+- More extensive automated testing.
+- Production monitoring and performance optimization.
+
+---
+
+# Contributing
 
 Contributions and improvements are welcome.
 
-1.  Fork the repository.
-2.  Create a feature branch.
-3.  Keep changes scoped to the relevant frontend or backend service.
-4.  Do not commit `.env` files, credentials, generated private
-    documents, or user uploads.
-5.  Run the frontend lint/build checks and test the affected backend
-    service.
-6.  Open a pull request with a clear summary and testing notes.
+1. Fork the repository.
+2. Create a feature branch.
+3. Keep changes scoped to the relevant frontend or backend service.
+4. Do not commit environment files, credentials, generated private documents, or user uploads.
+5. Run frontend lint/build checks.
+6. Test the affected backend service.
+7. Open a pull request with a clear summary and testing notes.
 
-## Author
+---
+
+# Author
 
 **Siraj Abid**
 
-- GitHub: [@SirajAbid17](https://github.com/SirajAbid17)
-- Project repository:
-  [SirajAbid17/Solvix](https://github.com/SirajAbid17/Solvix)
+Full-Stack Developer | Generative AI Engineer
 
+- **GitHub:** [@SirajAbid17](https://github.com/SirajAbid17)
+- **Project Repository:** [SirajAbid17/Solvix](https://github.com/SirajAbid17/Solvix)
+
+---
+
+<p align="center">
+  <strong>SOLVIX — One Workspace. Multiple AI Agents. Endless Possibilities.</strong>
+</p>
+
+<p align="center">
+  Built with passion for Full-Stack Development, Generative AI, and Agentic Systems.
+</p>
